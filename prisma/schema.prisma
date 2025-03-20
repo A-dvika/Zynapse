@@ -1,0 +1,114 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql" // or your preferred provider (mysql, sqlite, etc.)
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model RedditPost {
+  id         String   @id
+  title      String
+  subreddit  String
+  url        String
+  upvotes    Int
+  comments   Int
+  createdAt  DateTime
+  author     String
+  // Optional: Timestamp for when this record was inserted/updated
+  updatedAt  DateTime @updatedAt
+}
+
+model GitHubRepo {
+  id          Int      @id
+  name        String
+  fullName    String   @unique
+  url         String
+  stars       Int
+  forks       Int
+  watchers    Int
+  pushedAt    DateTime
+  language    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Add more fields if needed (e.g. open issues, topics, description, etc.)
+}
+
+model GitHubIssue {
+ id         String   @id       // <-- Changed from Int to String
+  repoName   String
+  issueUrl   String   @unique
+  title      String
+  author     String
+  comments   Int
+  createdAt  DateTime
+  updatedAt  DateTime
+}
+
+model GitHubLanguageStat {
+  id        Int      @id @default(autoincrement())
+  language  String   @unique
+  repoCount Int
+}
+model StackOverflowQuestion {
+  id           Int      @id
+  title        String
+  link         String
+  viewCount    Int
+  answerCount  Int
+  score        Int
+  // If using PostgreSQL, you can use String[]
+  // Otherwise consider Json or comma‑separated values:
+  tags         String[] 
+  isAnswered   Boolean
+  creationDate DateTime
+}
+
+model StackOverflowAnswer {
+  id           Int    @id
+  questionId   Int
+  link         String // <-- Required
+  score        Int
+  isAccepted   Boolean
+  creationDate DateTime
+}
+
+model StackOverflowTagStat {
+  id              Int     @id @default(autoincrement())
+  tag             String  @unique
+  questionCount   Int
+  unansweredCount Int
+}
+model HackerNewsItem {
+  id           Int      @id              // HN item ID
+  title        String
+  url          String?
+  author       String?
+  score        Int
+  comments     Int
+  createdAt    DateTime
+  updatedAt    DateTime @updatedAt
+}
+
+model TechNewsItem {
+  id           String   @id              // e.g. a unique slug/UUID for your curated feed
+  title        String
+  url          String
+  source       String?
+  summary      String?                     // "concise insights" or short description
+  createdAt    DateTime @default(now())    // When we added it to DB
+  updatedAt    DateTime @updatedAt
+}
+model SocialMediaPost {
+  id           String   @id          // Use Twitter tweet ID or Mastodon post ID
+  platform     String                // 'twitter' or 'mastodon'
+  content      String                // The text content of the post
+  author       String                // Username or account name
+  hashtags     String[]              // An array of hashtags extracted from the content
+  url          String                // Direct URL to the post
+  score        Int?                  // For Twitter, this could be like_count; for Mastodon, use favourites_count (if available) or 0
+  createdAt    DateTime              // When the post was originally created
+  aggregatedAt DateTime  @default(now()) // When we fetched it
+}

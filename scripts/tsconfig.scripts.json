@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "ES2017",
+      "lib": ["ESNext"],
+      "strict": true,
+      "module": "NodeNext",         // or "ESNext"
+      "moduleResolution": "NodeNext",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "resolveJsonModule": true
+      // You can remove "noEmit": true if you want an actual JS output.
+    },
+    "include": [
+      "./**/*.ts"  // or wherever your scripts live
+    ]
+  }
+  
