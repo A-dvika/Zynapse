@@ -7,57 +7,61 @@ async function run() {
     // Fetch Twitter posts
     const twitterPosts = await fetchTwitterBuzz(10);
     console.log('Fetched Twitter buzz:', twitterPosts.length);
-    for (const post of twitterPosts) {
-      await prisma.socialMediaPost.upsert({
-        where: { id: post.id },
-        update: {
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-        },
-        create: {
-          id: post.id,
-          platform: post.platform,
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-          aggregatedAt: new Date(),
-        },
-      });
-    }
-
+  // In your socialMediaCron.ts, before each Twitter API call in a loop:
+for (const post of twitterPosts) {
+    await prisma.socialMediaPost.upsert({
+      where: { id: post.id },
+      update: {
+        content: post.content,
+        author: post.author,
+        hashtags: post.hashtags,
+        url: post.url,
+        score: post.score,
+        createdAt: new Date(post.createdAt),
+      },
+      create: {
+        id: post.id,
+        platform: post.platform,
+        content: post.content,
+        author: post.author,
+        hashtags: post.hashtags,
+        url: post.url,
+        score: post.score,
+        createdAt: new Date(post.createdAt),
+        aggregatedAt: new Date(),
+      },
+    });
+    
+    // Add a delay of 500 milliseconds between each request (adjust as needed)
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  
     // Fetch Mastodon posts
     const mastodonPosts = await fetchMastodonBuzz(10);
     console.log('Fetched Mastodon buzz:', mastodonPosts.length);
     for (const post of mastodonPosts) {
-      await prisma.socialMediaPost.upsert({
-        where: { id: post.id },
-        update: {
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-        },
-        create: {
-          id: post.id,
-          platform: post.platform,
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-          aggregatedAt: new Date(),
-        },
-      });
+        await prisma.socialMediaPost.upsert({
+            where: { id: post.id },
+            update: {
+              content: post.content,
+              author: post.author,
+              hashtags: post.hashtags,
+              url: post.url,
+              score: post.score,
+              createdAt: new Date(post.createdAt),
+            },
+            create: {
+              id: post.id,
+              platform: post.platform,
+              content: post.content,
+              author: post.author,
+              hashtags: post.hashtags,
+              url: post.url,
+              score: post.score,
+              createdAt: new Date(post.createdAt),
+              aggregatedAt: new Date(),
+            },
+          });
     }
     console.log('Social Media Buzz data saved to DB successfully.');
   } catch (error) {

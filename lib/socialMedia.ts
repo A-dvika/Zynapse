@@ -1,7 +1,15 @@
 // lib/socialMedia.ts
+import dotenv from 'dotenv';
+dotenv.config();
+
 import axios from 'axios';
 
 const twitterBearerToken = process.env.TWITTER_BEARER_TOKEN;
+if (!twitterBearerToken) {
+  throw new Error('Missing Twitter Bearer Token');
+}
+
+
 
 export async function fetchTwitterBuzz(limit = 10): Promise<any[]> {
   const url = 'https://api.twitter.com/2/tweets/search/recent';

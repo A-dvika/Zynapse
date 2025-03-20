@@ -102,13 +102,13 @@ model TechNewsItem {
   updatedAt    DateTime @updatedAt
 }
 model SocialMediaPost {
-  id           String   @id          // Use Twitter tweet ID or Mastodon post ID
-  platform     String                // 'twitter' or 'mastodon'
-  content      String                // The text content of the post
-  author       String                // Username or account name
-  hashtags     String[]              // An array of hashtags extracted from the content
-  url          String                // Direct URL to the post
-  score        Int?                  // For Twitter, this could be like_count; for Mastodon, use favourites_count (if available) or 0
-  createdAt    DateTime              // When the post was originally created
-  aggregatedAt DateTime  @default(now()) // When we fetched it
+  id           String   @id
+  platform     String
+  content      String
+  author       String
+  hashtags     String[]
+  url          String
+  score        Int?     
+  createdAt    DateTime
+  aggregatedAt DateTime @default(now())
 }
