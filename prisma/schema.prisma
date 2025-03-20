@@ -112,3 +112,15 @@ model SocialMediaPost {
   createdAt    DateTime
   aggregatedAt DateTime @default(now())
 }
+
+model Meme {
+  id         String   @id                // Unique ID from source (e.g. Reddit post ID, Tweet ID)
+  platform   String                     // "reddit", "twitter", or "instagram"
+  title      String?                    // Optional caption or title
+  caption    String?                    // Additional text if available
+  imageUrl   String                     // Direct URL to the meme image
+  upvotes    Int?                       // Optional: Upvotes, likes, or score from the source
+  link       String                     // URL linking back to the original post
+  createdAt  DateTime                   // When the meme was created on the source
+  updatedAt  DateTime @updatedAt        // Auto-updated on modifications
+}
