@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "@prisma/client": "^6.5.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
@@ -16,7 +17,8 @@
     "node-cron": "^3.0.3",
     "prisma": "^6.5.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
