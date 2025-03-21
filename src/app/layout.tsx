@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
+import FloatingChatbot from "./FloatingChatbot/page";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,24 +22,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en"suppressHydrationWarning>
-    <body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* NavBar (always visible) */}
+          <Navbar />
 
-       <ThemeProvider
-         attribute="class"
-         defaultTheme="system"
-         enableSystem
-         disableTransitionOnChange
-       >
-            <Navbar />
+          {/* Your main page content */}
+          {children}
 
-         {children}
-       </ThemeProvider>
-     </body>
- </html>
+          {/* Floating Chatbot on all pages */}
+          <FloatingChatbot />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

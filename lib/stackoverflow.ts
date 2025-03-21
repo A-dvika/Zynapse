@@ -41,15 +41,16 @@ export async function fetchAnsweredQuestions(): Promise<any[]> {
 }
 
 /**
- * Fetch top-voted answers across Stack Overflow.
+ * Fetch top-voted answers with full body details.
  */
-export async function fetchTopVotedAnswers(): Promise<any[]> {
+export async function fetchDetailedTopVotedAnswers(): Promise<any[]> {
   const url = `${STACKOVERFLOW_API_URL}/answers`;
   const params = {
     ...defaultParams,
     order: 'desc',
     sort: 'votes',
-    filter: '!9_bDE(fI5',
+    // Use a filter that includes the answer body; adjust if necessary.
+    filter: 'withbody',
   };
 
   const response = await axios.get(url, { params });
@@ -59,6 +60,7 @@ export async function fetchTopVotedAnswers(): Promise<any[]> {
     link: a.link,
     score: a.score,
     isAccepted: a.is_accepted,
+    body: a.body, // full HTML content of the answer
     creationDate: new Date(a.creation_date * 1000).toISOString(),
   }));
 }

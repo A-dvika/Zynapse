@@ -230,3 +230,59 @@ animation: smoothRotate 2s linear infinite;
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* 1. Subtle floating + glow effect on the icon */
+  @keyframes floatAndGlow {
+    0% {
+      transform: translateY(0px) scale(1);
+      box-shadow: 0 0 6px rgba(99, 102, 241, 0.8); /* Indigo glow */
+    }
+    50% {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 0 12px rgba(165, 180, 252, 0.9); /* lighter glow */
+    }
+    100% {
+      transform: translateY(0px) scale(1);
+      box-shadow: 0 0 6px rgba(99, 102, 241, 0.8);
+    }
+  }
+  .animate-floatAndGlow {
+    animation: floatAndGlow 3s ease-in-out infinite;
+  }
+
+  /* 2. Sparkle effect using pseudo-elements */
+  .sparkle-animation {
+    position: relative;
+    overflow: visible;
+  }
+  .sparkle-animation::before,
+  .sparkle-animation::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+    opacity: 0.7;
+    border-radius: 50%;
+    animation: sparkle 1.5s infinite ease-in-out alternate;
+  }
+  .sparkle-animation::before {
+    top: 0;
+    left: 10%;
+  }
+  .sparkle-animation::after {
+    bottom: 0;
+    right: 10%;
+  }
+  @keyframes sparkle {
+    from {
+      transform: scale(0.2);
+      opacity: 0.6;
+    }
+    to {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+}
