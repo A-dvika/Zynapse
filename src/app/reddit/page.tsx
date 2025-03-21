@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, ExternalLink } from "lucide-react";
 import { useTheme } from "next-themes";
+import { Skeleton } from "@/components/ui/skeleton"; // <-- Import Skeleton here
 
 ChartJS.register(
   CategoryScale,
@@ -85,7 +86,12 @@ export default function RedditDashboardPage() {
     > = {};
     posts.forEach((post) => {
       if (!metrics[post.subreddit]) {
-        metrics[post.subreddit] = { upvotes: 0, comments: 0, sentimentSum: 0, count: 0 };
+        metrics[post.subreddit] = {
+          upvotes: 0,
+          comments: 0,
+          sentimentSum: 0,
+          count: 0,
+        };
       }
       const analysis = sentiment.analyze(post.title);
       metrics[post.subreddit].upvotes += post.upvotes;
@@ -137,8 +143,8 @@ export default function RedditDashboardPage() {
     };
   }, [subredditMetrics]);
 
-// 1) Define your set of known tech keywords
-const techKeywords = new Set([
+  // 1) Define your set of known tech keywords
+  const techKeywords = new Set([
     "javascript",
     "python",
     "cybersecurity",
@@ -156,26 +162,38 @@ const techKeywords = new Set([
     "vue",
     "angular",
     "linux",
-    // add as many as you like
   ]);
-  
-  // Removed duplicate export default function RedditDashboardPage
+
   // Overall Stats
-  const totalUpvotes = useMemo(() => posts.reduce((sum, post) => sum + post.upvotes, 0), [posts]);
-  const totalComments = useMemo(() => posts.reduce((sum, post) => sum + post.comments, 0), [posts]);
+  const totalUpvotes = useMemo(
+    () => posts.reduce((sum, post) => sum + post.upvotes, 0),
+    [posts]
+  );
+  const totalComments = useMemo(
+    () => posts.reduce((sum, post) => sum + post.comments, 0),
+    [posts]
+  );
   const totalPosts = posts.length;
   const overallSentiment = useMemo(() => {
     if (!posts.length) return 0;
-    const total = posts.reduce((sum, post) => sum + sentiment.analyze(post.title).score, 0);
+    const total = posts.reduce(
+      (sum, post) => sum + sentiment.analyze(post.title).score,
+      0
+    );
     return total / posts.length;
   }, [posts, sentiment]);
 
   // Define subreddits for the Posts tab
-  const subredditTabs = ["cybersecurity", "startups", "technology",'programming',
-  'gadgets',
-  'technews',
-  'apple',
-  'android'];
+  const subredditTabs = [
+    "cybersecurity",
+    "startups",
+    "technology",
+    "programming",
+    "gadgets",
+    "technews",
+    "apple",
+    "android",
+  ];
 
   return (
     <motion.section
@@ -197,22 +215,103 @@ const techKeywords = new Set([
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search posts..." className="pl-8 h-9 w-[200px] md:w-[260px]" />
+            <Input
+              placeholder="Search posts..."
+              className="pl-8 h-9 w-[200px] md:w-[260px]"
+            />
           </div>
-        
         </div>
       </div>
 
+      {/* If loading, show Skeletons. Otherwise, show actual data. */}
       {loading ? (
-        <div className="text-center text-lg font-semibold">Loading data...</div>
+        <>
+          {/* Skeletons for Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCardSkeleton />
+            <StatsCardSkeleton />
+            <StatsCardSkeleton />
+            <StatsCardSkeleton />
+          </div>
+
+          {/* Skeleton for Overview & Post Tabs */}
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full md:w-auto grid-cols-2">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="posts">Posts</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              {/* AI Summary Skeleton */}
+              <Card className="shadow-md border border-border metallic-card">
+                <CardHeader>
+                  <Skeleton className="h-4 w-1/4 mb-2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
+                </CardContent>
+              </Card>
+
+              {/* Charts Skeleton */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Chart Skeleton */}
+                <ChartSkeleton />
+                <ChartSkeleton />
+                {/* Another Chart Skeleton */}
+                <ChartSkeleton />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="posts" className="space-y-6">
+              <Card className="shadow-md border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <CardContent>
+                  {/* Subreddit buttons skeleton */}
+                  <div className="flex space-x-4 mb-4">
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                    <Skeleton className="h-8 w-16 rounded-md" />
+                  </div>
+                  {/* List skeleton */}
+                  <PostsListSkeleton />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </>
       ) : (
         <>
           {/* Stats Overview Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsCard title="Total Posts" value={totalPosts} icon={<ExternalLink className="h-4 w-4" />} color="bg-blue-500" index={0} />
-            <StatsCard title="Total Upvotes" value={totalUpvotes} icon={<ExternalLink className="h-4 w-4" />} color="bg-green-500" index={1} />
-            <StatsCard title="Total Comments" value={totalComments} icon={<ExternalLink className="h-4 w-4" />} color="bg-purple-500" index={2} />
-            <StatsCard title="Overall Sentiment" value={parseFloat(overallSentiment.toFixed(2))} icon={<ExternalLink className="h-4 w-4" />} color="bg-red-500" index={3} />
+            <StatsCard
+              title="Total Posts"
+              value={totalPosts}
+              icon={<ExternalLink className="h-4 w-4" />}
+              color="bg-blue-500"
+              index={0}
+            />
+            <StatsCard
+              title="Total Upvotes"
+              value={totalUpvotes}
+              icon={<ExternalLink className="h-4 w-4" />}
+              color="bg-green-500"
+              index={1}
+            />
+            <StatsCard
+              title="Total Comments"
+              value={totalComments}
+              icon={<ExternalLink className="h-4 w-4" />}
+              color="bg-purple-500"
+              index={2}
+            />
+            <StatsCard
+              title="Overall Sentiment"
+              value={parseFloat(overallSentiment.toFixed(2))}
+              icon={<ExternalLink className="h-4 w-4" />}
+              color="bg-red-500"
+              index={3}
+            />
           </div>
 
           {/* Tabs: Overview & Posts */}
@@ -231,7 +330,11 @@ const techKeywords = new Set([
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Based on the data analyzed, there are a total of {totalPosts} posts with {totalUpvotes} upvotes and {totalComments} comments. The overall sentiment across posts is {overallSentiment.toFixed(2)}. These trends indicate vibrant discussions across various tech subreddits.
+                    Based on the data analyzed, there are a total of{" "}
+                    {totalPosts} posts with {totalUpvotes} upvotes and{" "}
+                    {totalComments} comments. The overall sentiment across posts
+                    is {overallSentiment.toFixed(2)}. These trends indicate
+                    vibrant discussions across various tech subreddits.
                   </p>
                 </CardContent>
               </Card>
@@ -239,7 +342,10 @@ const techKeywords = new Set([
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Upvotes & Comments Chart */}
-                <Card className="shadow-md border border-border metallic-card" style={{ height: "320px" }}>
+                <Card
+                  className="shadow-md border border-border metallic-card"
+                  style={{ height: "320px" }}
+                >
                   <CardHeader>
                     <CardTitle>Upvotes & Comments</CardTitle>
                   </CardHeader>
@@ -251,8 +357,16 @@ const techKeywords = new Set([
                           responsive: true,
                           maintainAspectRatio: false,
                           layout: { padding: { bottom: 20 } },
-                          plugins: { legend: { position: "bottom", labels: { color: "#fff" } } },
-                          scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" } } },
+                          plugins: {
+                            legend: {
+                              position: "bottom",
+                              labels: { color: "#fff" },
+                            },
+                          },
+                          scales: {
+                            x: { ticks: { color: "#fff" } },
+                            y: { ticks: { color: "#fff" } },
+                          },
                         }}
                       />
                     </div>
@@ -260,7 +374,10 @@ const techKeywords = new Set([
                 </Card>
 
                 {/* Average Sentiment Chart */}
-                <Card className="shadow-md border border-border metallic-card" style={{ height: "320px" }}>
+                <Card
+                  className="shadow-md border border-border metallic-card"
+                  style={{ height: "320px" }}
+                >
                   <CardHeader>
                     <CardTitle>Average Sentiment</CardTitle>
                   </CardHeader>
@@ -272,8 +389,19 @@ const techKeywords = new Set([
                           responsive: true,
                           maintainAspectRatio: false,
                           layout: { padding: { bottom: 20 } },
-                          plugins: { legend: { position: "bottom", labels: { color: "#fff" } } },
-                          scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" }, min: -5 } },
+                          plugins: {
+                            legend: {
+                              position: "bottom",
+                              labels: { color: "#fff" },
+                            },
+                          },
+                          scales: {
+                            x: { ticks: { color: "#fff" } },
+                            y: {
+                              ticks: { color: "#fff" },
+                              min: -5,
+                            },
+                          },
                         }}
                       />
                     </div>
@@ -281,7 +409,10 @@ const techKeywords = new Set([
                 </Card>
 
                 {/* Top 10 Common Words Chart */}
-                <Card className="shadow-md border border-border metallic-card" style={{ height: "320px" }}>
+                <Card
+                  className="shadow-md border border-border metallic-card"
+                  style={{ height: "320px" }}
+                >
                   <CardHeader>
                     <CardTitle>Top 10 Common Words</CardTitle>
                   </CardHeader>
@@ -293,7 +424,9 @@ const techKeywords = new Set([
                           datasets: [
                             {
                               label: "Keywords",
-                              data: Array.from(techKeywords).map(() => Math.random() * 100), // Replace with actual data if available
+                              data: Array.from(techKeywords).map(
+                                () => Math.random() * 100
+                              ), // Replace with real data
                               backgroundColor: "#ff6384",
                             },
                           ],
@@ -304,7 +437,10 @@ const techKeywords = new Set([
                           indexAxis: "y",
                           layout: { padding: { bottom: 20 } },
                           plugins: { legend: { display: false } },
-                          scales: { x: { ticks: { color: "#fff" } }, y: { ticks: { color: "#fff" } } },
+                          scales: {
+                            x: { ticks: { color: "#fff" } },
+                            y: { ticks: { color: "#fff" } },
+                          },
                         }}
                       />
                     </div>
@@ -312,50 +448,52 @@ const techKeywords = new Set([
                 </Card>
               </div>
             </TabsContent>
+
             <TabsContent value="posts" className="space-y-6">
-  <Card className="shadow-md border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-   
+              <Card className="shadow-md border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <CardContent>
+                  <div className="flex space-x-4 mb-4">
+                    {subredditTabs.map((sub) => (
+                      <Button
+                        key={sub}
+                        variant={
+                          activeSubreddit === sub ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setActiveSubreddit(sub)}
+                      >
+                        r/{sub}
+                      </Button>
+                    ))}
+                  </div>
 
-    <CardContent>
-      <div className="flex space-x-4 mb-4">
-        {subredditTabs.map((sub) => (
-          <Button
-            key={sub}
-            variant={activeSubreddit === sub ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveSubreddit(sub)}
-          >
-            r/{sub}
-          </Button>
-        ))}
-      </div>
-
-      <ul className="space-y-4">
-        {(postsBySubreddit[activeSubreddit] || []).map((post) => (
-          <motion.li
-            key={post.id}
-            className="p-4 bg-orange-50 dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transform transition duration-200 hover:scale-105"
-            whileHover={{ scale: 1.02 }}
-          >
-            <a
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-orange-700 dark:text-orange-300 hover:underline"
-            >
-              {post.title}
-            </a>
-            <div className="text-sm mt-2 text-gray-700 dark:text-gray-300">
-              <span className="mr-4">👍 {post.upvotes} upvotes</span>
-              <span>💬 {post.comments} comments</span>
-            </div>
-          </motion.li>
-        ))}
-      </ul>
-    </CardContent>
-  </Card>
-</TabsContent>
-
+                  <ul className="space-y-4">
+                    {(postsBySubreddit[activeSubreddit] || []).map((post) => (
+                      <motion.li
+                        key={post.id}
+                        className="p-4 bg-orange-50 dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transform transition duration-200 hover:scale-105"
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-orange-700 dark:text-orange-300 hover:underline"
+                        >
+                          {post.title}
+                        </a>
+                        <div className="text-sm mt-2 text-gray-700 dark:text-gray-300">
+                          <span className="mr-4">
+                            👍 {post.upvotes} upvotes
+                          </span>
+                          <span>💬 {post.comments} comments</span>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </>
       )}
@@ -445,7 +583,13 @@ const techKeywords = new Set([
   );
 }
 
-// Reusable Stats Card Component
+/* 
+  Below are the skeleton versions of components 
+  for stats cards, charts, and posts. You can 
+  adjust the <Skeleton> classes and sizing as needed. 
+*/
+
+// Reusable Stats Card
 function StatsCard({
   title,
   value,
@@ -475,5 +619,55 @@ function StatsCard({
         </CardContent>
       </Card>
     </motion.div>
+  );
+}
+
+/* --- SKELETON COMPONENTS --- */
+
+// StatsCardSkeleton
+function StatsCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Skeleton className="h-4 w-1/2" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-6 w-1/3" />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ChartSkeleton – placeholder for any chart card
+function ChartSkeleton() {
+  return (
+    <Card className="shadow-md border border-border metallic-card" style={{ height: "320px" }}>
+      <CardHeader>
+        <Skeleton className="h-4 w-2/5 mb-2" />
+      </CardHeader>
+      <CardContent>
+        {/* Tall skeleton block to fill chart space */}
+        <Skeleton className="h-64 w-full" />
+      </CardContent>
+    </Card>
+  );
+}
+
+// PostsListSkeleton – placeholder for the list of posts
+function PostsListSkeleton() {
+  return (
+    <ul className="space-y-4">
+      {/* Repeat as many skeleton items as you'd like */}
+      {[...Array(5)].map((_, i) => (
+        <li
+          key={i}
+          className="p-4 bg-orange-50 dark:bg-gray-800 rounded-lg shadow"
+        >
+          <Skeleton className="h-4 w-3/4 mb-2" />
+          <Skeleton className="h-4 w-1/2" />
+        </li>
+      ))}
+    </ul>
   );
 }
