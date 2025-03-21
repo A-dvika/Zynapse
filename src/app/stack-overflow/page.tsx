@@ -127,20 +127,33 @@ export default function StackOverflowPage() {
     data.questions.reduce((acc: number, q: any) => acc + q.score, 0) +
     data.answers.reduce((acc: number, a: any) => acc + a.score, 0)
   const totalTags = [...new Set(data.questions.flatMap((q: any) => q.tags))].length
-  function generateTagStats() {
-    const tagCountMap: { [key: string]: number } = {};
+  const generateTagStats = () => {
+    const tagMap = new Map();
   
-    data.questions.forEach((question: any) => {
-      question.tags.forEach((tag: string) => {
-        tagCountMap[tag] = (tagCountMap[tag] || 0) + 1;
+    data.questions.forEach((question: { tags: string[] }) => {
+      question.tags.forEach((tag) => {
+        tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
       });
     });
   
-    return Object.entries(tagCountMap).map(([tag, questionCount]) => ({
-      tag,
-      questionCount,
-    }));
-  }
+    const processed: any[] = [];
+    let othersCount = 0;
+  
+    tagMap.forEach((count, tag) => {
+      if (count === 1) {
+        othersCount += 1;
+      } else {
+        processed.push({ tag, questionCount: count });
+      }
+    });
+  
+    if (othersCount > 0) {
+      processed.push({ tag: 'Others', questionCount: othersCount });
+    }
+  
+    return processed;
+  };
+  
   
   return (
     <motion.section
