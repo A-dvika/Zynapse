@@ -124,3 +124,10 @@ model Meme {
   createdAt  DateTime                   // When the meme was created on the source
   updatedAt  DateTime @updatedAt        // Auto-updated on modifications
 }
+
+model NewsletterSubscription {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String?
+  subscribedAt DateTime @default(now())
+}
