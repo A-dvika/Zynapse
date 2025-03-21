@@ -1,6 +1,7 @@
 // scripts/githubCron.ts
 import { fetchTrendingRepos, fetchActiveIssues, analyzeLanguages } from '../lib/github';
 import prisma from '../lib/db'; // Your existing Prisma client instance
+import { redisClient } from '../lib/cache'; // Redis client for caching
 
 async function run() {
   try {
@@ -8,7 +9,7 @@ async function run() {
     const trendingRepos = await fetchTrendingRepos();
     console.log('Fetched trending repos:', trendingRepos.length);
 
-    // 2) Upsert each repo
+    // 2) Upsert each repo and its issues into the database
     for (const repo of trendingRepos) {
       await prisma.gitHubRepo.upsert({
         where: { fullName: repo.fullName },
@@ -34,10 +35,9 @@ async function run() {
         },
       });
 
-      // 3) For each repo, fetch top active issues
+      // 3) For each repo, fetch top active issues and upsert them into the database
       const issues = await fetchActiveIssues(repo.fullName);
       for (const issue of issues) {
-        // Convert numeric issue.id to string
         await prisma.gitHubIssue.upsert({
           where: { issueUrl: issue.issueUrl },
           update: {
@@ -70,11 +70,17 @@ async function run() {
       });
     }
 
-    console.log('GitHub data saved to DB successfully.');
+    // 5) Cache the fetched data in Redis for one hour (3600 seconds)
+    await redisClient.set('github:trendingRepos', JSON.stringify(trendingRepos), { EX: 3600 });
+    await redisClient.set('github:languageStats', JSON.stringify(languageStats), { EX: 3600 });
+
+    console.log('GitHub data saved to DB and cached successfully.');
   } catch (error) {
     console.error('Error in GitHub cron job:', error);
   } finally {
     await prisma.$disconnect();
+    // Optionally, you can disconnect from Redis if this script isn't long-running.
+    // await redisClient.disconnect();
   }
 }
 
