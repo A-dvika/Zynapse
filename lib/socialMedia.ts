@@ -1,4 +1,3 @@
-// lib/socialMedia.ts
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -9,11 +8,13 @@ if (!twitterBearerToken) {
   throw new Error('Missing Twitter Bearer Token');
 }
 
-
-
+/**
+ * Fetches recent tweets that mention technology.
+ * Adjust the query string if needed.
+ */
 export async function fetchTwitterBuzz(limit = 10): Promise<any[]> {
   const url = 'https://api.twitter.com/2/tweets/search/recent';
-  const query = 'technology OR tech OR #tech'; // Adjust query as needed
+  const query = 'technology OR tech OR #tech'; // Modify as needed for better results
   const params = {
     query,
     max_results: limit,
@@ -34,7 +35,7 @@ export async function fetchTwitterBuzz(limit = 10): Promise<any[]> {
       id: tweet.id,
       platform: 'twitter',
       content: tweet.text,
-      author: tweet.author_id, // For a proper username, you might need additional lookup
+      author: tweet.author_id, // For a full username lookup, you may need an additional API call
       hashtags,
       url: `https://twitter.com/i/web/status/${tweet.id}`,
       score: tweet.public_metrics ? tweet.public_metrics.like_count : 0,
@@ -42,24 +43,27 @@ export async function fetchTwitterBuzz(limit = 10): Promise<any[]> {
     };
   });
 }
+
+/**
+ * Fetches recent public posts from a Mastodon instance.
+ */
 export async function fetchMastodonBuzz(limit = 10): Promise<any[]> {
-    const instanceUrl = process.env.MASTODON_INSTANCE_URL || 'https://mastodon.social';
-    const url = `${instanceUrl}/api/v1/timelines/public`;
-    const params = { limit };
-  
-    const response = await axios.get(url, { params });
-    return response.data.map((post: any) => {
-      const hashtags = post.tags ? post.tags.map((tag: any) => tag.name) : [];
-      return {
-        id: post.id,
-        platform: 'mastodon',
-        content: post.content, // Note: this may be HTML. You might need to sanitize/strip tags.
-        author: post.account.acct,
-        hashtags,
-        url: post.url,
-        score: post.favourites_count || 0,
-        createdAt: post.created_at,
-      };
-    });
-  }
-  
+  const instanceUrl = process.env.MASTODON_INSTANCE_URL || 'https://mastodon.social';
+  const url = `${instanceUrl}/api/v1/timelines/public`;
+  const params = { limit };
+
+  const response = await axios.get(url, { params });
+  return response.data.map((post: any) => {
+    const hashtags = post.tags ? post.tags.map((tag: any) => tag.name) : [];
+    return {
+      id: post.id,
+      platform: 'mastodon',
+      content: post.content, // May contain HTML—consider sanitizing if displaying raw content
+      author: post.account.acct,
+      hashtags,
+      url: post.url,
+      score: post.favourites_count || 0,
+      createdAt: post.created_at,
+    };
+  });
+}
