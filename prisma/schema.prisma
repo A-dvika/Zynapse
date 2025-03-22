@@ -135,6 +135,7 @@ model NewsletterSubscription {
 model DataSummary {
   id        Int      @id @default(autoincrement())
   source    String   @unique
+  subject   String?  // New optional field for the email subject
   summary   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
