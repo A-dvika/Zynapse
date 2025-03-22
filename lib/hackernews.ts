@@ -1,23 +1,42 @@
 // lib/hackernews.ts
 import axios from 'axios';
 
-// Official HN endpoints (Firebase):
 const HN_API_BASE = 'https://hacker-news.firebaseio.com/v0';
 
+interface HackerNewsItem {
+  id: number;
+  title: string;
+  url?: string;
+  by?: string;
+  score?: number;
+  descendants?: number;
+  time: number;
+}
+
+export interface HackerNewsStory {
+  id: number;
+  title: string;
+  url: string | null;
+  author: string | null;
+  score: number;
+  comments: number;
+  createdAt: string;
+}
+
 /**
- * Fetch top Hacker News story IDs, then detail for each.
+ * Fetch top Hacker News story IDs, then details for each.
  */
-export async function fetchHackerNewsStories(limit = 10): Promise<any[]> {
+export async function fetchHackerNewsStories(limit = 10): Promise<HackerNewsStory[]> {
   // 1) Get the IDs of top stories
   const topStoriesUrl = `${HN_API_BASE}/topstories.json`;
   const { data: storyIds } = await axios.get<number[]>(topStoriesUrl);
 
   // 2) Grab details for the first `limit` stories
-  const stories = [];
+  const stories: HackerNewsStory[] = [];
   for (let i = 0; i < Math.min(limit, storyIds.length); i++) {
     const storyId = storyIds[i];
     const itemUrl = `${HN_API_BASE}/item/${storyId}.json`;
-    const { data: storyData } = await axios.get<any>(itemUrl);
+    const { data: storyData } = await axios.get<HackerNewsItem | null>(itemUrl);
 
     // Some items might be null if they're deleted/invalid
     if (storyData) {
@@ -35,15 +54,20 @@ export async function fetchHackerNewsStories(limit = 10): Promise<any[]> {
   return stories;
 }
 
+export interface TechNewsItem {
+  id: string;
+  title: string;
+  url: string;
+  source: string;
+  summary: string;
+}
+
 /**
  * Example of fetching a "Tech News" feed from an imaginary aggregator or RSS.
  * (Replace with your actual feed or curated list.)
  */
-export async function fetchTechNewsFeed(): Promise<any[]> {
-  // This could be an RSS feed, or a curated data source from your own DB or service.
-  // For demonstration, we'll just return static items or call some external API.
-
-  const mockData = [
+export async function fetchTechNewsFeed(): Promise<TechNewsItem[]> {
+  const mockData: TechNewsItem[] = [
     {
       id: 'technews-1',
       title: 'New AI chip revolutionizes computing',

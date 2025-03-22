@@ -15,12 +15,40 @@ const subreddits = [
   'android'
 ];
 
-export async function fetchRedditTrends(): Promise<any[]> {
+// Define interfaces for Reddit response
+interface RedditPost {
+  id: string;
+  title: string;
+  subreddit: string;
+  permalink: string;
+  ups: number;
+  num_comments: number;
+  created_utc: number;
+  author: string;
+}
+
+interface RedditChild {
+  data: RedditPost;
+}
+
+export interface RedditTrend {
+  id: string;
+  title: string;
+  subreddit: string;
+  url: string;
+  upvotes: number;
+  comments: number;
+  createdAt: string;
+  author: string;
+}
+
+export async function fetchRedditTrends(): Promise<RedditTrend[]> {
   // Use Promise.all to fetch data concurrently from all subreddits
   const trendsPromises = subreddits.map(async (subreddit) => {
     try {
       const response = await axios.get(`${REDDIT_API_URL}/r/${subreddit}/hot.json?limit=10`);
-      return response.data.data.children.map((child: any) => {
+      // Map the response data to our RedditTrend interface
+      return response.data.data.children.map((child: RedditChild): RedditTrend => {
         const post = child.data;
         return {
           id: post.id,

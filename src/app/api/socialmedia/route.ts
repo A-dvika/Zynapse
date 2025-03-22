@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/db';
 
-export async function GET(_req: NextRequest) {
+export async function GET(_: NextRequest) {
   try {
     const posts = await prisma.socialMediaPost.findMany({
       orderBy: { createdAt: 'desc' },

@@ -1,50 +1,105 @@
 // lib/memes.ts
-
 import axios from "axios";
+
+export type MemePlatform = "reddit" | "twitter" | "instagram";
+
+export interface Meme {
+  id: string;
+  platform: MemePlatform;
+  title: string;
+  caption: string | null;
+  imageUrl: string;
+  upvotes: number;
+  link: string;
+  createdAt: string;
+}
+
+// --- Reddit Types ---
+interface RedditResponse {
+  data: {
+    children: RedditChild[];
+  };
+}
+
+interface RedditChild {
+  data: RedditPost;
+}
+
+interface RedditPost {
+  id: string;
+  title: string;
+  selftext?: string;
+  url_overridden_by_dest: string;
+  ups: number;
+  permalink: string;
+  created_utc: number;
+  post_hint?: string;
+}
 
 /**
  * Fetch meme posts from Reddit.
  */
-export async function fetchRedditMemes(): Promise<any[]> {
+export async function fetchRedditMemes(): Promise<Meme[]> {
   const subreddits = ["memes", "dankmemes", "wholesomememes"];
-  let memes: any[] = [];
+  let memes: Meme[] = [];
 
   for (const subreddit of subreddits) {
     try {
-      const response = await axios.get(
+      const response = await axios.get<RedditResponse>(
         `https://www.reddit.com/r/${subreddit}/hot.json?limit=10`
       );
       const posts = response.data.data.children
-        .map((child: any) => child.data)
-        .filter((post: any) => post.post_hint === "image"); // Only posts with images
+        .map((child: RedditChild) => child.data)
+        .filter((post: RedditPost) => post.post_hint === "image"); // Only posts with images
 
-      memes = memes.concat(
-        posts.map((post: any) => ({
-          id: post.id,
-          platform: "reddit",
-          title: post.title,
-          caption: post.selftext || null,
-          imageUrl: post.url_overridden_by_dest,
-          upvotes: post.ups,
-          link: `https://reddit.com${post.permalink}`,
-          createdAt: new Date(post.created_utc * 1000).toISOString(),
-        }))
-      );
+      const mappedMemes = posts.map((post: RedditPost): Meme => ({
+        id: post.id,
+        platform: "reddit",
+        title: post.title,
+        caption: post.selftext ? post.selftext : null,
+        imageUrl: post.url_overridden_by_dest,
+        upvotes: post.ups,
+        link: `https://reddit.com${post.permalink}`,
+        createdAt: new Date(post.created_utc * 1000).toISOString(),
+      }));
+      memes = memes.concat(mappedMemes);
     } catch (error) {
-      console.error(
-        `Error fetching memes from subreddit ${subreddit}:`,
-        error
-      );
+      console.error(`Error fetching memes from subreddit ${subreddit}:`, error);
     }
   }
 
   return memes;
 }
 
+// --- Twitter Types ---
+interface TwitterTweet {
+  id: string;
+  text: string;
+  created_at: string;
+  public_metrics: {
+    like_count: number;
+  };
+  attachments?: {
+    media_keys: string[];
+  };
+}
+
+interface TwitterMedia {
+  media_key: string;
+  url: string;
+}
+
+interface TwitterResponse {
+  data: TwitterTweet[];
+  includes?: {
+    media: TwitterMedia[];
+  };
+}
+
 /**
  * Fetch meme posts from Twitter using Twitter API v2.
  */
-export async function fetchTwitterMemes(): Promise<any[]> {
+export async function fetchTwitterMemes(): Promise<Meme[]> {
   const bearerToken = process.env.TWITTER_BEARER_TOKEN;
   if (!bearerToken) throw new Error("TWITTER_BEARER_TOKEN not set");
 
@@ -58,12 +113,12 @@ export async function fetchTwitterMemes(): Promise<any[]> {
   };
 
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get<TwitterResponse>(url, {
       headers: { Authorization: `Bearer ${bearerToken}` },
       params,
     });
     const tweets = response.data.data || [];
-    const mediaMap: Record<string, any> = {};
+    const mediaMap: Record<string, TwitterMedia> = {};
     if (response.data.includes && response.data.includes.media) {
       for (const media of response.data.includes.media) {
         mediaMap[media.media_key] = media;
@@ -71,7 +126,7 @@ export async function fetchTwitterMemes(): Promise<any[]> {
     }
 
     const memes = tweets
-      .map((tweet: any) => {
+      .map((tweet: TwitterTweet): Meme | null => {
         const mediaKey = tweet.attachments?.media_keys?.[0];
         const media = mediaKey ? mediaMap[mediaKey] : null;
         if (!media || !media.url) return null;
@@ -81,14 +136,12 @@ export async function fetchTwitterMemes(): Promise<any[]> {
           title: tweet.text.slice(0, 100), // Use the first 100 characters as title
           caption: null,
           imageUrl: media.url,
-          upvotes: tweet.public_metrics
-            ? tweet.public_metrics.like_count
-            : 0,
+          upvotes: tweet.public_metrics ? tweet.public_metrics.like_count : 0,
           link: `https://twitter.com/i/web/status/${tweet.id}`,
           createdAt: new Date(tweet.created_at).toISOString(),
         };
       })
-      .filter((meme: any) => meme !== null);
+      .filter((meme: Meme | null): meme is Meme => meme !== null);
 
     return memes;
   } catch (error) {
@@ -99,11 +152,11 @@ export async function fetchTwitterMemes(): Promise<any[]> {
 
 /**
  * Fetch meme posts from Instagram.
- * 
+ *
  * Note: This is a stub function. Instagram API access is limited, so replace this
  * with real integration if you have access to the Instagram Graph API or another service.
  */
-export async function fetchInstagramMemes(): Promise<any[]> {
+export async function fetchInstagramMemes(): Promise<Meme[]> {
   return [
     {
       id: "insta1",
@@ -131,7 +184,7 @@ export async function fetchInstagramMemes(): Promise<any[]> {
 /**
  * Aggregate memes from all sources.
  */
-export async function fetchAllMemes(): Promise<any[]> {
+export async function fetchAllMemes(): Promise<Meme[]> {
   const [redditMemes, twitterMemes, instagramMemes] = await Promise.all([
     fetchRedditMemes(),
     fetchTwitterMemes(),

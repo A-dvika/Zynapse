@@ -13,6 +13,13 @@ function isGreeting(query: string) {
   return greetings.includes(query.toLowerCase().trim());
 }
 
+// Define an interface for Pinecone match metadata.
+interface PineconeMatch {
+  metadata?: {
+    text?: string;
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { query } = await request.json();
@@ -42,20 +49,20 @@ export async function POST(request: NextRequest) {
       topK: 3,
       includeMetadata: true,
     });
-    const matches = pineconeResponse.matches || [];
+    const matches = (pineconeResponse.matches as PineconeMatch[]) || [];
 
-    // We'll build context from Pinecone if we find relevant data.
+    // Build context from Pinecone if we find relevant data.
     let finalContext = "";
     let usedGoogle = false;
 
     if (matches.length > 0) {
       finalContext = matches
-        .map((m: any) => m.metadata?.text ?? "")
+        .map((m: PineconeMatch) => m.metadata?.text ?? "")
         .filter((txt: string) => txt.trim().length > 0)
         .join("\n\n");
     }
 
-    // 5) If Pinecone didn't give us any results, fallback to Google.
+    // 5) If Pinecone didn't return any results, fallback to Google.
     if (!finalContext) {
       console.log(`No Pinecone context for "${query}". Trying Google search...`);
       const googleResults = await fetchGoogleSearchResults(query, 3);
@@ -78,9 +85,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ answer: fallback, source: "fallback" });
     }
 
-   // In your src/app/api/chat/query/route.ts file
-const dataSource = usedGoogle ? "Google search results" : "our aggregated dashboard data";
-const prompt = `You are a helpful assistant with access to ${dataSource}:
+    const dataSource = usedGoogle ? "Google search results" : "our aggregated dashboard data";
+    const prompt = `You are a helpful assistant with access to ${dataSource}:
 
 ${finalContext}
 
@@ -88,7 +94,6 @@ User's Question:
 ${query}
 
 When including references or links in your answer, please format them using Markdown syntax (e.g., [Reuters](https://www.reuters.com/technology/)) so that they are clickable. Provide a concise yet accurate answer.`;
-
 
     // 7) Generate the final answer with Gemini.
     const answer = await generateSummary(prompt);
@@ -98,8 +103,12 @@ When including references or links in your answer, please format them using Mark
 
     // 9) Return the answer along with the debug field.
     return NextResponse.json({ answer, source: usedGoogle ? "google" : "dashboard" });
-  } catch (error: any) {
-    console.error("Error in chat query API:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in chat query API:", error.message);
+    } else {
+      console.error("Error in chat query API:", error);
+    }
     return NextResponse.json(
       { error: "Failed to process query" },
       { status: 500 }

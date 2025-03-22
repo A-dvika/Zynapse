@@ -6,10 +6,32 @@ const defaultParams = {
   pagesize: 10,
 };
 
+interface Question {
+  id: number;
+  title: string;
+  link: string;
+  viewCount: number;
+  answerCount: number;
+  score: number;
+  tags: string[];
+  isAnswered: boolean;
+  creationDate: string;
+}
+
+interface Answer {
+  id: number;
+  questionId: number;
+  link: string;
+  score: number;
+  isAccepted: boolean;
+  body: string;
+  creationDate: string;
+}
+
 /**
  * Fetch trending questions (sorted by votes) without filtering by tags.
  */
-export async function fetchTrendingQuestions(): Promise<any[]> {
+export async function fetchTrendingQuestions(): Promise<Question[]> {
   const url = `${STACKOVERFLOW_API_URL}/questions`;
   const params = {
     ...defaultParams,
@@ -35,15 +57,15 @@ export async function fetchTrendingQuestions(): Promise<any[]> {
 /**
  * Fetch answered questions trend by filtering the trending questions.
  */
-export async function fetchAnsweredQuestions(): Promise<any[]> {
+export async function fetchAnsweredQuestions(): Promise<Question[]> {
   const allQuestions = await fetchTrendingQuestions();
-  return allQuestions.filter((q: any) => q.isAnswered);
+  return allQuestions.filter((q) => q.isAnswered);
 }
 
 /**
  * Fetch top-voted answers with full body details.
  */
-export async function fetchDetailedTopVotedAnswers(): Promise<any[]> {
+export async function fetchDetailedTopVotedAnswers(): Promise<Answer[]> {
   const url = `${STACKOVERFLOW_API_URL}/answers`;
   const params = {
     ...defaultParams,

@@ -55,7 +55,7 @@ export default function FloatingChatbot() {
         body: JSON.stringify({ query: question }),
       })
       const data = await response.json()
-      const answer = data.answer || "Sorry, I couldn't find an answer."
+      const answer = data.answer || "Sorry, I couldn&apos;t find an answer."
 
       // Update the last message with the bot's answer
       setChatHistory((prev) => {
@@ -159,13 +159,13 @@ export default function FloatingChatbot() {
                         >
                           <ReactMarkdown
                             components={{
-                              p: ({ node, ...props }) => (
+                              p: ({ ...props }) => (
                                 <p
                                   {...props}
                                   className="prose prose-sm dark:prose-invert"
                                 />
                               ),
-                              a: ({ node, ...props }) => (
+                              a: ({ ...props }) => (
                                 <a
                                   {...props}
                                   className="text-indigo-600 dark:text-indigo-400 hover:underline"

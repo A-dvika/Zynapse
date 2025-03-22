@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchRedditTrends } from '../../../../lib/reddit';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const data = await fetchRedditTrends();
     return NextResponse.json(data);

@@ -8,6 +8,64 @@ const headers = GITHUB_TOKEN
   ? { Authorization: `token ${GITHUB_TOKEN}` }
   : undefined;
 
+// --- Define interfaces for GitHub responses ---
+
+// Generic search response interface from GitHub
+interface GitHubSearchResponse<T> {
+  items: T[];
+}
+
+// Interface for a repository returned from GitHub search
+interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  html_url: string;
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  language: string | null;
+  pushed_at: string;
+  description: string | null;
+}
+
+// The transformed repository interface used in our app
+export interface TrendingRepo {
+  id: number;
+  name: string;
+  fullName: string;
+  url: string;
+  stars: number;
+  forks: number;
+  watchers: number;
+  language: string | null;
+  pushedAt: string;
+  description: string | null;
+}
+
+// Interface for an issue returned from GitHub search
+interface GitHubIssue {
+  id: number;
+  html_url: string;
+  title: string;
+  user: { login: string };
+  comments: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// The transformed issue interface used in our app
+export interface ActiveIssue {
+  id: number;
+  repoName: string;
+  issueUrl: string;
+  title: string;
+  author: string;
+  comments: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
  * Get the ISO date string for a given number of days ago.
  */
@@ -22,14 +80,14 @@ function getDateDaysAgo(days: number): string {
  * This query finds repos created and pushed in the last 7 days,
  * then sorts them by stars in descending order.
  */
-export async function fetchTrendingRepos(): Promise<any[]> {
+export async function fetchTrendingRepos(): Promise<TrendingRepo[]> {
   const oneWeekAgo = getDateDaysAgo(7);
   const query = `created:>${oneWeekAgo}+pushed:>${oneWeekAgo}`;
   const url = `${GITHUB_API_URL}/search/repositories?q=${query}&sort=stars&order=desc&per_page=10`;
 
   try {
-    const response = await axios.get(url, { headers });
-    return response.data.items.map((repo: any) => ({
+    const response = await axios.get<GitHubSearchResponse<GitHubRepo>>(url, { headers });
+    return response.data.items.map((repo) => ({
       id: repo.id,
       name: repo.name,
       fullName: repo.full_name,
@@ -41,7 +99,7 @@ export async function fetchTrendingRepos(): Promise<any[]> {
       pushedAt: repo.pushed_at,
       description: repo.description,
     }));
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching trending repositories:", error);
     return [];
   }
@@ -50,11 +108,11 @@ export async function fetchTrendingRepos(): Promise<any[]> {
 /**
  * Fetch highly active issues (with many comments) for a given repository.
  */
-export async function fetchActiveIssues(repoFullName: string): Promise<any[]> {
+export async function fetchActiveIssues(repoFullName: string): Promise<ActiveIssue[]> {
   const url = `${GITHUB_API_URL}/search/issues?q=repo:${repoFullName}+state:open&sort=comments&order=desc&per_page=5`;
   try {
-    const response = await axios.get(url, { headers });
-    return response.data.items.map((issue: any) => ({
+    const response = await axios.get<GitHubSearchResponse<GitHubIssue>>(url, { headers });
+    return response.data.items.map((issue) => ({
       id: issue.id,
       repoName: repoFullName,
       issueUrl: issue.html_url,
@@ -64,7 +122,7 @@ export async function fetchActiveIssues(repoFullName: string): Promise<any[]> {
       createdAt: issue.created_at,
       updatedAt: issue.updated_at,
     }));
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Error fetching issues for ${repoFullName}:`, error);
     return [];
   }
@@ -73,7 +131,7 @@ export async function fetchActiveIssues(repoFullName: string): Promise<any[]> {
 /**
  * Summarize the languages used in a list of repositories.
  */
-export function analyzeLanguages(repos: any[]): any[] {
+export function analyzeLanguages(repos: TrendingRepo[]): { language: string; repoCount: number }[] {
   const languageCount: Record<string, number> = {};
 
   for (const repo of repos) {

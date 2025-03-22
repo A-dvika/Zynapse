@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/db';
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     // For instance, fetch top 10 stories by score
     const hackerNewsStories = await prisma.hackerNewsItem.findMany({

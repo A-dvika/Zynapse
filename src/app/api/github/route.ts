@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../../../lib/db';
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     // Example: fetch top 10 starred repos from DB
     const repos = await prisma.gitHubRepo.findMany({

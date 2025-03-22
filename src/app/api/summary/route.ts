@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         take: 5,
       });
       contextText = posts
-        .map((post: any) => `Title: ${post.title}\nUpvotes: ${post.upvotes}`)
+        .map((post: { title: string; upvotes: number }) => `Title: ${post.title}\nUpvotes: ${post.upvotes}`)
         .join("\n\n");
     } else if (card === "github") {
       const repos = await prisma.gitHubRepo.findMany({
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         take: 5,
       });
       contextText = repos
-        .map((repo: any) => `Repo: ${repo.fullName}\nStars: ${repo.stars}`)
+        .map((repo: { fullName: string; stars: number }) => `Repo: ${repo.fullName}\nStars: ${repo.stars}`)
         .join("\n\n");
     } else if (card === "stackoverflow") {
       const questions = await prisma.stackOverflowQuestion.findMany({
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         take: 5,
       });
       contextText = questions
-        .map((q: any) => `Title: ${q.title}\nScore: ${q.score}`)
+        .map((q: { title: string; score: number }) => `Title: ${q.title}\nScore: ${q.score}`)
         .join("\n\n");
     } else {
       throw new Error("Unsupported card type.");
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     console.log(`Cached summary under key ${cacheKey}`);
 
     return NextResponse.json({ summary });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in on-demand summary API:", error);
     return NextResponse.json(
       { summary: "Sorry, we couldn't generate a summary at this time." },
