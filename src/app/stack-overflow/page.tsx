@@ -20,7 +20,6 @@ import {
   Cell,
   LineChart,
   Line,
-  Legend,
 } from "recharts"
 import { motion } from "framer-motion"
 import {
@@ -53,6 +52,7 @@ export default function StackOverflowPage() {
   const [expandedCards, setExpandedCards] = useState<{ [key: string]: boolean }>({
     questions: false,
     answers: false,
+    tags: false,
   })
   const { theme, setTheme } = useTheme()
 
@@ -61,7 +61,7 @@ export default function StackOverflowPage() {
       const res = await fetch("/api/stackoverflow")
       const json = await res.json()
       setData(json)
-      console.log(data);
+      console.log(data)
     }
     fetchSOData()
   }, [])
@@ -76,6 +76,11 @@ export default function StackOverflowPage() {
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
+
+  useEffect(() => {
+    // Force re-render of charts when tag filter changes
+    setChartType(chartType === "pie" ? "pie" : "bar")
+  }, [tagFilter])
 
   if (!data)
     return (
@@ -128,33 +133,36 @@ export default function StackOverflowPage() {
     data.answers.reduce((acc: number, a: any) => acc + a.score, 0)
   const totalTags = [...new Set(data.questions.flatMap((q: any) => q.tags))].length
   const generateTagStats = () => {
-    const tagMap = new Map();
-  
-    data.questions.forEach((question: { tags: string[] }) => {
+    const tagMap = new Map()
+
+    // Only process questions that match the current search term
+    const questionsToProcess = tagFilter ? data.questions.filter((q) => q.tags.includes(tagFilter)) : data.questions
+
+    questionsToProcess.forEach((question) => {
       question.tags.forEach((tag) => {
-        tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
-      });
-    });
-  
-    const processed: any[] = [];
-    let othersCount = 0;
-  
-    tagMap.forEach((count, tag) => {
-      if (count === 1) {
-        othersCount += 1;
-      } else {
-        processed.push({ tag, questionCount: count });
+        tagMap.set(tag, (tagMap.get(tag) || 0) + 1)
+      })
+    })
+
+    // Convert to array and sort by count (descending)
+    const tagArray = Array.from(tagMap.entries())
+      .map(([tag, count]) => ({ tag, questionCount: count }))
+      .sort((a, b) => b.questionCount - a.questionCount)
+
+    // Take top tags and group the rest as "Others"
+    const topTags = tagArray.slice(0, 9)
+    const otherTags = tagArray.slice(9)
+
+    if (otherTags.length > 0) {
+      const otherCount = otherTags.reduce((sum, item) => sum + item.questionCount, 0)
+      if (otherCount > 0) {
+        topTags.push({ tag: "Others", questionCount: otherCount })
       }
-    });
-  
-    if (othersCount > 0) {
-      processed.push({ tag: 'Others', questionCount: othersCount });
     }
-  
-    return processed;
-  };
-  
-  
+
+    return topTags
+  }
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -188,10 +196,9 @@ export default function StackOverflowPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setTagFilter(null)}>All Tags</DropdownMenuItem>
-              <DropdownMenuTrigger className="w-full text-left px-2 py-1.5 text-sm">Filter by Tag</DropdownMenuTrigger>
-              {data.tagStats.map((tag: any) => (
-                <DropdownMenuItem key={tag.tag} onClick={() => setTagFilter(tag.tag)}>
-                  {tag.tag} ({tag.questionCount})
+              {generateTagStats().map((tagStat) => (
+                <DropdownMenuItem key={tagStat.tag} onClick={() => setTagFilter(tagStat.tag)}>
+                  {tagStat.tag} ({tagStat.questionCount})
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -328,6 +335,7 @@ export default function StackOverflowPage() {
             </Card>
 
             {/* Top Answers Card */}
+            {/* Top Answers Card */}
             <Card className="shadow-md border border-border">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
@@ -354,28 +362,37 @@ export default function StackOverflowPage() {
                         >
                           <div className="flex justify-between items-start">
                             <div>
-                              <div className="text-sm text-muted-foreground">Answer to:</div>
+                              <div className="text-sm text-muted-foreground">Answer for question #{ans.questionId}</div>
                               <a
-                                href={`https://stackoverflow.com/a/${ans.id}`}
+                                href={ans.link} // Link to the answer or question
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="font-medium text-primary hover:underline flex items-center"
                               >
-                                {ans.questionTitle}
+                                View on Stack Overflow
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
                             </div>
                             <Badge
                               variant="secondary"
-                              className={`ml-2 ${ans.accepted ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" : ""}`}
+                              className={`ml-2 ${
+                                ans.isAccepted
+                                  ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+                                  : ""
+                              }`}
                             >
-                              {ans.accepted && <Award className="h-3 w-3 mr-1 text-green-500" />}
+                              {ans.isAccepted && <Award className="h-3 w-3 mr-1 text-green-500" />}
                               <Star className="h-3 w-3 mr-1 text-yellow-500" />
                               {ans.score}
                             </Badge>
                           </div>
-                          {ans.excerpt && (
-                            <p className="text-sm mt-2 text-muted-foreground line-clamp-2">{ans.excerpt}</p>
+                          {/* If you store answer body and want to show an excerpt, you can do so here.
+                  For example, if ans.body is available, you could render a truncated version:
+              */}
+                          {ans.body && (
+                            <div className="text-sm mt-2 text-muted-foreground line-clamp-2">
+                              {ans.body.replace(/(<([^>]+)>)/gi, "").slice(0, 150)}...
+                            </div>
                           )}
                         </motion.li>
                       ),
@@ -393,99 +410,89 @@ export default function StackOverflowPage() {
 
           {/* Tag Distribution Chart */}
           <Card className="shadow-md border border-border">
-  <CardHeader className="pb-2 flex flex-row items-center justify-between">
-    <div>
-      <CardTitle className="text-xl flex items-center gap-2">
-        <Tag className="h-5 w-5 text-purple-500" /> Popular Tags
-      </CardTitle>
-      {tagFilter && (
-        <CardDescription className="flex items-center mt-1">
-          Filtered by:
-          <Badge variant="outline" className="ml-2">
-            {tagFilter}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTagFilter(null)}
-              className="h-4 w-4 ml-1 p-0"
-            >
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </Badge>
-        </CardDescription>
-      )}
-    </div>
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => toggleExpand("tags")}
-      className="h-8 w-8 p-0"
-    >
-      {expandedCards.tags ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-    </Button>
-  </CardHeader>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-purple-500" /> Popular Tags
+                </CardTitle>
+                {tagFilter && (
+                  <CardDescription className="flex items-center mt-1">
+                    Filtered by:
+                    <Badge variant="outline" className="ml-2">
+                      {tagFilter}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setTagFilter(null)}
+                        className="h-4 w-4 ml-1 p-0"
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  </CardDescription>
+                )}
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => toggleExpand("tags")} className="h-8 w-8 p-0">
+                {expandedCards.tags ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </CardHeader>
 
-  <CardContent>
-    {/* Extract tags from questions */}
-    {data?.questions?.length === 0 ? (
-      <div className="text-center py-8 text-muted-foreground">No tags available</div>
-    ) : (
-      (() => {
-        const tagMap = new Map();
-        data.questions.forEach((q: any) => {
-          q.tags.forEach((tag: string) => {
-            tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
-          });
-        });
-        const tagArray = Array.from(tagMap.entries());
+            <CardContent>
+              {/* Extract tags from questions */}
+              {data?.questions?.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">No tags available</div>
+              ) : (
+                (() => {
+                  const tagMap = new Map()
+                  data.questions.forEach((q: any) => {
+                    q.tags.forEach((tag: string) => {
+                      tagMap.set(tag, (tagMap.get(tag) || 0) + 1)
+                    })
+                  })
+                  const tagArray = Array.from(tagMap.entries())
 
-        return (
-          <ul className="space-y-3">
-            {(expandedCards.tags ? tagArray : tagArray.slice(0, 5)).map(([tag, count]: any, index: number) => (
-              <motion.li
-                key={tag}
-                className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: index * 0.05 }}
-                whileHover={{ scale: 1.01 }}
-              >
-                <div className="flex justify-between items-start">
-                  <span className="font-medium text-primary flex items-center">{tag}</span>
-                  <Badge variant="secondary" className="ml-2">
-                    <Star className="h-3 w-3 mr-1 text-yellow-500" /> {count}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  <Badge
-                    variant="outline"
-                    className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
-                    onClick={() => setTagFilter(tag)}
-                  >
-                    {tag}
-                  </Badge>
-                </div>
-              </motion.li>
-            ))}
-          </ul>
-        );
-      })()
-    )}
+                  return (
+                    <ul className="space-y-3">
+                      {(expandedCards.tags ? tagArray : tagArray.slice(0, 5)).map(
+                        ([tag, count]: any, index: number) => (
+                          <motion.li
+                            key={tag}
+                            className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: index * 0.05 }}
+                            whileHover={{ scale: 1.01 }}
+                          >
+                            <div className="flex justify-between items-start">
+                              <span className="font-medium text-primary flex items-center">{tag}</span>
+                              <Badge variant="secondary" className="ml-2">
+                                <Star className="h-3 w-3 mr-1 text-yellow-500" /> {count}
+                              </Badge>
+                            </div>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              <Badge
+                                variant="outline"
+                                className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                onClick={() => setTagFilter(tag)}
+                              >
+                                {tag}
+                              </Badge>
+                            </div>
+                          </motion.li>
+                        ),
+                      )}
+                    </ul>
+                  )
+                })()
+              )}
 
-    {!expandedCards.tags && data.questions && data.questions.length > 0 && (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => toggleExpand("tags")}
-        className="w-full mt-3"
-      >
-        View all tags
-      </Button>
-    )}
-  </CardContent>
-</Card>
-
-
+              {!expandedCards.tags && data.questions && data.questions.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => toggleExpand("tags")} className="w-full mt-3">
+                  View all tags
+                </Button>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Reputation Timeline */}
           <Card className="shadow-md border border-border">
@@ -669,99 +676,96 @@ export default function StackOverflowPage() {
         </TabsContent>
 
         <TabsContent value="tags" className="space-y-6">
-  <Card className="shadow-md border border-border">
-    <CardHeader className="pb-2 flex flex-row items-center justify-between">
-      <CardTitle>Tag Distribution</CardTitle>
-      <div className="flex space-x-1">
-        <Button
-          variant={chartType === "pie" ? "default" : "outline"}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setChartType("pie")}
-        >
-          <PieChartIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          variant={chartType === "bar" ? "default" : "outline"}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setChartType("bar")}
-        >
-          <BarChart3 className="h-4 w-4" />
-        </Button>
-      </div>
-    </CardHeader>
-    <CardContent>
-      <motion.div
-        key={chartType}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full h-[400px]"
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          {chartType === "pie" ? (
-            <PieChart>
-              <Pie
-                data={generateTagStats()}
-                cx="50%"
-                cy="50%"
-                labelLine={true}
-                outerRadius={150}
-                fill="#8884d8"
-                dataKey="questionCount"
-                nameKey="tag"
-                label={({ tag, questionCount }) => `${tag}: ${questionCount}`}
+          <Card className="shadow-md border border-border">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle>Tag Distribution</CardTitle>
+              <div className="flex space-x-1">
+                <Button
+                  variant={chartType === "pie" ? "default" : "outline"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setChartType("pie")}
+                >
+                  <PieChartIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={chartType === "bar" ? "default" : "outline"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setChartType("bar")}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <motion.div
+                key={chartType}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full h-[400px]"
               >
-                {generateTagStats().map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                <ResponsiveContainer width="100%" height="100%">
+                  {chartType === "pie" ? (
+                    <PieChart>
+                      <Pie
+                        data={generateTagStats()}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={true}
+                        outerRadius={150}
+                        fill="#8884d8"
+                        dataKey="questionCount"
+                        nameKey="tag"
+                        label={({ tag, questionCount }) => `${tag}: ${questionCount}`}
+                      >
+                        {generateTagStats().map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip formatter={(value, name, props) => [`${value} questions`, props.payload.tag]} />
+                    </PieChart>
+                  ) : (
+                    <BarChart
+                      data={generateTagStats()}
+                      layout="vertical"
+                      margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                      <XAxis type="number" />
+                      <YAxis type="category" dataKey="tag" width={80} />
+                      <RechartsTooltip formatter={(value) => [`${value} questions`, "Count"]} />
+                      <Bar dataKey="questionCount" radius={[0, 4, 4, 0]}>
+                        {generateTagStats().map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  )}
+                </ResponsiveContainer>
+              </motion.div>
+
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                {generateTagStats().map((tag: any, index: number) => (
+                  <div
+                    key={tag.tag}
+                    className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer"
+                    onClick={() => setTagFilter(tag.tag)}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: colors[index % colors.length] }}
+                    ></div>
+                    <span className="text-sm">
+                      {tag.tag}: {tag.questionCount}
+                    </span>
+                  </div>
                 ))}
-              </Pie>
-              <RechartsTooltip formatter={(value, name, props) => [`${value} questions`, props.payload.tag]} />
-            </PieChart>
-          ) : (
-            <BarChart
-              data={generateTagStats()}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="tag" width={80} />
-              <RechartsTooltip formatter={(value) => [`${value} questions`, "Count"]} />
-              <Bar dataKey="questionCount" radius={[0, 4, 4, 0]}>
-                {generateTagStats().map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                ))}
-              </Bar>
-            </BarChart>
-          )}
-        </ResponsiveContainer>
-      </motion.div>
-
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {generateTagStats().map((tag: any, index: number) => (
-          <div
-            key={tag.tag}
-            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer"
-            onClick={() => setTagFilter(tag.tag)}
-          >
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: colors[index % colors.length] }}
-            ></div>
-            <span className="text-sm">
-              {tag.tag}: {tag.questionCount}
-            </span>
-          </div>
-        ))}
-      </div>
-    </CardContent>
-  </Card>
-
- 
-</TabsContent>
-
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Inspirational Quote */}
