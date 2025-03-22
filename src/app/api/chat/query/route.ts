@@ -78,16 +78,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ answer: fallback, source: "fallback" });
     }
 
-    // 6) Build a prompt for Gemini, indicating where we got the data.
-    const dataSource = usedGoogle ? "Google search results" : "our aggregated dashboard data";
-    const prompt = `You are a helpful assistant with access to the following ${dataSource}:
+   // In your src/app/api/chat/query/route.ts file
+const dataSource = usedGoogle ? "Google search results" : "our aggregated dashboard data";
+const prompt = `You are a helpful assistant with access to ${dataSource}:
 
 ${finalContext}
 
 User's Question:
 ${query}
 
-Give a concise yet accurate answer. If referencing links, be brief.`;
+When including references or links in your answer, please format them using Markdown syntax (e.g., [Reuters](https://www.reuters.com/technology/)) so that they are clickable. Provide a concise yet accurate answer.`;
+
 
     // 7) Generate the final answer with Gemini.
     const answer = await generateSummary(prompt);

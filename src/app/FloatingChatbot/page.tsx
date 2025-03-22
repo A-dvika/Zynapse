@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { X, Sparkles } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import ReactMarkdown from "react-markdown"
 import { cn } from "@/lib/utils"
 
 interface ChatMessage {
@@ -40,7 +41,10 @@ export default function FloatingChatbot() {
     if (!input.trim() || loading) return
 
     const question = input.trim()
-    setChatHistory((prev) => [...prev, { question, answer: "...", timestamp: new Date() }])
+    setChatHistory((prev) => [
+      ...prev,
+      { question, answer: "...", timestamp: new Date() },
+    ])
     setInput("")
     setLoading(true)
 
@@ -113,7 +117,10 @@ export default function FloatingChatbot() {
                 <Sparkles className="h-5 w-5" />
                 <h2 className="font-bold text-lg">Sparkly Assistant</h2>
               </div>
-              <button onClick={() => setOpen(false)} className="rounded-full p-1 hover:bg-white/20 transition-colors">
+              <button
+                onClick={() => setOpen(false)}
+                className="rounded-full p-1 hover:bg-white/20 transition-colors"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -123,13 +130,16 @@ export default function FloatingChatbot() {
               {chatHistory.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500 dark:text-gray-400">
                   <Sparkles className="h-12 w-12 mb-4 text-purple-500" />
-                  <h3 className="text-lg font-medium mb-2">Welcome to Sparkly Assistant!</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    Welcome to Sparkly Assistant!
+                  </h3>
                   <p>Ask me anything and I'll try to help you out.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {chatHistory.map((chat, index) => (
                     <div key={index} className="space-y-2">
+                      {/* User Bubble */}
                       <div className="flex justify-end">
                         <div className="bg-indigo-100 dark:bg-indigo-900 dark:text-white p-3 rounded-2xl rounded-tr-none max-w-[80%]">
                           <p>{chat.question}</p>
@@ -139,6 +149,7 @@ export default function FloatingChatbot() {
                         </div>
                       </div>
 
+                      {/* Bot Bubble */}
                       <div className="flex">
                         <div
                           className={cn(
@@ -146,7 +157,24 @@ export default function FloatingChatbot() {
                             loading && index === chatHistory.length - 1 ? "animate-pulse" : "",
                           )}
                         >
-                          <p className="dark:text-white">{chat.answer}</p>
+                          <ReactMarkdown
+                            components={{
+                              p: ({ node, ...props }) => (
+                                <p
+                                  {...props}
+                                  className="prose prose-sm dark:prose-invert"
+                                />
+                              ),
+                              a: ({ node, ...props }) => (
+                                <a
+                                  {...props}
+                                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                                />
+                              ),
+                            }}
+                          >
+                            {chat.answer}
+                          </ReactMarkdown>
                           <div className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                             {formatTime(chat.timestamp)}
                           </div>
@@ -181,7 +209,7 @@ export default function FloatingChatbot() {
                   disabled={!input.trim() || loading}
                   className={cn(
                     "p-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white",
-                    !input.trim() || loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg transition-shadow",
+                    !input.trim() || loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg transition-shadow"
                   )}
                 >
                   <svg
@@ -207,4 +235,3 @@ export default function FloatingChatbot() {
     </>
   )
 }
-
