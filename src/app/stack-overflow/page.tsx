@@ -328,93 +328,67 @@ export default function StackOverflowPage() {
             </Card>
 
             {/* Top Answers Card */}
-           {/* Top Answers Card */}
-<Card className="shadow-md border border-border">
-  <CardHeader className="pb-2 flex flex-row items-center justify-between">
-    <CardTitle className="text-xl flex items-center gap-2">
-      <ThumbsUp className="h-5 w-5 text-green-500" /> Top Answers
-    </CardTitle>
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => toggleExpand("answers")}
-      className="h-8 w-8 p-0"
-    >
-      {expandedCards.answers ? (
-        <ChevronUp className="h-4 w-4" />
-      ) : (
-        <ChevronDown className="h-4 w-4" />
-      )}
-    </Button>
-  </CardHeader>
-  <CardContent>
-    {filteredAnswers.length === 0 ? (
-      <div className="text-center py-8 text-muted-foreground">
-        No answers match your search criteria
-      </div>
-    ) : (
-      <ul className="space-y-3">
-        {(expandedCards.answers ? filteredAnswers : filteredAnswers.slice(0, 5)).map(
-          (ans: any, index: number) => (
-            <motion.li
-              key={ans.id}
-              className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
-              whileHover={{ scale: 1.01 }}
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-sm text-muted-foreground">
-                    Answer for question #{ans.questionId}
-                  </div>
-                  <a
-                    href={ans.link} // Link to the answer or question
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-primary hover:underline flex items-center"
-                  >
-                    View on Stack Overflow
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </a>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className={`ml-2 ${
-                    ans.isAccepted
-                      ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-                      : ""
-                  }`}
-                >
-                  {ans.isAccepted && (
-                    <Award className="h-3 w-3 mr-1 text-green-500" />
-                  )}
-                  <Star className="h-3 w-3 mr-1 text-yellow-500" />
-                  {ans.score}
-                </Badge>
-              </div>
-              {/* If you store answer body and want to show an excerpt, you can do so here.
-                  For example, if ans.body is available, you could render a truncated version:
-              */}
-              {ans.body && (
-                <div className="text-sm mt-2 text-muted-foreground line-clamp-2">
-                  {ans.body.replace(/(<([^>]+)>)/gi, "").slice(0, 150)}...
-                </div>
-              )}
-            </motion.li>
-          )
-        )}
-      </ul>
-    )}
-    {!expandedCards.answers && filteredAnswers.length > 5 && (
-      <Button variant="ghost" size="sm" onClick={() => toggleExpand("answers")} className="w-full mt-3">
-        View all {filteredAnswers.length} answers
-      </Button>
-    )}
-  </CardContent>
-</Card>
-
+            <Card className="shadow-md border border-border">
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <ThumbsUp className="h-5 w-5 text-green-500" /> Top Answers
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => toggleExpand("answers")} className="h-8 w-8 p-0">
+                  {expandedCards.answers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {filteredAnswers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">No answers match your search criteria</div>
+                ) : (
+                  <ul className="space-y-3">
+                    {(expandedCards.answers ? filteredAnswers : filteredAnswers.slice(0, 5)).map(
+                      (ans: any, index: number) => (
+                        <motion.li
+                          key={ans.id}
+                          className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: index * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="text-sm text-muted-foreground">Answer to:</div>
+                              <a
+                                href={`https://stackoverflow.com/a/${ans.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-primary hover:underline flex items-center"
+                              >
+                                {ans.questionTitle}
+                                <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
+                            <Badge
+                              variant="secondary"
+                              className={`ml-2 ${ans.accepted ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" : ""}`}
+                            >
+                              {ans.accepted && <Award className="h-3 w-3 mr-1 text-green-500" />}
+                              <Star className="h-3 w-3 mr-1 text-yellow-500" />
+                              {ans.score}
+                            </Badge>
+                          </div>
+                          {ans.excerpt && (
+                            <p className="text-sm mt-2 text-muted-foreground line-clamp-2">{ans.excerpt}</p>
+                          )}
+                        </motion.li>
+                      ),
+                    )}
+                  </ul>
+                )}
+                {!expandedCards.answers && filteredAnswers.length > 5 && (
+                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("answers")} className="w-full mt-3">
+                    View all {filteredAnswers.length} answers
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Tag Distribution Chart */}

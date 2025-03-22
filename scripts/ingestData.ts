@@ -2,13 +2,13 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import prisma from "../lib/db"; // Your Prisma client
+import prisma from "../lib/db"; // Your Prisma client instance
 import axios from "axios";
-import { index } from "../lib/pinecone";
+import { index } from "../lib/pinecone"; // Your Pinecone index instance
 import { redisClient } from "../lib/cache";
 
 /**
- * Uniform type for the records you're going to embed and upsert.
+ * Uniform type for the aggregated records from DataSummary.
  */
 type RecordItem = {
   id: string;
@@ -46,123 +46,43 @@ async function generateEmbedding(text: string): Promise<number[]> {
     const embedding = response.data.embeddings[0] as number[];
     return embedding;
   } catch (error: any) {
-    console.error("Error generating embedding with Cohere:", error.response?.data || error.message);
+    console.error(
+      "Error generating embedding with Cohere:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 }
 
 /**
- * Ingest relevant data from multiple Prisma models, generate embeddings (with caching),
- * and upsert the resulting vectors (with metadata) into Pinecone.
+ * Ingest aggregated summary data from the DataSummary table,
+ * generate embeddings (with caching), and upsert the resulting vectors into Pinecone.
  */
-async function ingestRelevantData() {
+async function ingestAggregatedSummaries() {
   try {
-    // 1) Query data from various Prisma models:
-    const techNews = await prisma.techNewsItem.findMany();
-    const socialMedia = await prisma.socialMediaPost.findMany();
-    const memes = await prisma.meme.findMany();
-    const hackerNews = await prisma.hackerNewsItem.findMany();
-    const githubIssues = await prisma.gitHubIssue.findMany();
-    const soQuestions = await prisma.stackOverflowQuestion.findMany();
+    // Query all aggregated summaries (or filter by date if needed)
+    const summaries = await prisma.dataSummary.findMany() as { source: string; summary: string; createdAt: Date; updatedAt: Date }[];
+    console.log(`Total aggregated summaries found: ${summaries.length}`);
 
-    // 2) Build an array of unified records.
-    const records: RecordItem[] = [];
+    // Build unified records from the summaries
+    const records: RecordItem[] = summaries.map((summary: { source: string; summary: string; createdAt: Date; updatedAt: Date }) => ({
+      id: `datasummary-${summary.source}`, // unique ID per summary source
+      text: summary.summary,
+      metadata: {
+        source: summary.source,
+        createdAt: summary.createdAt,
+        updatedAt: summary.updatedAt,
+      },
+    }));
 
-    // ---- TechNewsItem: combine title and summary ----
-    for (const item of techNews) {
-      if (item.title || item.summary) {
-        records.push({
-          id: `technews-${item.id}`,
-          text: `${item.title ?? ""} ${item.summary ?? ""}`.trim(),
-          metadata: {
-            source: "TechNewsItem",
-            url: item.url,
-          },
-        });
-      }
-    }
-
-    // ---- SocialMediaPost: use content ----
-    for (const item of socialMedia) {
-      if (item.content) {
-        records.push({
-          id: `social-${item.id}`,
-          text: item.content,
-          metadata: {
-            source: "SocialMediaPost",
-            url: item.url,
-          },
-        });
-      }
-    }
-
-    // ---- Meme: combine title and caption ----
-    for (const item of memes) {
-      if (item.title || item.caption) {
-        records.push({
-          id: `meme-${item.id}`,
-          text: `${item.title ?? ""} ${item.caption ?? ""}`.trim(),
-          metadata: {
-            source: "Meme",
-            url: item.link,
-            imageUrl: item.imageUrl,
-          },
-        });
-      }
-    }
-
-    // ---- HackerNewsItem: use title ----
-    for (const item of hackerNews) {
-      if (item.title) {
-        records.push({
-          id: `hackernews-${item.id}`,
-          text: item.title,
-          metadata: {
-            source: "HackerNewsItem",
-            url: item.url,
-          },
-        });
-      }
-    }
-
-    // ---- GitHubIssue: use title ----
-    for (const item of githubIssues) {
-      if (item.title) {
-        records.push({
-          id: `githubissue-${item.id}`,
-          text: item.title,
-          metadata: {
-            source: "GitHubIssue",
-            url: item.issueUrl,
-          },
-        });
-      }
-    }
-
-    // ---- StackOverflowQuestion: use title ----
-    for (const item of soQuestions) {
-      if (item.title) {
-        records.push({
-          id: `soquestion-${item.id}`,
-          text: item.title,
-          metadata: {
-            source: "StackOverflowQuestion",
-            url: item.link,
-          },
-        });
-      }
-    }
-
-    console.log(`Total relevant records: ${records.length}`);
-
-    // 3) Process each record: check cache, generate an embedding if needed, and upsert into Pinecone.
+    // Process each aggregated summary record
     for (const record of records) {
       if (!record.text) continue;
 
       const cacheKey = `embedding:${record.id}`;
       let embedding: number[] | null = null;
 
-      // Check if embedding is already cached in Redis.
+      // Check if an embedding is already cached in Redis.
       try {
         const cached = await redisClient.get(cacheKey);
         if (cached) {
@@ -175,29 +95,29 @@ async function ingestRelevantData() {
         }
       } catch (cacheError) {
         console.error(`Cache error for record ${record.id}:`, cacheError);
-        // Fallback: generate embedding if cache operation fails.
+        // Fallback: generate the embedding if cache operation fails.
         embedding = await generateEmbedding(record.text);
       }
 
-      // Debug: Log the dimension of the embedding
       console.log(`Embedding dimension for ${record.id}: ${embedding.length}`);
 
+      // Prepare vector object for Pinecone upsert.
       const vector = {
         id: record.id,
         values: embedding,
         metadata: record.metadata,
       };
 
-      // Upsert the vector into Pinecone by passing an array of vectors.
+      // Upsert the vector into Pinecone (using an array of vectors).
       await index.upsert([vector]);
       console.log(`Upserted vector for ${record.id}`);
     }
-    console.log("All relevant data ingested and upserted successfully.");
+    console.log("All aggregated summaries ingested and upserted successfully.");
   } catch (error) {
-    console.error("Error during ingestion:", error);
+    console.error("Error during ingestion of aggregated summaries:", error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-ingestRelevantData();
+ingestAggregatedSummaries();

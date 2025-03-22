@@ -131,3 +131,11 @@ model NewsletterSubscription {
   name         String?
   subscribedAt DateTime @default(now())
 }
+
+model DataSummary {
+  id        Int      @id @default(autoincrement())
+  source    String   @unique
+  summary   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
