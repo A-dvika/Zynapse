@@ -64,7 +64,7 @@ export default function RedditPage() {
         const json = await res.json()
 
         // Process the data to ensure it has all the properties we need
-        const processedData = {
+        const processedData: { trending: any[]; subredditStats?: any[] } = {
           trending: json.map((post: any) => ({
             ...post,
             score: post.score || post.upvotes || 0,
