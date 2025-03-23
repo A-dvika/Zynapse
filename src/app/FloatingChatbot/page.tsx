@@ -55,7 +55,8 @@ export default function FloatingChatbot() {
         body: JSON.stringify({ query: question }),
       })
       const data = await response.json()
-      const answer = data.answer || "Sorry, I couldn&apos;t find an answer."
+      const answer = data.answer || <p>Sorry, I couldn&apos;t find an answer.</p>
+
 
       // Update the last message with the bot's answer
       setChatHistory((prev) => {
@@ -133,7 +134,8 @@ export default function FloatingChatbot() {
                   <h3 className="text-lg font-medium mb-2">
                     Welcome to Sparkly Assistant!
                   </h3>
-                  <p>Ask me anything and I'll try to help you out.</p>
+                  <p>Ask me anything and I&apos;ll try to help you out.</p>
+
                 </div>
               ) : (
                 <div className="space-y-4">

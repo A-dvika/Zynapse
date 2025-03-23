@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Build context from Pinecone if available.
     if (matches.length > 0) {
       finalContext = matches
-        .map((m: any) => m.metadata?.text ?? "")
+        .map((m: { metadata?: { text?: string } }) => m.metadata?.text ?? "")
         .filter((txt: string) => txt.trim().length > 0)
         .join("\n\n");
     }
@@ -116,7 +116,7 @@ Please provide a detailed, comprehensive answer in multiple paragraphs. Explain 
     await redisClient.set(cacheKey, answer, { EX: 3600 });
 
     return NextResponse.json({ answer, source: usedExternal ? "external" : "dashboard" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in chat query API:", error);
     return NextResponse.json(
       { error: "Failed to process query" },

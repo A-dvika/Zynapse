@@ -19,17 +19,21 @@ export async function fetchYoutubeResults(query: string, limit = 3) {
   try {
     const response = await axios.get(url, { params });
     const items = response.data.items || [];
-    return items.map((item: any) => ({
+    return items.map((item: { snippet: { title: string; description: string }; id: { videoId: string } }) => ({
       title: item.snippet.title,
       description: item.snippet.description,
       videoId: item.id.videoId,
       link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
     }));
-  } catch (error: any) {
-    console.error(
-      "Error fetching YouTube results:",
-      error.response?.data || error.message
-    );
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        "Error fetching YouTube results:",
+        error.response?.data || error.message
+      );
+    } else {
+      console.error("Error fetching YouTube results:", error);
+    }
     return [];
   }
 }

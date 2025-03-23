@@ -41,7 +41,7 @@ export async function fetchTrendingQuestions(): Promise<Question[]> {
   };
 
   const response = await axios.get(url, { params });
-  return response.data.items.map((q: any) => ({
+  return response.data.items.map((q: { question_id: number; title: string; link: string; view_count: number; answer_count: number; score: number; tags: string[]; is_answered: boolean; creation_date: number; }) => ({
     id: q.question_id,
     title: q.title,
     link: q.link,
@@ -76,7 +76,7 @@ export async function fetchDetailedTopVotedAnswers(): Promise<Answer[]> {
   };
 
   const response = await axios.get(url, { params });
-  return response.data.items.map((a: any) => ({
+  return response.data.items.map((a: { answer_id: number; question_id: number; link: string; score: number; is_accepted: boolean; body: string; creation_date: number; }) => ({
     id: a.answer_id,
     questionId: a.question_id,
     link: a.link,

@@ -47,7 +47,19 @@ export async function fetchProductHuntPosts(
   };
 
   const response = await axios.post(PRODUCT_HUNT_API_URL, { query, variables }, { headers });
-  const posts = response.data.data.posts.edges.map((edge: any) => {
+  interface PostNode {
+    id: string;
+    name: string;
+    tagline: string;
+    url: string;
+    votesCount: number;
+    commentsCount: number;
+    createdAt: string;
+    thumbnail?: { url: string };
+    description?: string;
+  }
+
+  const posts = response.data.data.posts.edges.map((edge: { node: PostNode }) => {
     const node = edge.node;
     return {
       id: parseInt(node.id),

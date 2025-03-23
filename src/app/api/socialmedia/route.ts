@@ -1,8 +1,8 @@
 // src/app/api/socialmedia/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/db';
 
-export async function GET(_: NextRequest) {
+export async function GET() {
   try {
     const posts = await prisma.socialMediaPost.findMany({
       orderBy: { createdAt: 'desc' },

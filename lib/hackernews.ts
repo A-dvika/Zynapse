@@ -76,7 +76,7 @@ export async function fetchTechNewsFeed(): Promise<TechNewsItem[]> {
 
   // NewsAPI returns articles in the response. Map them to your TechNewsItem interface.
   const articles = data.articles;
-  const techNews: TechNewsItem[] = articles.map((article: any, index: number) => ({
+  const techNews: TechNewsItem[] = articles.map((article: { title: string; url: string; source: { name: string }; description?: string; publishedAt: string }, index: number) => ({
     id: `technews-${index}-${new Date(article.publishedAt).getTime()}`, // create a unique id
     title: article.title,
     url: article.url,
