@@ -1,5 +1,5 @@
 // app/api/reddit/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { fetchRedditTrends } from '../../../../lib/reddit';
 
 export async function GET() {
