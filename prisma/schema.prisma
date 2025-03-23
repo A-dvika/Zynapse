@@ -150,4 +150,6 @@ model ProductHuntPost {
   commentsCount Int
   createdAt     DateTime
   aggregatedAt  DateTime
+  thumbnailUrl  String?  // Optional field for product image URL
+  description   String?  // Optional field for a detailed description
 }
