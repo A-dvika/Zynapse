@@ -79,12 +79,12 @@ async function run() {
       )
       .join("\n");
 
-    const techNewsData = techNewsItems
-      .map(
-        (item: { title: string; source?: string }) =>
-          `- ${item.title} (Source: ${item.source || "N/A"})`
+      const techNewsData = techNewsItems
+      .map((item: { title: string; source: string | null }) =>
+        `- ${item.title} (Source: ${item.source || "N/A"})`
       )
       .join("\n");
+    
 
     const socialMediaData = socialMediaPosts
       .map(
@@ -93,12 +93,13 @@ async function run() {
       )
       .join("\n");
 
-    const memesData = memes
+      const memesData = memes
       .map(
-        (meme: { title?: string; platform: string; upvotes?: number }) =>
+        (meme: { title: string | null; platform: string; upvotes: number | null }) =>
           `- ${meme.title || "No Title"} (Platform: ${meme.platform}, Upvotes: ${meme.upvotes ?? 0})`
       )
       .join("\n");
+    
 
     // 4. Generate Individual Summaries for Each Category (Chain-of-Thought Step)
     const redditSummary = await generateSummary(`Summarize the following Reddit posts from last week in a concise paragraph, highlighting key trends and popular topics:

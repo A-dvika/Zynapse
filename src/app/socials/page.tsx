@@ -89,32 +89,34 @@ export default function UnifiedDashboard() {
         const socialMediaJson = await socialMediaResponse.json()
         const redditJson = await redditResponse.json()
 
-        // Process social media data
+        const processedPosts = socialMediaJson.posts.map((post: any) => ({
+          ...post,
+          likes: post.likes || 0,
+          shares: post.shares || 0,
+          comments: post.comments || 0,
+          platform: post.platform || "unknown",
+        }));
+        
         const processedSocialData = {
-          posts: socialMediaJson.posts.map((post: any) => ({
-            ...post,
-            likes: post.likes || 0,
-            shares: post.shares || 0,
-            comments: post.comments || 0,
-            platform: post.platform || "unknown",
-          })),
-        }
-        processedSocialData.platformStats = generatePlatformStats(processedSocialData.posts)
-        processedSocialData.engagementStats = generateEngagementStats(processedSocialData.posts)
-
-        // Process Reddit data
+          posts: processedPosts,
+          platformStats: generatePlatformStats(processedPosts),
+          engagementStats: generateEngagementStats(processedPosts),
+        };
+        
+        const processedTrending = redditJson.map((post: any) => ({
+          ...post,
+          score: post.score || post.upvotes || 0,
+          num_comments: post.num_comments || post.comments || 0,
+          subreddit: post.subreddit || "unknown",
+          created: post.created || new Date().toISOString(),
+          isRising: post.isRising || Math.random() > 0.7,
+        }));
+        
         const processedRedditData = {
-          trending: redditJson.map((post: any) => ({
-            ...post,
-            score: post.score || post.upvotes || 0,
-            num_comments: post.num_comments || post.comments || 0,
-            subreddit: post.subreddit || "unknown",
-            created: post.created || new Date().toISOString(),
-            isRising: post.isRising || Math.random() > 0.7,
-          })),
-        }
-        processedRedditData.subredditStats = generateSubredditStats(processedRedditData.trending)
-
+          trending: processedTrending,
+          subredditStats: generateSubredditStats(processedTrending),
+        };
+        
         setSocialMediaData(processedSocialData)
         setRedditData(processedRedditData)
       } catch (error) {
