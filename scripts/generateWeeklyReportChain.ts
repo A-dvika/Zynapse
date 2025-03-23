@@ -6,29 +6,35 @@ import { generateSummary } from "../lib/ai";
 
 async function run() {
   try {
-    // 1. Define Last Week's Date Range (previous 7 days excluding today)
     const now = new Date();
-    const endDate = new Date(now);
-    endDate.setHours(0, 0, 0, 0);
-    const startDate = new Date(endDate);
+    const endDate = now; // Use the current moment as the end date
+    const startDate = new Date(now);
     startDate.setDate(startDate.getDate() - 7);
+    // Gadget news articles from NewsAPI
+    const apiKey = process.env.NEWS_API_KEY;
+    let gadgetArticles: any[] = [];
+    if (apiKey) {
+      const url = `https://newsapi.org/v2/everything?q=gadgets&sortBy=publishedAt&language=en&apiKey=${apiKey}`;
+      const res = await fetch(url, { cache: 'no-store' });
+      if (res.ok) {
+        const newsData = await res.json();
+        // Take the top 5 articles
+        gadgetArticles = newsData.articles.slice(0, 5);
+      } else {
+        console.error("Failed to fetch gadget news from NewsAPI.");
+      }
+    } else {
+      console.error("NEWS_API_KEY is not set in environment variables.");
+    }
 
+    
     // 2. Query Data from Various Models
     const redditPosts = await prisma.redditPost.findMany({
       where: { createdAt: { gte: startDate, lt: endDate } },
       orderBy: { upvotes: "desc" },
       take: 5,
     });
-    const gitHubRepos = await prisma.gitHubRepo.findMany({
-      where: { createdAt: { gte: startDate, lt: endDate } },
-      orderBy: { stars: "desc" },
-      take: 5,
-    });
-    const stackOverflowQuestions = await prisma.stackOverflowQuestion.findMany({
-      where: { creationDate: { gte: startDate, lt: endDate } },
-      orderBy: { score: "desc" },
-      take: 5,
-    });
+    
     const hackerNewsItems = await prisma.hackerNewsItem.findMany({
       where: { createdAt: { gte: startDate, lt: endDate } },
       orderBy: { score: "desc" },
@@ -39,11 +45,29 @@ async function run() {
       orderBy: { createdAt: "desc" },
       take: 5,
     });
-    const socialMediaPosts = await prisma.socialMediaPost.findMany({
-      where: { createdAt: { gte: startDate, lt: endDate } },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    });
+    // Product Hunt posts: using createdAt if aggregatedAt isn’t being set as expected.
+const productHuntPosts = await prisma.productHuntPost.findMany({
+  where: { createdAt: { gte: startDate, lt: endDate } },
+  orderBy: { createdAt: 'desc' },
+  take: 5,
+});
+
+// GitHub repos: using updatedAt to reflect recent activity.
+const gitHubRepos = await prisma.gitHubRepo.findMany({
+  where: { updatedAt: { gte: startDate, lt: endDate } },
+  orderBy: { stars: "desc" },
+  take: 5,
+});
+
+
+
+// Social Media posts: using createdAt.
+const socialMediaPosts = await prisma.socialMediaPost.findMany({
+  where: { createdAt: { gte: startDate, lt: endDate } },
+  orderBy: { createdAt: "desc" },
+  take: 5,
+});
+
     const memes = await prisma.meme.findMany({
       where: { createdAt: { gte: startDate, lt: endDate } },
       orderBy: { upvotes: "desc" },
@@ -65,12 +89,7 @@ async function run() {
       )
       .join("\n");
 
-    const stackOverflowData = stackOverflowQuestions
-      .map(
-        (q: { title: string; score: number; answerCount: number }) =>
-          `- ${q.title} (Score: ${q.score}, Answers: ${q.answerCount})`
-      )
-      .join("\n");
+    
 
     const hackerNewsData = hackerNewsItems
       .map(
@@ -99,7 +118,20 @@ async function run() {
           `- ${meme.title || "No Title"} (Platform: ${meme.platform}, Upvotes: ${meme.upvotes ?? 0})`
       )
       .join("\n");
-    
+      
+      const productHuntData = productHuntPosts
+      .map(
+        (post: { name: string; votesCount: number }) =>
+          `- ${post.name} (Upvotes: ${post.votesCount})`
+      )
+      .join("\n");
+
+    const gadgetNewsData = gadgetArticles
+      .map(
+        (article: { title: string; source: { name: string }; publishedAt: string }) =>
+          `- ${article.title} (Source: ${article.source.name}, Published At: ${new Date(article.publishedAt).toDateString()})`
+      )
+      .join("\n");
 
     // 4. Generate Individual Summaries for Each Category (Chain-of-Thought Step)
     const redditSummary = await generateSummary(`Summarize the following Reddit posts from last week in a concise paragraph, highlighting key trends and popular topics:
@@ -110,9 +142,6 @@ ${redditData}`);
     
 ${gitHubData}`);
 
-    const stackOverflowSummary = await generateSummary(`Summarize the following StackOverflow questions from last week. Focus on the most interesting trends, popular questions, and any emerging topics:
-    
-${stackOverflowData}`);
 
     const hackerNewsSummary = await generateSummary(`Summarize the following Hacker News items from last week, noting any significant tech discussions or headlines:
     
@@ -129,6 +158,14 @@ ${socialMediaData}`);
     const memesSummary = await generateSummary(`Summarize the following memes from last week, highlighting any trends or viral topics:
     
 ${memesData}`);
+// New summaries for the additional data sources
+const productHuntSummary = await generateSummary(`Summarize the following Product Hunt posts from last week in a concise paragraph, highlighting key trends and standout projects:
+    
+  ${productHuntData}`);
+  
+      const gadgetNewsSummary = await generateSummary(`Summarize the following gadget news articles from last week in a concise paragraph, emphasizing any notable tech innovations or trends:
+      
+  ${gadgetNewsData}`);
 
     // 5. Combine the Individual Summaries into an Aggregated Context
     const aggregatedContext = `
@@ -140,8 +177,6 @@ ${redditSummary}
 **GitHub:**  
 ${gitHubSummary}
 
-**StackOverflow:**  
-${stackOverflowSummary}
 
 **Hacker News:**  
 ${hackerNewsSummary}
@@ -154,10 +189,14 @@ ${socialMediaSummary}
 
 **Memes:**  
 ${memesSummary}
-    `;
+  **Product Hunt:**  
+${productHuntSummary}
 
+**Gadget News:**  
+${gadgetNewsSummary}
+    `;
     // 6. Generate the Final Weekly Report with an Engaging Email Tone
-    const finalPrompt = `You are an expert data analyst and a skilled storyteller. Imagine you are writing an exciting weekly email report for our valued users that highlights the most important and engaging trends from the past week, no need to give any subject I have already set that. The report should be warm, inviting, and easy to understand without any technical jargon. Focus on key highlights, surprising trends, and actionable insights that will excite and inform our users. Use a conversational tone and include clear, enthusiastic recommendations.
+    const finalPrompt = `You are an expert data analyst and a skilled storyteller. Imagine you are writing an exciting weekly email report for our valued users that highlights the most important and engaging trends from the past week, no need to give any subject I have already set that. The report should be warm, inviting, and easy to understand without any technical jargon, you can use emojis too, butonly use where it makes sense, you can use quotes too . Focus on key highlights, surprising trends, and actionable insights that will excite and inform our users. Use a conversational tone and include clear, enthusiastic recommendations.
 
 Here is the aggregated data from last week:
 ${aggregatedContext}
