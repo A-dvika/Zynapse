@@ -8,7 +8,7 @@
 //   const [answer, setAnswer] = useState("");
 //   const [loading, setLoading] = useState(false);
 //   const [error, setError] = useState("");
-
+// // 
 //   const handleSubmit = async (e: React.FormEvent) => {
 //     e.preventDefault();
 //     setLoading(true);
@@ -69,3 +69,11 @@
 // };
 
 // export default ChatPage;
+export default function Page() {
+    return (
+      <div>
+        {/* Your chat page content */}
+      </div>
+    );
+  }
+  
