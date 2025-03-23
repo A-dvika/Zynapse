@@ -14,14 +14,26 @@ import {
 
 export function ModeToggle() {
   const { setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  // Set mounted to true after component mounts
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          {resolvedTheme === "dark" ? (
-            <Moon className="h-[1.2rem] w-[1.2rem]" />
+          {/* Render the icon only after mounted to avoid hydration mismatch */}
+          {mounted ? (
+            resolvedTheme === "dark" ? (
+              <Moon className="h-[1.2rem] w-[1.2rem]" />
+            ) : (
+              <Sun className="h-[1.2rem] w-[1.2rem]" />
+            )
           ) : (
+            // Optional: render nothing or a placeholder icon while mounting
             <Sun className="h-[1.2rem] w-[1.2rem]" />
           )}
           <span className="sr-only">Toggle theme</span>
@@ -37,9 +49,7 @@ export function ModeToggle() {
         <DropdownMenuItem onClick={() => setTheme("system")}>
           System
         </DropdownMenuItem>
-       
       </DropdownMenuContent>
     </DropdownMenu>
-    
   )
 }

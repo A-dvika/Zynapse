@@ -136,9 +136,11 @@ export default function StackOverflowPage() {
     const tagMap = new Map()
 
     // Only process questions that match the current search term
-    const questionsToProcess = tagFilter ? data.questions.filter((q) => q.tags.includes(tagFilter)) : data.questions
+    const questionsToProcess = tagFilter
+      ? data.questions.filter((q: { tags: string[] }) => q.tags.includes(tagFilter))
+      : data.questions
 
-    questionsToProcess.forEach((question) => {
+    questionsToProcess.forEach((question: { tags: string[] }) => {
       question.tags.forEach((tag) => {
         tagMap.set(tag, (tagMap.get(tag) || 0) + 1)
       })
