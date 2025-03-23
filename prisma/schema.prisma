@@ -140,3 +140,14 @@ model DataSummary {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model ProductHuntPost {
+  id            Int      @id
+  name          String
+  tagline       String
+  url           String
+  votesCount    Int
+  commentsCount Int
+  createdAt     DateTime
+  aggregatedAt  DateTime
+}

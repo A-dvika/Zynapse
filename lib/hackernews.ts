@@ -66,27 +66,26 @@ export interface TechNewsItem {
  * Example of fetching a "Tech News" feed from an imaginary aggregator or RSS.
  * (Replace with your actual feed or curated list.)
  */
+
+
 export async function fetchTechNewsFeed(): Promise<TechNewsItem[]> {
-  const mockData: TechNewsItem[] = [
-    {
-      id: 'technews-1',
-      title: 'New AI chip revolutionizes computing',
-      url: 'https://example.com/ai-chip-news',
-      source: 'TechCrunch',
-      summary: 'A quick rundown on the latest AI hardware breakthrough.',
-    },
-    {
-      id: 'technews-2',
-      title: '5 Cloud trends to watch in 2025',
-      url: 'https://example.com/cloud-trends',
-      source: 'The Verge',
-      summary: 'A deep dive into the future of cloud computing.',
-    },
-  ];
+  const API_KEY = "defa7a0ec55f4880af8e64cb51e5ffde"; // Replace with your actual API key
+  const url = `https://newsapi.org/v2/top-headlines?category=technology&apiKey=${API_KEY}`;
+  
+  const { data } = await axios.get(url);
 
-  // If you have a real endpoint:
-  // const { data } = await axios.get('https://my-tech-news-feed.com/api/v1/items');
-  // return data.items;
+  // NewsAPI returns articles in the response. Map them to your TechNewsItem interface.
+  const articles = data.articles;
+  const techNews: TechNewsItem[] = articles.map((article: any, index: number) => ({
+    id: `technews-${index}-${new Date(article.publishedAt).getTime()}`, // create a unique id
+    title: article.title,
+    url: article.url,
+    source: article.source.name,
+    summary: article.description || '',
+  }));
 
-  return mockData;
+  return techNews;
 }
+
+
+  
