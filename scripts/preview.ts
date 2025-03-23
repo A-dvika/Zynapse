@@ -2,7 +2,7 @@ import fs from 'fs';
  import { marked } from 'marked';
  import prisma from '../lib/db';
  
-  // Define an enhanced HTML email template with inline CSS
+ 
   const emailTemplate = (name: string, report: string) => `
   <!DOCTYPE html>
   <html lang="en">
@@ -139,13 +139,13 @@ import fs from 'fs';
  
    const fakeName = 'Test User';
  
-   // Convert markdown to HTML
+   
    const reportHtml = await marked(weeklyReportData.summary);
  
-   // Build full email
+   
    const htmlContent = emailTemplate(fakeName, reportHtml);
  
-   // Write it to preview.html
+   
    fs.writeFileSync('preview.html', htmlContent, 'utf8');
    console.log('✅ Preview file generated: preview.html');
    console.log('👉 Open preview.html in your browser to see your full email layout.');

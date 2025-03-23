@@ -7,7 +7,7 @@ import { generateSummary } from "../lib/ai";
 async function run() {
   try {
     const now = new Date();
-    const endDate = now; // Use the current moment as the end date
+    const endDate = now; 
     const startDate = new Date(now);
     startDate.setDate(startDate.getDate() - 7);
     // Gadget news articles from NewsAPI

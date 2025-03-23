@@ -8,14 +8,13 @@ const headers = GITHUB_TOKEN
   ? { Authorization: `token ${GITHUB_TOKEN}` }
   : undefined;
 
-// --- Define interfaces for GitHub responses ---
 
-// Generic search response interface from GitHub
+
 interface GitHubSearchResponse<T> {
   items: T[];
 }
 
-// Interface for a repository returned from GitHub search
+
 interface GitHubRepo {
   id: number;
   name: string;
@@ -29,7 +28,7 @@ interface GitHubRepo {
   description: string | null;
 }
 
-// The transformed repository interface used in our app
+
 export interface TrendingRepo {
   id: number;
   name: string;
@@ -43,7 +42,7 @@ export interface TrendingRepo {
   description: string | null;
 }
 
-// Interface for an issue returned from GitHub search
+
 interface GitHubIssue {
   id: number;
   html_url: string;
@@ -54,7 +53,7 @@ interface GitHubIssue {
   updated_at: string;
 }
 
-// The transformed issue interface used in our app
+
 export interface ActiveIssue {
   id: number;
   repoName: string;
@@ -66,20 +65,14 @@ export interface ActiveIssue {
   updatedAt: string;
 }
 
-/**
- * Get the ISO date string for a given number of days ago.
- */
+
 function getDateDaysAgo(days: number): string {
   const date = new Date();
   date.setDate(date.getDate() - days);
   return date.toISOString().split("T")[0]; // YYYY-MM-DD
 }
 
-/**
- * Fetch trending repositories based on recent activity.
- * This query finds repos created and pushed in the last 7 days,
- * then sorts them by stars in descending order.
- */
+
 export async function fetchTrendingRepos(): Promise<TrendingRepo[]> {
   const oneWeekAgo = getDateDaysAgo(7);
   const query = `created:>${oneWeekAgo}+pushed:>${oneWeekAgo}`;
@@ -105,9 +98,7 @@ export async function fetchTrendingRepos(): Promise<TrendingRepo[]> {
   }
 }
 
-/**
- * Fetch highly active issues (with many comments) for a given repository.
- */
+
 export async function fetchActiveIssues(repoFullName: string): Promise<ActiveIssue[]> {
   const url = `${GITHUB_API_URL}/search/issues?q=repo:${repoFullName}+state:open&sort=comments&order=desc&per_page=5`;
   try {
@@ -128,9 +119,7 @@ export async function fetchActiveIssues(repoFullName: string): Promise<ActiveIss
   }
 }
 
-/**
- * Summarize the languages used in a list of repositories.
- */
+
 export function analyzeLanguages(repos: TrendingRepo[]): { language: string; repoCount: number }[] {
   const languageCount: Record<string, number> = {};
 

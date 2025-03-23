@@ -8,7 +8,7 @@ if (!twitterBearerToken) {
   throw new Error('Missing Twitter Bearer Token');
 }
 
-// Define types for Twitter API response
+
 interface TwitterPublicMetrics {
   like_count: number;
 }
@@ -30,10 +30,7 @@ interface TwitterTweet {
   entities?: TwitterEntities;
 }
 
-/**
- * Fetches recent tweets that mention technology.
- * Adjust the query string if needed.
- */
+
 export async function fetchTwitterBuzz(limit = 10): Promise<{
   id: string;
   platform: string;
@@ -45,7 +42,7 @@ export async function fetchTwitterBuzz(limit = 10): Promise<{
   createdAt: string;
 }[]> {
   const url = 'https://api.twitter.com/2/tweets/search/recent';
-  const query = 'technology OR tech OR #tech'; // Modify as needed for better results
+  const query = 'technology OR tech OR #tech'; 
   const params = {
     query,
     max_results: limit,
@@ -66,7 +63,7 @@ export async function fetchTwitterBuzz(limit = 10): Promise<{
       id: tweet.id,
       platform: 'twitter',
       content: tweet.text,
-      author: tweet.author_id, // For a full username lookup, you may need an additional API call
+      author: tweet.author_id, 
       hashtags,
       url: `https://twitter.com/i/web/status/${tweet.id}`,
       score: tweet.public_metrics ? tweet.public_metrics.like_count : 0,
@@ -75,7 +72,7 @@ export async function fetchTwitterBuzz(limit = 10): Promise<{
   });
 }
 
-// Define types for Mastodon API response
+
 interface MastodonTag {
   name: string;
 }
@@ -94,9 +91,7 @@ interface MastodonPost {
   created_at: string;
 }
 
-/**
- * Fetches recent public posts from a Mastodon instance.
- */
+
 export async function fetchMastodonBuzz(limit = 10): Promise<{
   id: string;
   platform: string;
@@ -117,7 +112,7 @@ export async function fetchMastodonBuzz(limit = 10): Promise<{
     return {
       id: post.id,
       platform: 'mastodon',
-      content: post.content, // May contain HTML—consider sanitizing if displaying raw content
+      content: post.content, 
       author: post.account.acct,
       hashtags,
       url: post.url,

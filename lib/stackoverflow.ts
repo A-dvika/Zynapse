@@ -28,16 +28,13 @@ interface Answer {
   creationDate: string;
 }
 
-/**
- * Fetch trending questions (sorted by votes) without filtering by tags.
- */
 export async function fetchTrendingQuestions(): Promise<Question[]> {
   const url = `${STACKOVERFLOW_API_URL}/questions`;
   const params = {
     ...defaultParams,
     order: 'desc',
     sort: 'votes',
-    filter: '!9_bDE(fI5', // Adjust filter as needed
+    filter: '!9_bDE(fI5',
   };
 
   const response = await axios.get(url, { params });
@@ -54,24 +51,19 @@ export async function fetchTrendingQuestions(): Promise<Question[]> {
   }));
 }
 
-/**
- * Fetch answered questions trend by filtering the trending questions.
- */
+
 export async function fetchAnsweredQuestions(): Promise<Question[]> {
   const allQuestions = await fetchTrendingQuestions();
   return allQuestions.filter((q) => q.isAnswered);
 }
 
-/**
- * Fetch top-voted answers with full body details.
- */
+
 export async function fetchDetailedTopVotedAnswers(): Promise<Answer[]> {
   const url = `${STACKOVERFLOW_API_URL}/answers`;
   const params = {
     ...defaultParams,
     order: 'desc',
     sort: 'votes',
-    // Use a filter that includes the answer body; adjust if necessary.
     filter: 'withbody',
   };
 
@@ -82,7 +74,7 @@ export async function fetchDetailedTopVotedAnswers(): Promise<Answer[]> {
     link: a.link,
     score: a.score,
     isAccepted: a.is_accepted,
-    body: a.body, // full HTML content of the answer
+    body: a.body, 
     creationDate: new Date(a.creation_date * 1000).toISOString(),
   }));
 }

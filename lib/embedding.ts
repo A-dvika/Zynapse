@@ -9,7 +9,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     throw new Error("COHERE_API_KEY is not set.");
   }
 
-  // Cohere's embedding endpoint (version may vary; check their docs for updates)
+  // Cohere's embedding endpoint 
   const url = "https://api.cohere.ai/embed";
 
   try {
@@ -17,7 +17,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       url,
       {
         texts: [text],
-        // You can choose a model like "embed-english-light-v2.0" or another available model.
+       
         model: "embed-english-light-v2.0",
       },
       {

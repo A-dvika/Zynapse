@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const REDDIT_API_URL = 'https://www.reddit.com';
 
-// Define a larger list of subreddits covering different tech topics
+
 const subreddits = [
   'programming',
   'startups',
@@ -15,7 +15,7 @@ const subreddits = [
   'android'
 ];
 
-// Define interfaces for Reddit response
+
 interface RedditPost {
   id: string;
   title: string;
@@ -43,11 +43,11 @@ export interface RedditTrend {
 }
 
 export async function fetchRedditTrends(): Promise<RedditTrend[]> {
-  // Use Promise.all to fetch data concurrently from all subreddits
+  
   const trendsPromises = subreddits.map(async (subreddit) => {
     try {
       const response = await axios.get(`${REDDIT_API_URL}/r/${subreddit}/hot.json?limit=10`);
-      // Map the response data to our RedditTrend interface
+      
       return response.data.data.children.map((child: RedditChild): RedditTrend => {
         const post = child.data;
         return {
@@ -63,15 +63,15 @@ export async function fetchRedditTrends(): Promise<RedditTrend[]> {
       });
     } catch (error) {
       console.error(`Error fetching data from /r/${subreddit}:`, error);
-      return []; // Return an empty array if there's an error for this subreddit
+      return []; 
     }
   });
 
-  // Wait for all requests to finish and flatten the results into one array
+  
   const trendsArrays = await Promise.all(trendsPromises);
   const trends = trendsArrays.flat();
 
-  // Sort posts by a composite metric (upvotes + comments)
+  
   trends.sort((a, b) => (b.upvotes + b.comments) - (a.upvotes + a.comments));
   return trends;
 }

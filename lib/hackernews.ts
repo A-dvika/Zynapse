@@ -23,22 +23,20 @@ export interface HackerNewsStory {
   createdAt: string;
 }
 
-/**
- * Fetch top Hacker News story IDs, then details for each.
- */
+
 export async function fetchHackerNewsStories(limit = 10): Promise<HackerNewsStory[]> {
-  // 1) Get the IDs of top stories
+ 
   const topStoriesUrl = `${HN_API_BASE}/topstories.json`;
   const { data: storyIds } = await axios.get<number[]>(topStoriesUrl);
 
-  // 2) Grab details for the first `limit` stories
+  
   const stories: HackerNewsStory[] = [];
   for (let i = 0; i < Math.min(limit, storyIds.length); i++) {
     const storyId = storyIds[i];
     const itemUrl = `${HN_API_BASE}/item/${storyId}.json`;
     const { data: storyData } = await axios.get<HackerNewsItem | null>(itemUrl);
 
-    // Some items might be null if they're deleted/invalid
+    
     if (storyData) {
       stories.push({
         id: storyData.id,
@@ -62,10 +60,6 @@ export interface TechNewsItem {
   summary: string;
 }
 
-/**
- * Example of fetching a "Tech News" feed from an imaginary aggregator or RSS.
- * (Replace with your actual feed or curated list.)
- */
 
 
 export async function fetchTechNewsFeed(): Promise<TechNewsItem[]> {
@@ -74,7 +68,7 @@ export async function fetchTechNewsFeed(): Promise<TechNewsItem[]> {
   
   const { data } = await axios.get(url);
 
-  // NewsAPI returns articles in the response. Map them to your TechNewsItem interface.
+ 
   const articles = data.articles;
   const techNews: TechNewsItem[] = articles.map((article: { title: string; url: string; source: { name: string }; description?: string; publishedAt: string }, index: number) => ({
     id: `technews-${index}-${new Date(article.publishedAt).getTime()}`, // create a unique id

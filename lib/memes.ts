@@ -14,7 +14,7 @@ export interface Meme {
   createdAt: string;
 }
 
-// --- Reddit Types ---
+
 interface RedditResponse {
   data: {
     children: RedditChild[];
@@ -36,9 +36,6 @@ interface RedditPost {
   post_hint?: string;
 }
 
-/**
- * Fetch meme posts from Reddit.
- */
 export async function fetchRedditMemes(): Promise<Meme[]> {
   const subreddits = ["memes", "dankmemes", "wholesomememes"];
   let memes: Meme[] = [];
@@ -71,7 +68,7 @@ export async function fetchRedditMemes(): Promise<Meme[]> {
   return memes;
 }
 
-// --- Twitter Types ---
+
 interface TwitterTweet {
   id: string;
   text: string;
@@ -96,9 +93,7 @@ interface TwitterResponse {
   };
 }
 
-/**
- * Fetch meme posts from Twitter using Twitter API v2.
- */
+
 export async function fetchTwitterMemes(): Promise<Meme[]> {
   const bearerToken = process.env.TWITTER_BEARER_TOKEN;
   if (!bearerToken) throw new Error("TWITTER_BEARER_TOKEN not set");
@@ -150,12 +145,7 @@ export async function fetchTwitterMemes(): Promise<Meme[]> {
   }
 }
 
-/**
- * Fetch meme posts from Instagram.
- *
- * Note: This is a stub function. Instagram API access is limited, so replace this
- * with real integration if you have access to the Instagram Graph API or another service.
- */
+
 export async function fetchInstagramMemes(): Promise<Meme[]> {
   return [
     {
@@ -181,9 +171,6 @@ export async function fetchInstagramMemes(): Promise<Meme[]> {
   ];
 }
 
-/**
- * Aggregate memes from all sources.
- */
 export async function fetchAllMemes(): Promise<Meme[]> {
   const [redditMemes, twitterMemes, instagramMemes] = await Promise.all([
     fetchRedditMemes(),

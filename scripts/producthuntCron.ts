@@ -37,7 +37,7 @@ async function run() {
           description: post.description,
         },
       });
-      // Optional: short delay
+      
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
     console.log('Product Hunt data saved to DB successfully.');
