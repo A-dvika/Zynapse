@@ -11,7 +11,7 @@ const Navbar = () => {
   const links = [
     { name: "Overview", href: "/overview" },
     { name: "Github", href: "/github" },
-    { name: "Reddit", href: "/reddit" },
+    { name: "ProductHunt", href: "/producthunt" },
     { name: "Stack Overflow", href: "/stack-overflow" },
     { name: "HackerNews", href: "/hackernews" },
     { name: "Socials", href: "/socials" },
