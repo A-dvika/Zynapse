@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./ui/darkmode";
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
     { name: "Overview", href: "/overview" },
@@ -18,9 +20,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="z-50 lg:sticky max-w-[90%] m-auto lg:top-0">
-      {/* Desktop Navbar */}
-      <section className="flex w-full justify-between items-center m-auto p-2">
+    <nav className="z-50 max-w-[90%] m-auto sticky top-0 bg-white dark:bg-black/30 backdrop-blur-md rounded-b-xl shadow-sm">
+      <section className="flex w-full justify-between items-center p-4">
         {/* ✅ Logo */}
         <Link href="/" className="flex items-center gap-2 font-semibold text-xl">
           <svg
@@ -60,26 +61,35 @@ const Navbar = () => {
 
         {/* ✅ Dark Mode Toggle */}
         <ModeToggle />
+
+        {/* ✅ Hamburger Icon */}
+        <button
+          className="lg:hidden ml-4"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </section>
 
-      {/* ✅ Mobile Navbar */}
-      <section className="fixed z-50 md:w-[30rem] md:m-auto lg:hidden bottom-10 left-0 right-0 flex flex-wrap justify-center w-full">
-        <div className="flex gap-3 flex-wrap items-center w-[80%] justify-between p-3 bg-black/20 dark:bg-white/5 backdrop-blur-lg rounded-xl">
+      {/* ✅ Mobile Hamburger Menu */}
+      {menuOpen && (
+        <div className="lg:hidden flex flex-col gap-4 p-4 bg-white dark:bg-black/80 rounded-xl shadow-md mx-4 mt-2 z-40">
           {links.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className={`text-sm px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
+              onClick={() => setMenuOpen(false)}
+              className={`text-base font-medium px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
                 pathname === link.href
                   ? "bg-white dark:bg-gray-900 text-blue-600"
-                  : "text-gray-100 dark:text-gray-300"
+                  : "text-gray-700 dark:text-gray-300"
               }`}
             >
               {link.name}
             </Link>
           ))}
         </div>
-      </section>
+      )}
     </nav>
   );
 };
