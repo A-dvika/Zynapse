@@ -53,6 +53,7 @@ import {
   AreaChart,
   Area,
 } from "recharts"
+import { BackgroundBeams } from "@/components/ui/beams"
 
 export default function UnifiedDashboard() {
   // State for data
@@ -1036,6 +1037,7 @@ export default function UnifiedDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+      <BackgroundBeams />
     </motion.section>
   )
 }

@@ -42,6 +42,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format, subDays } from "date-fns"
+import { BackgroundBeams } from "@/components/ui/beams"
 function GadgetNews() {
     const [news, setNews] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -915,7 +916,9 @@ export default function ProductHuntPage() {
       >
         "Great products solve real problems with elegant solutions."
       </motion.div>
+      <BackgroundBeams />
     </motion.section>
+
   )
 }
 

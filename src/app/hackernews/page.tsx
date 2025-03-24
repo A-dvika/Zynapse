@@ -35,6 +35,7 @@ import {
   User,
   Calendar,
 } from "lucide-react"
+import { BackgroundBeams } from "@/components/ui/beams"
 
 export default function HackerNewsPage() {
   const [data, setData] = useState<any>(null)
@@ -583,6 +584,7 @@ export default function HackerNewsPage() {
       >
         "Talk is cheap. Show me the code." — Linus Torvalds
       </motion.div>
+      <BackgroundBeams />
     </motion.section>
   )
 }

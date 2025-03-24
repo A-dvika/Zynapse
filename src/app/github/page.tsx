@@ -37,6 +37,7 @@ import {
   Sun,
 } from "lucide-react"
 import { useTheme } from "next-themes"
+import { BackgroundBeams } from "@/components/ui/beams"
 
 export default function GithubPage() {
   const [data, setData] = useState<any>(null)
@@ -558,6 +559,7 @@ export default function GithubPage() {
       >
         "Code is like humor. When you have to explain it, it's bad."
       </motion.div>
+      <BackgroundBeams />
     </motion.section>
   )
 }

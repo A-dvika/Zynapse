@@ -43,6 +43,7 @@ import { useTheme } from "next-themes"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
+import { BackgroundBeams } from "@/components/ui/beams"
 
 export default function StackOverflowPage() {
   const [data, setData] = useState<any>(null)
@@ -779,6 +780,7 @@ export default function StackOverflowPage() {
       >
         "Knowledge shared is knowledge squared."
       </motion.div>
+      <BackgroundBeams />
     </motion.section>
   )
 }
