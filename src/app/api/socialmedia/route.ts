@@ -1,4 +1,3 @@
-// src/app/api/socialmedia/route.ts
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/db';
 
@@ -8,7 +7,8 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
-    return NextResponse.json({ posts });
+
+    return NextResponse.json(posts); // ✅ Directly return posts (no extra `{ posts }` wrapper)
   } catch (error) {
     console.error('Error in GET /api/socialmedia:', error);
     return NextResponse.json(

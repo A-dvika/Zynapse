@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion } from "framer-motion"
 import { useTheme } from "next-themes"
+import { Globe, Activity } from "lucide-react"
+import { FaReddit } from "react-icons/fa";
+
 import {
   ArrowUpRight,
   BarChart3,
@@ -75,62 +76,57 @@ export default function UnifiedDashboard() {
 
   const { theme, setTheme } = useTheme()
 
-  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true)
       try {
+        setIsLoading(true)
+
         // Fetch both data sources in parallel
-        const [socialMediaResponse, redditResponse] = await Promise.all([
+        const [socialMediaRes, redditRes] = await Promise.all([
           fetch("/api/socialmedia"),
           fetch("/api/reddit"),
         ])
 
-        const socialMediaJson = await socialMediaResponse.json()
-        const redditJson = await redditResponse.json()
+        const socialMediaJson = await socialMediaRes.json()
+        const redditJson = await redditRes.json()
 
-        const processedPosts = socialMediaJson.posts.map((post: any) => ({
+        // Process Social Media Data
+        const stripHtml = (html: string) => {
+          const doc = new DOMParser().parseFromString(html, "text/html")
+          return doc.body.textContent || ""
+        }
+
+        const processedSocialMedia = socialMediaJson.map((post: any) => ({
           ...post,
-          likes: post.likes || 0,
-          shares: post.shares || 0,
-          comments: post.comments || 0,
           platform: post.platform || "unknown",
-        }));
-        
-        const processedSocialData = {
-          posts: processedPosts,
-          platformStats: generatePlatformStats(processedPosts),
-          engagementStats: generateEngagementStats(processedPosts),
-        };
-        
-        const processedTrending = redditJson.map((post: any) => ({
+          content: stripHtml(post.content),
+        }))
+
+        // Process Reddit Data
+        const processedReddit = redditJson.map((post: any) => ({
           ...post,
           score: post.score || post.upvotes || 0,
           num_comments: post.num_comments || post.comments || 0,
           subreddit: post.subreddit || "unknown",
           created: post.created || new Date().toISOString(),
-          isRising: post.isRising || Math.random() > 0.7,
-        }));
-        
-        const processedRedditData = {
-          trending: processedTrending,
-          subredditStats: generateSubredditStats(processedTrending),
-        };
-        
-        setSocialMediaData(processedSocialData)
-        setRedditData(processedRedditData)
+          isRising: post.isRising || Math.random() > 0.7, // For demo purposes
+        }))
+
+        // Set Social Media Data
+        setSocialMediaData({
+          posts: processedSocialMedia,
+          platformStats: generatePlatformStats(processedSocialMedia),
+          engagementStats: generateEngagementStats(processedSocialMedia),
+        })
+
+        // Set Reddit Data
+        setRedditData({
+          trending: processedReddit,
+          subredditStats: generateSubredditStats(processedReddit),
+        })
       } catch (error) {
         console.error("Error fetching data:", error)
-        // Set fallback data for demo purposes
-        setSocialMediaData({
-          posts: generateMockSocialData(),
-          platformStats: generateMockPlatformStats(),
-          engagementStats: generateMockEngagementStats(),
-        })
-        setRedditData({
-          trending: generateMockRedditData(),
-          subredditStats: generateMockSubredditStats(),
-        })
+        // Handle error state if needed
       } finally {
         setIsLoading(false)
       }
@@ -172,13 +168,13 @@ export default function UnifiedDashboard() {
   const totalPosts = totalSocialPosts + totalRedditPosts
 
   const totalSocialEngagement =
-    socialMediaData?.posts?.reduce(
-      (acc: number, post: any) => acc + (post.likes || 0) + (post.shares || 0) + (post.comments || 0),
-      0,
-    ) || 0
+    socialMediaData?.posts?.reduce((acc: number, post: any) => acc + (post.score || 0), 0) || 0
 
   const totalRedditEngagement =
-    redditData?.trending?.reduce((acc: number, post: any) => acc + (post.score || 0) + (post.num_comments || 0), 0) || 0
+    redditData?.trending?.reduce(
+      (acc: number, post: any) => acc + (post.score || 0) + (post.num_comments || 0),
+      0,
+    ) || 0
 
   const totalEngagement = totalSocialEngagement + totalRedditEngagement
 
@@ -212,13 +208,19 @@ export default function UnifiedDashboard() {
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case "twitter":
-        return <Twitter className="h-4 w-4" />
+        return <Twitter className="h-4 w-4 text-blue-500" />
       case "facebook":
-        return <Facebook className="h-4 w-4" />
+        return <Facebook className="h-4 w-4 text-blue-700" />
       case "instagram":
-        return <Instagram className="h-4 w-4" />
+        return <Instagram className="h-4 w-4 text-pink-500" />
+      case "reddit":
+        return <FaReddit className="h-4 w-4 text-orange-500" />;
+      case "mastodon":
+        return <Globe className="h-4 w-4 text-purple-500" />
+      case "linkedin":
+        return <Activity className="h-4 w-4 text-blue-600" />
       default:
-        return <ExternalLink className="h-4 w-4" />
+        return <ExternalLink className="h-4 w-4 text-gray-400" />
     }
   }
 
@@ -382,11 +384,7 @@ export default function UnifiedDashboard() {
                   onClick={() => toggleExpand("socialTrending")}
                   className="h-8 w-8 p-0"
                 >
-                  {expandedCards.socialTrending ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  {expandedCards.socialTrending ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -406,16 +404,16 @@ export default function UnifiedDashboard() {
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <div className="font-medium text-primary flex items-start gap-2">
-                                <Avatar className="h-8 w-8 mt-0.5">
-                                  <AvatarImage
-                                    src={post.authorImage || "/placeholder.svg?height=32&width=32"}
-                                    alt={post.author}
-                                  />
-                                  <AvatarFallback>{post.author?.charAt(0) || "U"}</AvatarFallback>
-                                </Avatar>
                                 <div>
                                   <div className="flex items-center">
-                                    <span className="font-semibold">{post.author || "Anonymous"}</span>
+                                    <a 
+                                      href={post.url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="font-semibold text-blue-500 hover:underline"
+                                    >
+                                      {post.author || "Anonymous"}
+                                    </a>
                                     <Badge variant="outline" className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}>
                                       {getPlatformIcon(post.platform)}
                                       <span className="ml-1">{post.platform}</span>
@@ -427,40 +425,17 @@ export default function UnifiedDashboard() {
                             </div>
                           </div>
                           <div className="flex justify-between items-center mt-3">
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <Heart className="h-4 w-4 text-red-500" />
-                                <span>{post.likes}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Share2 className="h-4 w-4 text-green-500" />
-                                <span>{post.shares}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <MessageCircle className="h-4 w-4 text-blue-500" />
-                                <span>{post.comments}</span>
-                              </div>
-                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground"></div>
                           </div>
                         </motion.div>
                       ))}
                     {!expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpand("socialTrending")}
-                        className="w-full mt-2"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => toggleExpand("socialTrending")} className="w-full mt-2">
                         View All Social Media Posts
                       </Button>
                     )}
                     {expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpand("socialTrending")}
-                        className="w-full mt-2"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => toggleExpand("socialTrending")} className="w-full mt-2">
                         View Less
                       </Button>
                     )}
@@ -483,11 +458,7 @@ export default function UnifiedDashboard() {
                   onClick={() => toggleExpand("redditTrending")}
                   className="h-8 w-8 p-0"
                 >
-                  {expandedCards.redditTrending ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  {expandedCards.redditTrending ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -515,10 +486,7 @@ export default function UnifiedDashboard() {
                                 >
                                   {post.title}
                                 </a>
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 bg-orange-50 text-orange-800 dark:bg-orange-950 dark:text-orange-300"
-                                >
+                                <Badge variant="outline" className="ml-2 bg-orange-50 text-orange-800 dark:bg-orange-950 dark:text-orange-300">
                                   r/{post.subreddit}
                                 </Badge>
                               </div>
@@ -539,22 +507,12 @@ export default function UnifiedDashboard() {
                         </motion.div>
                       ))}
                     {!expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpand("redditTrending")}
-                        className="w-full mt-2"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => toggleExpand("redditTrending")} className="w-full mt-2">
                         View All Reddit Posts
                       </Button>
                     )}
                     {expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpand("redditTrending")}
-                        className="w-full mt-2"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => toggleExpand("redditTrending")} className="w-full mt-2">
                         View Less
                       </Button>
                     )}
@@ -581,10 +539,7 @@ export default function UnifiedDashboard() {
                       <span>{totalSocialPosts}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-purple-500 h-2 rounded-full"
-                        style={{ width: `${(totalSocialPosts / totalPosts) * 100}%` }}
-                      ></div>
+                      <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(totalSocialPosts / totalPosts) * 100}%` }}></div>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -593,10 +548,7 @@ export default function UnifiedDashboard() {
                       <span>{totalSocialEngagement}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-purple-500 h-2 rounded-full"
-                        style={{ width: `${(totalSocialEngagement / totalEngagement) * 100}%` }}
-                      ></div>
+                      <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(totalSocialEngagement / totalEngagement) * 100}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -609,10 +561,7 @@ export default function UnifiedDashboard() {
                       <span>{totalRedditPosts}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-orange-500 h-2 rounded-full"
-                        style={{ width: `${(totalRedditPosts / totalPosts) * 100}%` }}
-                      ></div>
+                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${(totalRedditPosts / totalPosts) * 100}%` }}></div>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -621,10 +570,7 @@ export default function UnifiedDashboard() {
                       <span>{totalRedditEngagement}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-orange-500 h-2 rounded-full"
-                        style={{ width: `${(totalRedditEngagement / totalEngagement) * 100}%` }}
-                      ></div>
+                      <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${(totalRedditEngagement / totalEngagement) * 100}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -635,33 +581,14 @@ export default function UnifiedDashboard() {
                 <h3 className="font-semibold text-lg mb-4">Combined Engagement Timeline</h3>
                 <div className="w-full h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={generateCombinedEngagementData()}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
+                    <AreaChart data={generateCombinedEngagementData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                       <XAxis dataKey="date" />
                       <YAxis />
                       <RechartsTooltip />
                       <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="social"
-                        stackId="1"
-                        stroke="#9333ea"
-                        fill="#9333ea"
-                        name="Social Media"
-                        fillOpacity={0.6}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="reddit"
-                        stackId="1"
-                        stroke="#f97316"
-                        fill="#f97316"
-                        name="Reddit"
-                        fillOpacity={0.6}
-                      />
+                      <Area type="monotone" dataKey="social" stackId="1" stroke="#9333ea" fill="#9333ea" name="Social Media" fillOpacity={0.6} />
+                      <Area type="monotone" dataKey="reddit" stackId="1" stroke="#f97316" fill="#f97316" name="Reddit" fillOpacity={0.6} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -716,29 +643,15 @@ export default function UnifiedDashboard() {
                       Filtered by:
                       <Badge variant="outline" className="ml-2">
                         {platformFilter}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setPlatformFilter(null)}
-                          className="h-4 w-4 ml-1 p-0"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setPlatformFilter(null)} className="h-4 w-4 ml-1 p-0">
                           <ChevronDown className="h-3 w-3" />
                         </Button>
                       </Badge>
                     </CardDescription>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleExpand("socialTrending")}
-                  className="h-8 w-8 p-0"
-                >
-                  {expandedCards.socialTrending ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                <Button variant="ghost" size="sm" onClick={() => toggleExpand("socialTrending")} className="h-8 w-8 p-0">
+                  {expandedCards.socialTrending ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -760,17 +673,17 @@ export default function UnifiedDashboard() {
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <div className="font-medium text-primary flex items-start gap-2">
-                                <Avatar className="h-8 w-8 mt-0.5">
-                                  <AvatarImage
-                                    src={post.authorImage || "/placeholder.svg?height=32&width=32"}
-                                    alt={post.author}
-                                  />
-                                  <AvatarFallback>{post.author?.charAt(0) || "U"}</AvatarFallback>
-                                </Avatar>
                                 <div>
                                   <div className="flex items-center">
-                                    <span className="font-semibold">{post.author || "Anonymous"}</span>
-                                    <Badge variant="outline" className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}>
+                                    <a
+                                      href={post.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="font-semibold text-blue-500 hover:underline"
+                                    >
+                                      {post.author || "Anonymous"}
+                                    </a>
+                                    <Badge variant="default" className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}>
                                       {getPlatformIcon(post.platform)}
                                       <span className="ml-1">{post.platform}</span>
                                     </Badge>
@@ -790,20 +703,6 @@ export default function UnifiedDashboard() {
                             )}
                           </div>
                           <div className="flex justify-between items-center mt-3">
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-1">
-                                <Heart className="h-4 w-4 text-red-500" />
-                                <span>{post.likes}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Share2 className="h-4 w-4 text-green-500" />
-                                <span>{post.shares}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <MessageCircle className="h-4 w-4 text-blue-500" />
-                                <span>{post.comments}</span>
-                              </div>
-                            </div>
                             <span className="text-xs text-muted-foreground">{formatDate(post.createdAt)}</span>
                           </div>
                         </motion.li>
@@ -811,22 +710,12 @@ export default function UnifiedDashboard() {
                   </ul>
                 )}
                 {!expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("socialTrending")}
-                    className="w-full mt-3"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("socialTrending")} className="w-full mt-3">
                     View all {filteredSocialPosts.length} posts
                   </Button>
                 )}
                 {expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("socialTrending")}
-                    className="w-full mt-3"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("socialTrending")} className="w-full mt-3">
                     View less
                   </Button>
                 )}
@@ -840,32 +729,16 @@ export default function UnifiedDashboard() {
                   <PieChartIcon className="h-5 w-5 text-blue-500" /> Platform Distribution
                 </CardTitle>
                 <div className="flex space-x-1">
-                  <Button
-                    variant={chartType === "pie" ? "default" : "outline"}
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setChartType("pie")}
-                  >
+                  <Button variant={chartType === "pie" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => setChartType("pie")}>
                     <PieChartIcon className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant={chartType === "bar" ? "default" : "outline"}
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setChartType("bar")}
-                  >
+                  <Button variant={chartType === "bar" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => setChartType("bar")}>
                     <BarChart3 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <motion.div
-                  key={chartType}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full h-[300px]"
-                >
+                <motion.div key={chartType} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="w-full h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     {chartType === "pie" ? (
                       <PieChart>
@@ -888,11 +761,7 @@ export default function UnifiedDashboard() {
                         <RechartsTooltip formatter={(value, name, props) => [`${value} posts`, props.payload.name]} />
                       </PieChart>
                     ) : (
-                      <BarChart
-                        data={socialMediaData.platformStats}
-                        layout="vertical"
-                        margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
-                      >
+                      <BarChart data={socialMediaData.platformStats} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={80} />
@@ -912,17 +781,8 @@ export default function UnifiedDashboard() {
                   {socialMediaData.platformStats.map((platform: any, index: number) => {
                     const key = platform.name.toLowerCase() as keyof typeof socialColors
                     return (
-                      <div
-                        key={platform.name}
-                        className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer"
-                        onClick={() => setPlatformFilter(platform.name)}
-                      >
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{
-                            backgroundColor: socialColors[key] || socialColors.other,
-                          }}
-                        ></div>
+                      <div key={platform.name} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer" onClick={() => setPlatformFilter(platform.name)}>
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: socialColors[key] || socialColors.other }}></div>
                         <span className="text-sm">
                           {platform.name}: {platform.count}
                         </span>
@@ -950,30 +810,9 @@ export default function UnifiedDashboard() {
                     <YAxis />
                     <RechartsTooltip />
                     <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="likes"
-                      stackId="1"
-                      stroke={socialColors.facebook}
-                      fill={socialColors.facebook}
-                      fillOpacity={0.6}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="shares"
-                      stackId="1"
-                      stroke={socialColors.twitter}
-                      fill={socialColors.twitter}
-                      fillOpacity={0.6}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="comments"
-                      stackId="1"
-                      stroke={socialColors.instagram}
-                      fill={socialColors.instagram}
-                      fillOpacity={0.6}
-                    />
+                    <Area type="monotone" dataKey="likes" stackId="1" stroke={socialColors.facebook} fill={socialColors.facebook} fillOpacity={0.6} />
+                    <Area type="monotone" dataKey="shares" stackId="1" stroke={socialColors.twitter} fill={socialColors.twitter} fillOpacity={0.6} />
+                    <Area type="monotone" dataKey="comments" stackId="1" stroke={socialColors.instagram} fill={socialColors.instagram} fillOpacity={0.6} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -1027,29 +866,15 @@ export default function UnifiedDashboard() {
                       Filtered by:
                       <Badge variant="outline" className="ml-2">
                         r/{subredditFilter}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setSubredditFilter(null)}
-                          className="h-4 w-4 ml-1 p-0"
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setSubredditFilter(null)} className="h-4 w-4 ml-1 p-0">
                           <ChevronDown className="h-3 w-3" />
                         </Button>
                       </Badge>
                     </CardDescription>
                   )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleExpand("redditTrending")}
-                  className="h-8 w-8 p-0"
-                >
-                  {expandedCards.redditTrending ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                <Button variant="ghost" size="sm" onClick={() => toggleExpand("redditTrending")} className="h-8 w-8 p-0">
+                  {expandedCards.redditTrending ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -1091,10 +916,7 @@ export default function UnifiedDashboard() {
                               r/{post.subreddit}
                             </Badge>
                             {post.isRising && (
-                              <Badge
-                                variant="outline"
-                                className="ml-2 bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                              >
+                              <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
                                 <TrendingUp className="h-3 w-3 mr-1" />
                                 Rising
                               </Badge>
@@ -1106,22 +928,12 @@ export default function UnifiedDashboard() {
                   </ul>
                 )}
                 {!expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("redditTrending")}
-                    className="w-full mt-3"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("redditTrending")} className="w-full mt-3">
                     View all {filteredRedditPosts.length} posts
                   </Button>
                 )}
                 {expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("redditTrending")}
-                    className="w-full mt-3"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("redditTrending")} className="w-full mt-3">
                     View less
                   </Button>
                 )}
@@ -1135,32 +947,16 @@ export default function UnifiedDashboard() {
                   <PieChartIcon className="h-5 w-5 text-purple-500" /> Subreddit Distribution
                 </CardTitle>
                 <div className="flex space-x-1">
-                  <Button
-                    variant={chartType === "pie" ? "default" : "outline"}
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setChartType("pie")}
-                  >
+                  <Button variant={chartType === "pie" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => setChartType("pie")}>
                     <PieChartIcon className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant={chartType === "bar" ? "default" : "outline"}
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setChartType("bar")}
-                  >
+                  <Button variant={chartType === "bar" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => setChartType("bar")}>
                     <BarChart3 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <motion.div
-                  key={chartType}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full h-[300px]"
-                >
+                <motion.div key={chartType} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="w-full h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     {chartType === "pie" ? (
                       <PieChart>
@@ -1179,16 +975,10 @@ export default function UnifiedDashboard() {
                             <Cell key={`cell-${index}`} fill={redditColors[index % redditColors.length]} />
                           ))}
                         </Pie>
-                        <RechartsTooltip
-                          formatter={(value, name, props) => [`${value} posts`, `r/${props.payload.name}`]}
-                        />
+                        <RechartsTooltip formatter={(value, name, props) => [`${value} posts`, `r/${props.payload.name}`]} />
                       </PieChart>
                     ) : (
-                      <BarChart
-                        data={redditData.subredditStats}
-                        layout="vertical"
-                        margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
-                      >
+                      <BarChart data={redditData.subredditStats} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="name" width={80} />
@@ -1210,10 +1000,7 @@ export default function UnifiedDashboard() {
                       className="flex items-center gap-2 p-2 rounded-md hover:bg-muted cursor-pointer"
                       onClick={() => setSubredditFilter(subreddit.name)}
                     >
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: redditColors[index % redditColors.length] }}
-                      ></div>
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: redditColors[index % redditColors.length] }}></div>
                       <span className="text-sm">
                         r/{subreddit.name}: {subreddit.count}
                       </span>
@@ -1240,22 +1027,8 @@ export default function UnifiedDashboard() {
                     <YAxis />
                     <RechartsTooltip />
                     <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="upvotes"
-                      stroke="#ff4500"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5, strokeWidth: 0 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="comments"
-                      stroke="#0079d3"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5, strokeWidth: 0 }}
-                    />
+                    <Line type="monotone" dataKey="upvotes" stroke="#ff4500" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="comments" stroke="#0079d3" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5, strokeWidth: 0 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -1268,25 +1041,9 @@ export default function UnifiedDashboard() {
 }
 
 // Stats Card Component
-function StatsCard({
-  title,
-  value,
-  icon,
-  color,
-  index,
-}: {
-  title: string
-  value: number
-  icon: React.ReactNode
-  color: string
-  index: number
-}) {
+function StatsCard({ title, value, icon, color, index }: { title: string; value: number; icon: React.ReactNode; color: string; index: number }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -1303,11 +1060,7 @@ function StatsCard({
 // Helper function to format date
 function formatDate(dateString: string) {
   const date = new Date(dateString)
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  })
+  return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
 }
 
 // Helper function to generate platform stats
@@ -1359,12 +1112,7 @@ function generateEngagementStats(posts: any[]) {
     date.setDate(now.getDate() - i)
     const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 
-    dateMap.set(dateStr, {
-      date: dateStr,
-      likes: 0,
-      shares: 0,
-      comments: 0,
-    })
+    dateMap.set(dateStr, { date: dateStr, likes: 0, shares: 0, comments: 0, score: 0 })
   }
 
   // Aggregate post data by date
@@ -1377,6 +1125,7 @@ function generateEngagementStats(posts: any[]) {
       data.likes += post.likes || 0
       data.shares += post.shares || 0
       data.comments += post.comments || 0
+      data.score += post.score || 0
     }
   })
 
@@ -1392,11 +1141,7 @@ function generateEngagementData() {
     const hour = i % 12 === 0 ? 12 : i % 12
     const ampm = i < 12 ? "AM" : "PM"
 
-    data.push({
-      time: `${hour}${ampm}`,
-      upvotes: Math.floor(Math.random() * 500) + 100,
-      comments: Math.floor(Math.random() * 200) + 50,
-    })
+    data.push({ time: `${hour}${ampm}`, upvotes: Math.floor(Math.random() * 500) + 100, comments: Math.floor(Math.random() * 200) + 50 })
   }
 
   return data
@@ -1412,137 +1157,8 @@ function generateCombinedEngagementData() {
     date.setDate(now.getDate() - i)
     const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 
-    data.push({
-      date: dateStr,
-      social: Math.floor(Math.random() * 1000) + 200,
-      reddit: Math.floor(Math.random() * 800) + 100,
-    })
+    data.push({ date: dateStr, social: Math.floor(Math.random() * 1000) + 200, reddit: Math.floor(Math.random() * 800) + 100 })
   }
 
   return data
 }
-
-// Mock data generation functions
-function generateMockSocialData() {
-  const platforms = ["Twitter", "Facebook", "Instagram", "LinkedIn", "TikTok"]
-  const posts = []
-
-  for (let i = 0; i < 20; i++) {
-    const platform = platforms[Math.floor(Math.random() * platforms.length)]
-    const likes = Math.floor(Math.random() * 1000)
-    const shares = Math.floor(Math.random() * 500)
-    const comments = Math.floor(Math.random() * 200)
-    const hasImage = Math.random() > 0.3
-
-    posts.push({
-      id: `post-${i}`,
-      content: `This is a sample ${platform} post #${i + 1} about our latest product launch. Check it out!`,
-      author: ["John Doe", "Jane Smith", "Alex Johnson", "Sam Wilson", "Taylor Swift"][Math.floor(Math.random() * 5)],
-      authorImage: `/placeholder.svg?height=40&width=40`,
-      platform,
-      likes,
-      shares,
-      comments,
-      image: hasImage ? `/placeholder.svg?height=300&width=500` : null,
-      url: `https://example.com/${platform.toLowerCase()}/post/${i}`,
-      createdAt: new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)).toISOString(),
-    })
-  }
-
-  return posts
-}
-
-function generateMockPlatformStats() {
-  const platforms = ["Twitter", "Facebook", "Instagram", "LinkedIn", "TikTok"]
-
-  return platforms.map((name) => ({
-    name,
-    count: Math.floor(Math.random() * 10) + 1,
-    likes: Math.floor(Math.random() * 5000) + 500,
-    shares: Math.floor(Math.random() * 2000) + 200,
-    comments: Math.floor(Math.random() * 1000) + 100,
-    engagementRate: Math.floor(Math.random() * 30) + 70,
-  }))
-}
-
-function generateMockEngagementStats() {
-  const data = []
-  const now = new Date()
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(now.getDate() - i)
-    const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-
-    data.push({
-      date: dateStr,
-      likes: Math.floor(Math.random() * 500) + 50,
-      shares: Math.floor(Math.random() * 200) + 20,
-      comments: Math.floor(Math.random() * 100) + 10,
-    })
-  }
-
-  return data
-}
-
-function generateMockRedditData() {
-  const subreddits = [
-    "programming",
-    "webdev",
-    "reactjs",
-    "nextjs",
-    "javascript",
-    "technology",
-    "news",
-    "askreddit",
-    "pics",
-    "funny",
-  ]
-  const posts = []
-
-  for (let i = 0; i < 20; i++) {
-    const subreddit = subreddits[Math.floor(Math.random() * subreddits.length)]
-    const isRising = Math.random() > 0.7
-    const score = Math.floor(Math.random() * 10000)
-    const comments = Math.floor(Math.random() * 500)
-
-    posts.push({
-      id: `post-${i}`,
-      title: `Mock Reddit Post ${i + 1} about ${subreddit}`,
-      url: `https://reddit.com/r/${subreddit}/comments/${i}`,
-      subreddit,
-      isRising,
-      score,
-      num_comments: comments,
-      selftext:
-        i % 3 === 0
-          ? `This is a sample text post about ${subreddit}. It contains some content that would be displayed in the post.`
-          : "",
-      thumbnail: i % 4 === 0 ? `https://via.placeholder.com/75` : null,
-      created: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)).toISOString(),
-    })
-  }
-
-  return posts
-}
-
-function generateMockSubredditStats() {
-  const subreddits = [
-    "programming",
-    "webdev",
-    "reactjs",
-    "nextjs",
-    "javascript",
-    "technology",
-    "news",
-    "askreddit",
-    "pics",
-    "funny",
-  ]
-
-  return subreddits.map((name) => ({
-    name,
-    count: Math.floor(Math.random() * 10) + 1,
-  }))
-}
-

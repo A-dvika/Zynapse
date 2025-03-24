@@ -3,52 +3,24 @@ import prisma from '../lib/db';
 
 async function run() {
   try {
-    // Fetch tech-related tweets from Twitter
+    // Fetch latest Twitter & Mastodon posts
     const twitterPosts = await fetchTwitterBuzz(10);
-    console.log('Fetched Twitter buzz:', twitterPosts.length);
-    
-    // Upsert Twitter data into your database
-    for (const post of twitterPosts) {
-      await prisma.socialMediaPost.upsert({
-        where: { id: post.id },
-        update: {
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-        },
-        create: {
-          id: post.id,
-          platform: post.platform,
-          content: post.content,
-          author: post.author,
-          hashtags: post.hashtags,
-          url: post.url,
-          score: post.score,
-          createdAt: new Date(post.createdAt),
-          aggregatedAt: new Date(),
-        },
-      });
-      // Add a short delay between requests if needed
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-    
-    // Fetch public tech-related posts from Mastodon
     const mastodonPosts = await fetchMastodonBuzz(10);
-    console.log('Fetched Mastodon buzz:', mastodonPosts.length);
-    
-    // Upsert Mastodon data into your database
-    for (const post of mastodonPosts) {
+
+    const allPosts = [...twitterPosts, ...mastodonPosts];
+    console.log(`Fetched ${allPosts.length} social media posts.`);
+
+    // Upsert posts into the database
+    for (const post of allPosts) {
       await prisma.socialMediaPost.upsert({
         where: { id: post.id },
         update: {
           content: post.content,
           author: post.author,
           hashtags: post.hashtags,
+          // hashtags: JSON.stringify(post.hashtags), // Convert array to string
           url: post.url,
-          score: post.score,
+          score: post.score||0,
           createdAt: new Date(post.createdAt),
         },
         create: {
@@ -57,16 +29,18 @@ async function run() {
           content: post.content,
           author: post.author,
           hashtags: post.hashtags,
+          // hashtags: JSON.stringify(post.hashtags), // Convert array to string
           url: post.url,
-          score: post.score,
+          score: post.score||0,
           createdAt: new Date(post.createdAt),
           aggregatedAt: new Date(),
         },
       });
     }
-    console.log('Social Media Buzz data saved to DB successfully.');
+
+    console.log('Saved Social Media Buzz data to DB.');
   } catch (error) {
-    console.error('Error in Social Media Buzz cron job:', error);
+    console.error('Error in socialMediaCron job:', error);
   } finally {
     await prisma.$disconnect();
   }
