@@ -251,20 +251,48 @@ export default function UnifiedDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative h-16 w-16">
-            <Skeleton className="h-16 w-16 rounded-full absolute" />
-            <div className="h-16 w-16 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin absolute"></div>
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </div>
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+  
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-md" />
+          ))}
+        </div>
+  
+        {/* Tabs */}
+        <div className="flex gap-2">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-8 w-24 rounded-md" />
+          ))}
+        </div>
+  
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-6 w-40" />
+              {[...Array(3)].map((_, j) => (
+                <Skeleton key={j} className="h-20 w-full rounded-md" />
+              ))}
+            </div>
+          ))}
+        </div>
+  
+        {/* Chart Skeleton */}
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-60" />
+          <Skeleton className="h-[300px] w-full rounded-md" />
         </div>
       </div>
     )
   }
+  
 
   return (
     <motion.section

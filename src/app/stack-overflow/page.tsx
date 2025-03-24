@@ -83,22 +83,58 @@ export default function StackOverflowPage() {
     setChartType(chartType === "pie" ? "pie" : "bar")
   }, [tagFilter])
 
-  if (!data)
+  if (!data) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative h-16 w-16">
-            <Skeleton className="h-16 w-16 rounded-full absolute" />
-            <div className="h-16 w-16 rounded-full border-4 border-t-orange-500 border-r-transparent border-b-transparent border-l-transparent animate-spin absolute"></div>
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+  
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-md" />
+          ))}
+        </div>
+  
+        {/* Tabs */}
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-8 w-24 rounded-md" />
+            ))}
           </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
+  
+          {/* Top Questions + Answers */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-6 w-40" />
+                {[...Array(4)].map((_, j) => (
+                  <Skeleton key={j} className="h-20 w-full rounded-md" />
+                ))}
+              </div>
+            ))}
+          </div>
+  
+          {/* Tag Chart Placeholder */}
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-[300px] w-full rounded-md" />
+          </div>
+  
+          {/* Reputation Timeline */}
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-60" />
+            <Skeleton className="h-[200px] w-full rounded-md" />
           </div>
         </div>
       </div>
     )
-
+  }
+  
   // Filter questions based on search term and tag filter
   console.log(data)
   const filteredQuestions = data.questions.filter((q: any) => {
@@ -167,6 +203,9 @@ export default function StackOverflowPage() {
   }
 
   return (
+    <div className="relative">
+    {/* Background beams in the background */}
+    <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -780,8 +819,9 @@ export default function StackOverflowPage() {
       >
         "Knowledge shared is knowledge squared."
       </motion.div>
-      <BackgroundBeams />
+      
     </motion.section>
+    </div>
   )
 }
 

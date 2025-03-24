@@ -177,22 +177,62 @@ export default function ProductHuntPage() {
 
 
 
-  if (!data)
+  if (!data) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative h-16 w-16">
-            <Skeleton className="h-16 w-16 rounded-full absolute" />
-            <div className="h-16 w-16 rounded-full border-4 border-t-orange-500 border-r-transparent border-b-transparent border-l-transparent animate-spin absolute"></div>
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-60" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+  
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-md" />
+          ))}
+        </div>
+  
+        {/* Tabs */}
+        <div className="space-y-4">
+          {/* Tab Triggers */}
+          <div className="flex gap-2">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-8 w-24 rounded-md" />
+            ))}
           </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
+  
+          {/* Card placeholders for Trending + Recent */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="h-6 w-40" />
+                {[...Array(5)].map((_, j) => (
+                  <Skeleton key={j} className="h-20 w-full rounded-md" />
+                ))}
+              </div>
+            ))}
+          </div>
+  
+          {/* Gadget News placeholder */}
+          <div className="space-y-3">
+            <Skeleton className="h-6 w-60" />
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <Skeleton className="h-16 w-16 rounded-md" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/4" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     )
-
+  }
+  
   // Process data for visualization
   const processedData = data || []
 
@@ -254,6 +294,9 @@ export default function ProductHuntPage() {
   ]
 
   return (
+    <div className="relative">
+              {/* Background beams placed behind everything */}
+              <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -504,120 +547,7 @@ export default function ProductHuntPage() {
             </Card>
           </div>
 
-          {/* Category Distribution Chart */}
-          {/* <Card className="shadow-md border border-border">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-purple-500" /> Category Distribution
-              </CardTitle>
-              <div className="flex space-x-1">
-                <Button
-                  variant={chartType === "pie" ? "default" : "outline"}
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setChartType("pie")}
-                >
-                  <PieChartIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={chartType === "bar" ? "default" : "outline"}
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setChartType("bar")}
-                >
-                  <BarChart3 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <motion.div
-                key={chartType}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full h-[350px]"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  {chartType === "pie" ? (
-                    <PieChart>
-                      <Pie
-                        data={topicData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={true}
-                        outerRadius={140}
-                        fill="#8884d8"
-                        dataKey="count"
-                        nameKey="topic"
-                        label={({ topic, count }) => `${topic}: ${count}`}
-                      >
-                        {topicData.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip formatter={(value, name, props) => [`${value} products`, props.payload.topic]} />
-                      <Legend />
-                    </PieChart>
-                  ) : (
-                    <BarChart data={topicData} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="topic" width={80} />
-                      <RechartsTooltip formatter={(value) => [`${value} products`, "Count"]} />
-                      <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                        {topicData.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  )}
-                </ResponsiveContainer>
-              </motion.div>
-            </CardContent>
-          </Card> */}
-
-          {/* Upvote Trends Over Time - New Useful Graph */}
-          {/* <Card className="shadow-md border border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-500" /> Upvote Trends Over Time
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="w-full h-[250px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={generateUpvoteTrendsData(processedData)}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <RechartsTooltip formatter={(value) => [`${value} upvotes`]} />
-                    <Line
-                      type="monotone"
-                      dataKey="upvotes"
-                      stroke="#da552f"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5, strokeWidth: 0 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="avgUpvotes"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                      activeDot={{ r: 5, strokeWidth: 0 }}
-                      name="Avg Upvotes per Product"
-                    />
-                    <Legend />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card> */}
-
+        
           {/* Engagement Metrics - New Useful Graph */}
           <Card className="shadow-md border border-border">
             <CardHeader className="pb-2">
@@ -918,6 +848,7 @@ export default function ProductHuntPage() {
       </motion.div>
       <BackgroundBeams />
     </motion.section>
+    </div>
 
   )
 }
