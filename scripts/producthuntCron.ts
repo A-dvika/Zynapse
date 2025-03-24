@@ -8,7 +8,7 @@ async function run() {
       throw new Error('Product Hunt token not provided in environment variables.');
     }
 
-    const posts: ProductHuntPost[] = await fetchProductHuntPosts(10, token);
+    const posts: ProductHuntPost[] = await fetchProductHuntPosts(15, token);
     console.log('Fetched Product Hunt posts:', posts.length);
 
     for (const post of posts) {

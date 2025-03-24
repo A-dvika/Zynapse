@@ -5,7 +5,7 @@ import prisma from '../lib/db';
 async function run() {
   try {
    
-    const hnStories = await fetchHackerNewsStories(10);
+    const hnStories = await fetchHackerNewsStories(14);
     console.log('Fetched Hacker News stories:', hnStories.length);
 
    

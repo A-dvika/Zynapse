@@ -4,8 +4,8 @@ import prisma from '../lib/db';
 async function run() {
   try {
     // Fetch latest Twitter & Mastodon posts
-    const twitterPosts = await fetchTwitterBuzz(10);
-    const mastodonPosts = await fetchMastodonBuzz(10);
+    const twitterPosts = await fetchTwitterBuzz(15);
+    const mastodonPosts = await fetchMastodonBuzz(5);
 
     const allPosts = [...twitterPosts, ...mastodonPosts];
     console.log(`Fetched ${allPosts.length} social media posts.`);
