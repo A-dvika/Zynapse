@@ -458,7 +458,7 @@ export default function HackerNewsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="w-full h-[300px]">
+                <div className="w-full h-[500px]">
                   {data ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -467,7 +467,7 @@ export default function HackerNewsPage() {
                           cx="50%"
                           cy="50%"
                           labelLine={true}
-                          outerRadius={120}
+                          outerRadius={220}
                           fill="#8884d8"
                           dataKey="count"
                           nameKey="source"
