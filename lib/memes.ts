@@ -172,11 +172,11 @@ export async function fetchInstagramMemes(): Promise<Meme[]> {
 }
 
 export async function fetchAllMemes(): Promise<Meme[]> {
-  const [redditMemes, twitterMemes, instagramMemes] = await Promise.all([
+  const [redditMemes, twitterMemes] = await Promise.all([
     fetchRedditMemes(),
     fetchTwitterMemes(),
-    fetchInstagramMemes(),
+   
   ]);
 
-  return [...redditMemes, ...twitterMemes, ...instagramMemes];
+  return [...redditMemes, ...twitterMemes];
 }
