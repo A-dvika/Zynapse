@@ -1065,7 +1065,7 @@ export default function UnifiedDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
-      <BackgroundBeams />
+     
     </motion.section>
   )
 }
