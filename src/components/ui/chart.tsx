@@ -57,7 +57,7 @@ const ChartTooltipContent = ({ active, payload, label }: ChartTooltipContentProp
       <div className="mt-1 space-y-0.5">
         {payload.map((item, index) => (
           <div key={index} className="flex items-center">
-            <div className="mr-1 h-2 w-2 rounded-full" style={{ backgroundColor: item.payload.fill || item.color }} />
+            <div className="mr-1 h-2 w-2 rounded-full" style={{ backgroundColor: item.payload.fill }} />
             <span className="font-medium">{item.name}:</span>
             <span className="ml-1">{item.value}</span>
           </div>
