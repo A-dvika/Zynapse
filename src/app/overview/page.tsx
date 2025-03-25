@@ -28,13 +28,9 @@ import {
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
 import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
@@ -293,6 +289,7 @@ const aiSummaries = [
 
 export default function TechDashboard() {
     const [showAllReddit, setShowAllReddit] = useState(false)
+    const [isDarkMode, setIsDarkMode] = useState(false) // Add this line to define isDarkMode
 
     interface StackOverflowQuestion {
       id: number
@@ -339,7 +336,7 @@ useEffect(() => {
             const json = await res.json()
             const questions = json.questions || []
       
-            const mapped = questions.map((q) => ({
+            const mapped = questions.map((q: any) => ({
               id: q.id,
               title: q.title,
               votes: q.score,
@@ -439,7 +436,7 @@ useEffect(() => {
             const json = await res.json()
             const posts = json.reddit || json // depending on how your API returns it
       
-            const mapped = posts.map((post) => ({
+            const mapped = posts.map((post: RedditTrend) => ({
               id: post.id,
               title: post.title,
               subreddit: `r/${post.subreddit}`,
@@ -491,7 +488,7 @@ useEffect(() => {
           const json = await res.json()
           const repos = json.repos || []
     
-          const mapped = repos.map((repo) => ({
+          const mapped = repos.map((repo: any) => ({
             id: repo.id,
             name: repo.fullName,
             description: repo.name,
@@ -590,8 +587,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="relative">
-    <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
+    <div className={`min-h-screen ${isDarkMode ? 'dark bg-background text-foreground' : 'light'}`}>    <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
     <motion.section
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
@@ -1509,7 +1505,7 @@ useEffect(() => {
 }
 
 // Missing components
-const LogOut = (props) => {
+const LogOut = (props :any) => {
   return (
     <svg
       {...props}
@@ -1530,7 +1526,7 @@ const LogOut = (props) => {
   )
 }
 
-const GitFork = (props) => {
+const GitFork = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg
       {...props}
@@ -1553,7 +1549,7 @@ const GitFork = (props) => {
   )
 }
 
-const Eye = (props) => {
+const Eye = (props :any) => {
   return (
     <svg
       {...props}
