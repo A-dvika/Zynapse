@@ -590,85 +590,31 @@ export default function TechDashboard() {
                       Loading Reddit post...
                     </div>
                   )}
-                  {githubRepos.slice(0, 5).map((repo, index) => (
+                  {githubRepos.length > 0 ? (
   <motion.div
-    key={repo.id}
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="pb-3 border-b border-gray-700 last:border-0"
+    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
   >
-    <div className="flex items-center gap-2 mb-1 justify-between">
-      <div className="flex items-center gap-2">
-        <Github className="h-4 w-4 text-gray-400" />
-        <h3 className="font-medium text-sm">{repo.name}</h3>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-6 w-6 p-0 rounded-full"
-        onClick={() => setExpandedRepo(expandedRepo === repo.id ? null : repo.id)}
-      >
-        <ChevronDown
-          className={`h-4 w-4 transition-transform ${
-            expandedRepo === repo.id ? "rotate-180" : ""
-          }`}
-        />
-      </Button>
+    <div className="flex items-center gap-2 mb-2">
+      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
+        GitHub
+      </Badge>
+      <span className="text-xs text-gray-400">Trending Repo</span>
     </div>
-    <p className="text-xs text-gray-400 mb-2 line-clamp-2">{repo.description}</p>
-    <div className="flex justify-between text-xs">
+    <h3 className="font-medium mb-2">{githubRepos[0].name}</h3>
+    <div className="flex justify-between text-sm text-gray-400">
+      <span>{githubRepos[0].language}</span>
       <div className="flex items-center gap-1">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }}></div>
-        <span>{repo.language}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          <Star className="h-3 w-3 mr-1 text-yellow-400" />
-          <span>{repo.stars.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center text-gray-400">
-          <GitFork className="h-3 w-3 mr-1" />
-          <span>{repo.forks.toLocaleString()}</span>
-        </div>
+        <Star className="h-3 w-3" />
+        <span>{githubRepos[0].stars.toLocaleString()}</span>
       </div>
     </div>
-    <AnimatePresence>
-      {expandedRepo === repo.id && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mt-3 text-sm bg-gray-700/30 p-3 rounded-md text-gray-300"
-        >
-          <p>
-            This repo <strong>{repo.name}</strong> is built in{" "}
-            <span style={{ color: repo.color }}>{repo.language}</span> and has{" "}
-            <strong>{repo.stars.toLocaleString()}</strong> stars with{" "}
-            <strong>{repo.forks.toLocaleString()}</strong> forks.
-          </p>
-          <div className="mt-2">
-            <Button
-              variant="link"
-              className="h-auto p-0 text-blue-400"
-              asChild
-            >
-              <a
-                href={`https://github.com/${repo.name}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on GitHub <ArrowRight className="h-3 w-3 ml-1" />
-              </a>
-            </Button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   </motion.div>
-))}
-
+) : (
+  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
+    Loading GitHub repo...
+  </div>
+)}
 
 
                   <motion.div
