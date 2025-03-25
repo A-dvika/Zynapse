@@ -846,7 +846,7 @@ export default function ProductHuntPage() {
       >
         "Great products solve real problems with elegant solutions."
       </motion.div>
-      <BackgroundBeams />
+   
     </motion.section>
     </div>
 
