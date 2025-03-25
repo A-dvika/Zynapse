@@ -295,6 +295,9 @@ export default function UnifiedDashboard() {
   
 
   return (
+    <div className="relative">
+     {/* Background beams placed behind everything */}
+                  <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1067,6 +1070,7 @@ export default function UnifiedDashboard() {
       </Tabs>
      
     </motion.section>
+    </div>
   )
 }
 
