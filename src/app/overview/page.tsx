@@ -304,7 +304,33 @@ export default function TechDashboard() {
       link: string
       creationDate: string
     }
+    interface TechNewsItem {
+      id: number;
+      title: string;
+      source: string;
+      image?: string;
+      createdAt: string;
+    }
+    
+    const [techNewsItems, setTechNewsItems] = useState<TechNewsItem[]>([]);
 
+useEffect(() => {
+  const fetchNews = async () => {
+    try {
+      const res = await fetch("/api/hackernews");
+      const json = await res.json();
+      const techNews = json.techNewsItems || [];
+
+      setTechNewsItems(techNews);
+    } catch (err) {
+      console.error("Error fetching Tech News:", err);
+    }
+  };
+
+  fetchNews();
+}, []);
+
+    const [showAllRepos, setShowAllRepos] = useState(false)
     const [stackOverflowQuestions, setStackOverflowQuestions] = useState<StackOverflowQuestion[]>([])
     useEffect(() => {
         const fetchStackOverflow = async () => {
@@ -379,7 +405,32 @@ export default function TechDashboard() {
       
         fetchHackerNews()
       }, [])
-            
+      interface SocialPost {
+        id: string
+        platform: string
+        content: string
+        author: string
+        hashtags: string[]
+        url: string
+        score: number
+        createdAt: string
+      }
+      
+      const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
+      useEffect(() => {
+        const fetchSocialPosts = async () => {
+          try {
+            const res = await fetch("/api/socialmedia")
+            const data = await res.json()
+            setSocialPosts(data)
+          } catch (err) {
+            console.error("Failed to fetch social media posts", err)
+          }
+        }
+      
+        fetchSocialPosts()
+      }, [])
+                  
     const [redditTrends, setRedditTrends] = useState<RedditTrend[]>([])
     useEffect(() => {
         const fetchRedditTrends = async () => {
@@ -459,7 +510,30 @@ export default function TechDashboard() {
       fetchGitHubRepos()
     }, [])
     
+    const [name, setName] = useState("")
+   
+   
 
+const [showInputs, setShowInputs] = useState(false)
+
+
+const [dynamicMessage, setDynamicMessage] = useState("Join 12,000+ devs for weekly insights.")
+const messages = [
+  "Join 12,000+ devs for weekly insights.",
+  "Stay ahead of the curve. Get updates!",
+  "Only the best tech. No spam, ever.",
+  "Dev trends delivered to your inbox.",
+]
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    const next = messages[Math.floor(Math.random() * messages.length)]
+    setDynamicMessage(next)
+  }, 4000)
+  return () => clearInterval(interval)
+}, [])
+
+    
   const [currentMeme, setCurrentMeme] = useState(0)
   const [searchValue, setSearchValue] = useState("")
   const [activeTab, setActiveTab] = useState("overview")
@@ -467,6 +541,33 @@ export default function TechDashboard() {
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
   const [email, setEmail] = useState("")
   const [subscribeStatus, setSubscribeStatus] = useState<string | null>(null)
+interface Gadget {
+  id: number
+  thumbnailUrl?: string
+  urlToImage?: string
+  name?: string
+  title?: string
+  url?: string
+  source?: { name: string }
+  tagline?: string
+  description?: string
+  votesCount?: number
+}
+
+const [gadgets, setGadgets] = useState<Gadget[]>([])
+const [productHunt, setProductHunt] = useState<Gadget[]>([])
+
+useEffect(() => {
+  const fetchData = async () => {
+    const [gadgetsRes, productHuntRes] = await Promise.all([
+      fetch("/api/gadgets").then(res => res.json()),
+      fetch("/api/producthunt").then(res => res.json()),
+    ])
+    setGadgets(gadgetsRes)
+    setProductHunt(productHuntRes)
+  }
+  fetchData()
+}, [])
 
   // Animation for the weekly digest cards
   const containerRef = useRef(null)
@@ -590,85 +691,31 @@ export default function TechDashboard() {
                       Loading Reddit post...
                     </div>
                   )}
-                  {githubRepos.slice(0, 5).map((repo, index) => (
+                  {githubRepos.length > 0 ? (
   <motion.div
-    key={repo.id}
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="pb-3 border-b border-gray-700 last:border-0"
+    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
   >
-    <div className="flex items-center gap-2 mb-1 justify-between">
-      <div className="flex items-center gap-2">
-        <Github className="h-4 w-4 text-gray-400" />
-        <h3 className="font-medium text-sm">{repo.name}</h3>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-6 w-6 p-0 rounded-full"
-        onClick={() => setExpandedRepo(expandedRepo === repo.id ? null : repo.id)}
-      >
-        <ChevronDown
-          className={`h-4 w-4 transition-transform ${
-            expandedRepo === repo.id ? "rotate-180" : ""
-          }`}
-        />
-      </Button>
+    <div className="flex items-center gap-2 mb-2">
+      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
+        GitHub
+      </Badge>
+      <span className="text-xs text-gray-400">Trending Repo</span>
     </div>
-    <p className="text-xs text-gray-400 mb-2 line-clamp-2">{repo.description}</p>
-    <div className="flex justify-between text-xs">
+    <h3 className="font-medium mb-2">{githubRepos[0].name}</h3>
+    <div className="flex justify-between text-sm text-gray-400">
+      <span>{githubRepos[0].language}</span>
       <div className="flex items-center gap-1">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }}></div>
-        <span>{repo.language}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          <Star className="h-3 w-3 mr-1 text-yellow-400" />
-          <span>{repo.stars.toLocaleString()}</span>
-        </div>
-        <div className="flex items-center text-gray-400">
-          <GitFork className="h-3 w-3 mr-1" />
-          <span>{repo.forks.toLocaleString()}</span>
-        </div>
+        <Star className="h-3 w-3" />
+        <span>{githubRepos[0].stars.toLocaleString()}</span>
       </div>
     </div>
-    <AnimatePresence>
-      {expandedRepo === repo.id && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mt-3 text-sm bg-gray-700/30 p-3 rounded-md text-gray-300"
-        >
-          <p>
-            This repo <strong>{repo.name}</strong> is built in{" "}
-            <span style={{ color: repo.color }}>{repo.language}</span> and has{" "}
-            <strong>{repo.stars.toLocaleString()}</strong> stars with{" "}
-            <strong>{repo.forks.toLocaleString()}</strong> forks.
-          </p>
-          <div className="mt-2">
-            <Button
-              variant="link"
-              className="h-auto p-0 text-blue-400"
-              asChild
-            >
-              <a
-                href={`https://github.com/${repo.name}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on GitHub <ArrowRight className="h-3 w-3 ml-1" />
-              </a>
-            </Button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   </motion.div>
-))}
-
+) : (
+  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
+    Loading GitHub repo...
+  </div>
+)}
 
 
                   <motion.div
@@ -953,170 +1000,158 @@ export default function TechDashboard() {
                 </CardFooter>
               </Card>
 
-              {/* Subscribe Card */}
               <Card className="md:col-span-1 bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-gray-800">
-                <CardHeader>
-                  <CardTitle>Stay Updated</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    Get the latest tech trends delivered to your inbox
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubscribe} className="space-y-4">
-                    <div className="space-y-2">
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        className="bg-gray-800/50 border-gray-700 text-gray-100 placeholder:text-gray-500"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                      >
-                        <Send className="mr-2 h-4 w-4" />
-                        Subscribe Now
-                      </Button>
-                    </motion.div>
-                    <AnimatePresence>
-                      {subscribeStatus === "success" && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="text-sm text-green-400 text-center"
-                        >
-                          Thanks for subscribing! Check your inbox soon.
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                    <p className="text-xs text-gray-400 text-center">
-                      We'll send you a weekly digest of the most important tech trends. No spam, unsubscribe anytime.
-                    </p>
-                  </form>
-                </CardContent>
-              </Card>
+  <CardHeader>
+    <CardTitle>Stay Updated</CardTitle>
+    <CardDescription className="text-gray-300">
+      {dynamicMessage}
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    {showInputs ? (
+      <form onSubmit={handleSubscribe} className="space-y-4">
+        <Input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Input
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+          <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+            <Send className="mr-2 h-4 w-4" />
+            Confirm Subscription
+          </Button>
+        </motion.div>
+        <AnimatePresence>
+          {subscribeStatus && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-green-400 text-center"
+            >
+              {subscribeStatus}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </form>
+    ) : (
+      <motion.div whileHover={{ scale: 1.02 }}>
+        <Button
+          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+          onClick={() => setShowInputs(true)}
+        >
+          <Send className="mr-2 h-4 w-4" />
+          Subscribe
+        </Button>
+      </motion.div>
+    )}
+  </CardContent>
+</Card>
 
-              {/* Recent Launches & Gadgets */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
-                      <Zap className="h-3 w-3 mr-1" />
-                      New
-                    </Badge>
-                    Recent Launches & Gadgets
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {recentLaunches.map((launch, index) => (
-                      <motion.div
-                        key={launch.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="flex gap-4 p-3 bg-gray-800/50 rounded-xl border border-gray-700"
-                        whileHover={{
-                          y: -5,
-                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-                          transition: { duration: 0.2 },
-                        }}
-                      >
-                        <div className="shrink-0">
-                          <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden">
-                            <img
-                              src={launch.image || "/placeholder.svg"}
-                              alt={launch.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium">{launch.title}</h3>
-                            <Badge variant="outline" className="bg-gray-700/50 text-xs">
-                              {launch.category}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-400 mt-1 mb-2">{launch.description}</p>
-                          <div className="flex items-center text-yellow-400 text-sm">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${i < Math.floor(launch.rating) ? "fill-current" : "text-gray-600"}`}
-                              />
-                            ))}
-                            <span className="ml-1 text-gray-300">{launch.rating}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All Launches <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+  <CardHeader className="pb-2 pt-4 px-4">
+    <CardTitle className="flex items-center text-base">
+      <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
+        <Zap className="h-3 w-3 mr-1" />
+        New
+      </Badge>
+      Recent Launches & Gadgets
+    </CardTitle>
+  </CardHeader>
 
-              {/* GitHub Insights */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
-                      <Github className="h-3 w-3 mr-1" />
-                      GitHub
-                    </Badge>
-                    Trending Repositories
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="space-y-4">
-                    {githubRepos.map((repo, index) => (
-                      <motion.div
-                        key={repo.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="pb-3 border-b border-gray-700 last:border-0"
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Github className="h-4 w-4 text-gray-400" />
-                          <h3 className="font-medium text-sm">{repo.name}</h3>
-                        </div>
-                        <p className="text-xs text-gray-400 mb-2 line-clamp-2">{repo.description}</p>
-                        <div className="flex justify-between text-xs">
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }}></div>
-                            <span>{repo.language}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center">
-                              <Star className="h-3 w-3 mr-1 text-yellow-400" />
-                              <span>{repo.stars.toLocaleString()}</span>
-                            </div>
-                            <div className="flex items-center text-gray-400">
-                              <GitFork className="h-3 w-3 mr-1" />
-                              <span>{repo.forks.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+  <CardContent className="px-4 pb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {[...productHunt, ...gadgets].slice(0, 8).map((item, index) => (
+        <motion.div
+          key={item.id || index}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: index * 0.05, duration: 0.2 }}
+          className="flex gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700"
+        >
+          <div className="shrink-0">
+            <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden">
+              <img
+                src={item.thumbnailUrl || item.urlToImage || "/placeholder.svg"}
+                alt={item.name || item.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-start">
+              <h3 className="text-sm font-medium leading-snug">
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {item.name || item.title}
+                </a>
+              </h3>
+              <Badge variant="outline" className="bg-gray-700/50 text-xs">
+                {item.source?.name || "ProductHunt"}
+              </Badge>
+            </div>
+            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.tagline || item.description}</p>
+            {item.votesCount && (
+              <div className="flex items-center text-yellow-400 text-xs mt-1">
+                <Star className="h-3 w-3 mr-1" />
+                <span>{item.votesCount} votes</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </CardContent>
+</Card>
+<Card className="bg-gray-800/30 border-gray-800">
+  <CardContent className="p-4 space-y-3">
+    {(showAllRepos ? githubRepos : githubRepos.slice(0, 6)).map((repo, index) => (
+      <motion.div
+        key={repo.id}
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.05, duration: 0.2 }}
+        className="border-b border-gray-700 pb-2 last:border-0"
+      >
+        <div className="flex items-center gap-2">
+          <Github className="h-4 w-4 text-gray-400" />
+          <h3 className="text-sm font-medium">{repo.name}</h3>
+        </div>
+        <p className="text-xs text-gray-400 mb-1 line-clamp-2">{repo.description}</p>
+        <div className="flex justify-between text-xs text-gray-400">
+          <span className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }} />
+            {repo.language}
+          </span>
+          <span className="flex items-center gap-1">
+            <Star className="h-3 w-3 text-yellow-400" />
+            {repo.stars.toLocaleString()}
+          </span>
+        </div>
+      </motion.div>
+    ))}
+  </CardContent>
+
+  <CardFooter className="p-2">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="w-full text-gray-400 hover:text-gray-100"
+      onClick={() => setShowAllRepos((prev) => !prev)}
+    >
+      {showAllRepos ? "Show Less" : "View All"} <ChevronRight className="h-4 w-4 ml-1" />
+    </Button>
+  </CardFooter>
+</Card>
+         
 
               {/* Languages & Top Repos */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
@@ -1311,32 +1346,33 @@ export default function TechDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {techNews.map((news, index) => (
-                      <motion.div
-                        key={news.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
-                      >
-                        <div className="shrink-0">
-                          <div className="w-10 h-10 rounded-md bg-gray-700 overflow-hidden">
-                            <img
-                              src={news.image || "/placeholder.svg"}
-                              alt={news.source}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-sm mb-1">{news.title}</h3>
-                          <div className="flex justify-between text-xs text-gray-400">
-                            <span>{news.source}</span>
-                            <span>{news.time}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                  {techNewsItems.slice(0, 6).map((news, index) => (
+  <motion.div
+    key={news.id}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: index * 0.1, duration: 0.3 }}
+    className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
+  >
+    <div className="shrink-0">
+      <div className="w-10 h-10 rounded-md bg-gray-700 overflow-hidden">
+        <img
+          src={news.image || "/placeholder.svg"}
+          alt={news.source}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+    <div className="flex-1 min-w-0">
+      <h3 className="font-medium text-sm mb-1 line-clamp-2">{news.title}</h3>
+      <div className="flex justify-between text-xs text-gray-400">
+        <span>{news.source}</span>
+        <span>{new Date(news.createdAt).toLocaleDateString()}</span>
+      </div>
+    </div>
+  </motion.div>
+))}
+
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -1348,57 +1384,53 @@ export default function TechDashboard() {
 
               {/* Social Media Buzz */}
               <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
-                      <Twitter className="h-3 w-3 mr-1" />
-                      Social Media
-                    </Badge>
-                    Trending Posts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {socialMediaPosts.map((post, index) => (
-                      <motion.div
-                        key={post.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                      >
-                        <div className="flex items-center gap-2 mb-3">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={post.avatar} alt={post.username} />
-                            <AvatarFallback>{post.username[1]}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium text-sm">{post.username}</div>
-                            <div className="text-xs text-gray-400">{post.platform}</div>
-                          </div>
-                        </div>
-                        <p className="text-sm mb-3">{post.content}</p>
-                        <div className="flex justify-between text-xs text-gray-400">
-                          <div className="flex items-center">
-                            <ThumbsUp className="h-3 w-3 mr-1" />
-                            <span>{post.likes.toLocaleString()}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Share2 className="h-3 w-3 mr-1" />
-                            <span>{post.shares.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+  <CardHeader className="pb-2">
+    <CardTitle className="flex items-center text-lg">
+      <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
+        <Twitter className="h-3 w-3 mr-1" />
+        Social Media
+      </Badge>
+      Trending Posts
+    </CardTitle>
+  </CardHeader>
+
+  <CardContent>
+    <div className="space-y-4">
+      {socialPosts.slice(0, 6).map((post, index) => (
+        <motion.div
+          key={post.id}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: index * 0.1, duration: 0.3 }}
+          className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-400">@{post.author}</span>
+            <Badge variant="outline" className="bg-gray-700/50 text-xs">
+              {post.platform}
+            </Badge>
+          </div>
+          <p className="text-sm text-gray-200 mb-2 line-clamp-3">{post.content}</p>
+          <a
+            href={post.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-blue-400 hover:underline"
+          >
+            View on {post.platform.charAt(0).toUpperCase() + post.platform.slice(1)}
+          </a>
+        </motion.div>
+      ))}
+    </div>
+  </CardContent>
+
+  <CardFooter>
+    <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+      View All <ChevronRight className="h-4 w-4 ml-1" />
+    </Button>
+  </CardFooter>
+</Card>
+
 
               {/* Meme Trends */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
