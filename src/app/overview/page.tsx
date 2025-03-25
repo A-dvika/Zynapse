@@ -57,6 +57,108 @@ const engagementData = [
   { name: "Sun", reddit: 280, github: 220, stackoverflow: 200 },
 ]
 
+const redditTrends = [
+  {
+    id: 1,
+    title: "Next.js 15 just dropped and it's a game changer for performance",
+    subreddit: "r/reactjs",
+    upvotes: 3421,
+    comments: 342,
+    trend: "+120%",
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 2,
+    title: "I built a VS Code extension that writes your code using AI",
+    subreddit: "r/programming",
+    upvotes: 2876,
+    comments: 521,
+    trend: "+85%",
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 3,
+    title: "The future of web development: HTMX vs React Server Components",
+    subreddit: "r/webdev",
+    upvotes: 1987,
+    comments: 432,
+    trend: "+62%",
+    image: "/placeholder.svg?height=40&width=40",
+  },
+]
+
+const githubRepos = [
+  {
+    id: 1,
+    name: "vercel/next.js",
+    description: "The React Framework for the Web",
+    stars: 112543,
+    forks: 24876,
+    language: "JavaScript",
+    color: "#f1e05a",
+  },
+  {
+    id: 2,
+    name: "microsoft/TypeScript",
+    description: "TypeScript is a superset of JavaScript that compiles to clean JavaScript",
+    stars: 93421,
+    forks: 12543,
+    language: "TypeScript",
+    color: "#2b7489",
+  },
+  {
+    id: 3,
+    name: "facebook/react",
+    description: "A declarative, efficient, and flexible JavaScript library for building user interfaces",
+    stars: 203876,
+    forks: 42987,
+    language: "JavaScript",
+    color: "#f1e05a",
+  },
+]
+
+const stackOverflowQuestions = [
+  {
+    id: 1,
+    title: "How to optimize React rendering with useMemo and useCallback?",
+    votes: 342,
+    answers: 15,
+    views: 12543,
+    tags: ["react", "javascript", "performance"],
+  },
+  {
+    id: 2,
+    title: "Best practices for TypeScript interfaces vs types",
+    votes: 289,
+    answers: 23,
+    views: 9876,
+    tags: ["typescript", "javascript"],
+  },
+  {
+    id: 3,
+    title: "Solving memory leaks in Node.js applications",
+    votes: 256,
+    answers: 8,
+    views: 7654,
+    tags: ["node.js", "memory-management", "javascript"],
+  },
+  {
+    id: 4,
+    title: "Understanding async/await patterns in modern JavaScript",
+    votes: 312,
+    answers: 19,
+    views: 11432,
+    tags: ["javascript", "async-await", "promises"],
+  },
+  {
+    id: 5,
+    title: "Optimizing Docker containers for Node.js applications",
+    votes: 198,
+    answers: 12,
+    views: 8765,
+    tags: ["docker", "node.js", "devops"],
+  },
+]
 
 const techNews = [
   {
@@ -292,173 +394,33 @@ const aiSummaries = [
 ]
 
 export default function TechDashboard() {
-    const [showAllReddit, setShowAllReddit] = useState(false)
-
-    interface StackOverflowQuestion {
-      id: number
-      title: string
-      votes: number
-      answers: number
-      views: number
-      tags: string[]
-      link: string
-      creationDate: string
-    }
-
-    const [stackOverflowQuestions, setStackOverflowQuestions] = useState<StackOverflowQuestion[]>([])
-    useEffect(() => {
-        const fetchStackOverflow = async () => {
-          try {
-            const res = await fetch("/api/stackoverflow") // Update if your endpoint differs
-            const json = await res.json()
-            const questions = json.questions || []
-      
-            const mapped = questions.map((q) => ({
-              id: q.id,
-              title: q.title,
-              votes: q.score,
-              answers: q.answerCount,
-              views: q.viewCount,
-              tags: q.tags,
-              link: q.link,
-              creationDate: q.creationDate,
-            }))
-      
-            setStackOverflowQuestions(mapped)
-          } catch (err) {
-            console.error("Error fetching StackOverflow data:", err)
-          }
-        }
-      
-        fetchStackOverflow()
-      }, [])
-      
-    interface RedditTrend {
-      id: number
-      title: string
-      subreddit: string
-      upvotes: number
-      comments: number
-      trend: string
-      url: string
-      image: string
-    }
-    interface HackerNewsStory {
-        id: number
-        title: string
-        url: string
-        author: string
-        score: number
-        comments: number
-        createdAt: string
-      }
-      
-      const [hackerNewsStories, setHackerNewsStories] = useState<HackerNewsStory[]>([])
-      useEffect(() => {
-        const fetchHackerNews = async () => {
-          try {
-            const res = await fetch("/api/hackernews")
-            const json = await res.json()
-            const stories = json.hackerNewsStories || []
-      
-            const mapped = stories.map((story: any) => ({
-              id: story.id,
-              title: story.title,
-              url: story.url,
-              author: story.author,
-              score: story.score,
-              comments: story.comments,
-              createdAt: story.createdAt,
-            }))
-      
-            setHackerNewsStories(mapped)
-          } catch (err) {
-            console.error("Error fetching Hacker News data:", err)
-          }
-        }
-      
-        fetchHackerNews()
-      }, [])
-            
-    const [redditTrends, setRedditTrends] = useState<RedditTrend[]>([])
-    useEffect(() => {
-        const fetchRedditTrends = async () => {
-          try {
-            const res = await fetch("/api/reddit") // use your real API route here
-            const json = await res.json()
-            const posts = json.reddit || json // depending on how your API returns it
-      
-            const mapped = posts.map((post) => ({
-              id: post.id,
-              title: post.title,
-              subreddit: `r/${post.subreddit}`,
-              upvotes: post.upvotes,
-              comments: post.comments,
-              trend: "+0%", // placeholder or compute trend later
-              url: post.url,
-              image: "/placeholder.svg?height=40&width=40", // optional placeholder
-            }))
-      
-            setRedditTrends(mapped)
-          } catch (error) {
-            console.error("Failed to fetch Reddit data:", error)
-          }
-        }
-      
-        fetchRedditTrends()
-      }, [])
-      
-    interface GitHubRepo {
-      id: number
-      name: string
-      description: string
-      stars: number
-      forks: number
-      language: string
-      color: string
-    }
-    
-    const [githubRepos, setGithubRepos] = useState<GitHubRepo[]>([])
-    const [expandedRepo, setExpandedRepo] = useState<number | null>(null)
-
- const getLanguageColor = (lang: string) => {
-  const colors: Record<string, string> = {
-    JavaScript: "#f1e05a",
-    TypeScript: "#2b7489",
-    Python: "#3572A5",
-    Go: "#00ADD8",
-    Rust: "#dea584",
-    "C#": "#178600",
-  }
-  return colors[lang] || "#ccc"
+interface Gadget {
+  id: number
+  name?: string
+  title?: string
+  source?: { name: string }
+  tagline?: string
+  description?: string
+  votesCount?: number
+  thumbnailUrl?: string
+  urlToImage?: string
+  url?: string
 }
 
-    useEffect(() => {
-      const fetchGitHubRepos = async () => {
-        try {
-          const res = await fetch("/api/github")
-          const json = await res.json()
-          const repos = json.repos || []
-    
-          const mapped = repos.map((repo) => ({
-            id: repo.id,
-            name: repo.fullName,
-            description: repo.name,
-            stars: repo.stars,
-            forks: repo.forks,
-            language: repo.language,
-            color: getLanguageColor(repo.language),
-          }))
-    
-          setGithubRepos(mapped)
-        } catch (error) {
-          console.error("Failed to fetch GitHub repos:", error)
-        }
-      }
-    
-      fetchGitHubRepos()
-    }, [])
-    
+const [gadgets, setGadgets] = useState<Gadget[]>([])
+const [productHunt, setProductHunt] = useState<Gadget[]>([])
+
+useEffect(() => {
+  const fetchData = async () => {
+    const [gadgetsRes, productHuntRes] = await Promise.all([
+      fetch("/api/gadgets").then(res => res.json()),
+      fetch("/api/producthunt").then(res => res.json()),
+    ])
+    setGadgets(gadgetsRes)
+    setProductHunt(productHuntRes)
+  }
+  fetchData()
+}, [])
 
   const [currentMeme, setCurrentMeme] = useState(0)
   const [searchValue, setSearchValue] = useState("")
@@ -499,73 +461,51 @@ export default function TechDashboard() {
 >
 <div className="min-h-screen bg-background text-foreground">
 
-     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-             <motion.h1
-               className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"
-               initial={{ scale: 0.9 }}
-               animate={{ scale: 1 }}
-               transition={{ duration: 0.5 }}
-             >
-              Tech Trends Dashboard
-             </motion.h1>
-            
-           </div>
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-gray-800 bg-[#0f172a]/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                Tech Trends Overview
+              </h1>
+              <div className="hidden md:flex items-center gap-2 rounded-full bg-gray-800/50 px-3 py-1.5">
+                <Search className="h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search trends..."
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0 text-sm"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                />
+              </div>
+            </div>
 
-       
+          </div>
+          </div>
+      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
       <div className="space-y-6">
-      
+      <div className="flex justify-end">
+  <Button variant="outline" className="bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-700">
+    <Share2 className="mr-2 h-4 w-4" />
+    Share Report
+  </Button>
+</div>
 
           
            <Card className="shadow-md border border-border bg-card">
 
-             
-                {/* AI-Generated Summary */}
-               
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Badge className="mr-2 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 hover:text-indigo-300">
-                      <Zap className="h-3 w-3 mr-1" />
-                      AI
-                    </Badge>
-                    AI-Generated Tech Insights
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Continuously updated insights from across the tech ecosystem
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-0">
-                  <div className="relative h-32 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center">
-                      <motion.div
-                        className="flex gap-4"
-                        animate={{ x: [0, -2000] }}
-                        transition={{
-                          repeat: Number.POSITIVE_INFINITY,
-                          duration: 30,
-                          ease: "linear",
-                        }}
-                      >
-                        {[...aiSummaries, ...aiSummaries].map((summary, i) => (
-                          <motion.div
-                            key={i}
-                            className="flex-shrink-0 w-80 h-24 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 p-4 text-white"
-                            whileHover={{ y: -5, scale: 1.02 }}
-                          >
-                            <p className="text-sm">{summary}</p>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </div>
-                  </div>
-                </CardContent>
-            
-
+              <CardHeader>
+                <CardTitle className="text-2xl">Weekly Tech Trends Report</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Your digest of the most significant developments in tech this week
+                </CardDescription>
+              </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {redditTrends.length > 0 ? (
                   <motion.div
                     className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
                     whileHover={{ y: -5, transition: { duration: 0.2 } }}
@@ -585,37 +525,26 @@ export default function TechDashboard() {
                       </div>
                     </div>
                   </motion.div>
-                  ) : (
-                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
-                      Loading Reddit post...
-                    </div>
-                  )}
-                  {githubRepos.length > 0 ? (
-  <motion.div
-    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-  >
-    <div className="flex items-center gap-2 mb-2">
-      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
-        GitHub
-      </Badge>
-      <span className="text-xs text-gray-400">Trending Repo</span>
-    </div>
-    <h3 className="font-medium mb-2">{githubRepos[0].name}</h3>
-    <div className="flex justify-between text-sm text-gray-400">
-      <span>{githubRepos[0].language}</span>
-      <div className="flex items-center gap-1">
-        <Star className="h-3 w-3" />
-        <span>{githubRepos[0].stars.toLocaleString()}</span>
-      </div>
-    </div>
-  </motion.div>
-) : (
-  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
-    Loading GitHub repo...
-  </div>
-)}
 
+                  <motion.div
+                    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
+                        GitHub
+                      </Badge>
+                      <span className="text-xs text-gray-400">Trending Repo</span>
+                    </div>
+                    <h3 className="font-medium mb-2">{githubRepos[0].name}</h3>
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>{githubRepos[0].language}</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3" />
+                        <span>{githubRepos[0].stars.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </motion.div>
 
                   <motion.div
                     className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
@@ -682,73 +611,62 @@ export default function TechDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                {hackerNewsStories.slice(0, 6).map((story, index) => (
-  <motion.div
-    key={story.id}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="flex gap-4 pb-4 border-b border-gray-700 last:border-0"
-  >
-    <div className="shrink-0">
-      <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center text-xs text-gray-400">
-        <Newspaper className="h-6 w-6" />
-      </div>
-    </div>
-    <div className="flex-1">
-      <div className="flex justify-between items-start mb-1">
-        <a
-          href={story.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-blue-300 hover:underline"
-        >
-          {story.title}
-        </a>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 rounded-full"
-          onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
-        >
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${expandedStory === story.id ? "rotate-180" : ""}`}
-          />
-        </Button>
-      </div>
-      <div className="flex justify-between text-xs text-gray-400 mb-1">
-        <span>by {story.author}</span>
-        <span>{story.score} points • {story.comments} comments</span>
-      </div>
-      <AnimatePresence>
-        {expandedStory === story.id && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-sm text-gray-300 mt-2 overflow-hidden"
-          >
-            <p>This story was posted on Hacker News by <strong>{story.author}</strong>.</p>
-            <div className="mt-2">
-              <Button
-                variant="link"
-                className="h-auto p-0 text-blue-400"
-                asChild
-              >
-                <a href={story.url} target="_blank" rel="noopener noreferrer">
-                  Read full story <ArrowRight className="h-3 w-3 ml-1" />
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </motion.div>
-))}
-
-                
+                  {topStories.map((story, index) => (
+                    <motion.div
+                      key={story.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.3 }}
+                      className="flex gap-4 pb-4 border-b border-gray-700 last:border-0"
+                    >
+                      <div className="shrink-0">
+                        <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden">
+                          <img
+                            src={story.image || "/placeholder.svg"}
+                            alt={story.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-1">
+                          <h3 className="font-medium">{story.title}</h3>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 rounded-full"
+                            onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
+                          >
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform ${expandedStory === story.id ? "rotate-180" : ""}`}
+                            />
+                          </Button>
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400 mb-1">
+                          <span>{story.source}</span>
+                          <span>{story.time}</span>
+                        </div>
+                        <AnimatePresence>
+                          {expandedStory === story.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="text-sm text-gray-300 mt-2 overflow-hidden"
+                            >
+                              {story.snippet}
+                              <div className="mt-2">
+                                <Button variant="link" className="h-auto p-0 text-blue-400">
+                                  Read full story <ArrowRight className="h-3 w-3 ml-1" />
+                                </Button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </CardContent>
               <CardFooter>
@@ -773,7 +691,7 @@ export default function TechDashboard() {
                 </CardHeader>
                 <CardContent className="pb-2">
                   <div className="space-y-4">
-                  {(showAllReddit ? redditTrends : redditTrends.slice(0, 4)).map((post, index) => (
+                    {redditTrends.map((post, index) => (
                       <motion.div
                         key={post.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -947,69 +865,66 @@ export default function TechDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Recent Launches & Gadgets */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
-                      <Zap className="h-3 w-3 mr-1" />
-                      New
-                    </Badge>
-                    Recent Launches & Gadgets
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {recentLaunches.map((launch, index) => (
-                      <motion.div
-                        key={launch.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="flex gap-4 p-3 bg-gray-800/50 rounded-xl border border-gray-700"
-                        whileHover={{
-                          y: -5,
-                          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-                          transition: { duration: 0.2 },
-                        }}
-                      >
-                        <div className="shrink-0">
-                          <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden">
-                            <img
-                              src={launch.image || "/placeholder.svg"}
-                              alt={launch.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-medium">{launch.title}</h3>
-                            <Badge variant="outline" className="bg-gray-700/50 text-xs">
-                              {launch.category}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-400 mt-1 mb-2">{launch.description}</p>
-                          <div className="flex items-center text-yellow-400 text-sm">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${i < Math.floor(launch.rating) ? "fill-current" : "text-gray-600"}`}
-                              />
-                            ))}
-                            <span className="ml-1 text-gray-300">{launch.rating}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All Launches <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+  <CardHeader className="pb-2">
+    <CardTitle className="flex items-center text-lg">
+      <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
+        <Zap className="h-3 w-3 mr-1" />
+        New
+      </Badge>
+      Recent Launches & Gadgets
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {[...productHunt, ...gadgets].slice(0, 4).map((item, index) => (
+        <motion.div
+          key={item.id || index}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: index * 0.1, duration: 0.3 }}
+          className="flex gap-4 p-3 bg-gray-800/50 rounded-xl border border-gray-700"
+        >
+          <div className="shrink-0">
+            <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden">
+              <img
+                src={item.thumbnailUrl || item.urlToImage || "/placeholder.svg"}
+                alt={item.name || item.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-start">
+              <h3 className="font-medium text-sm">
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {item.name || item.title}
+                </a>
+              </h3>
+              <Badge variant="outline" className="bg-gray-700/50 text-xs">
+                {item.source?.name || "ProductHunt"}
+              </Badge>
+            </div>
+            <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+              {item.tagline || item.description}
+            </p>
+            {item.votesCount && (
+              <div className="flex items-center text-yellow-400 text-sm mt-2">
+                <Star className="h-3 w-3 mr-1" />
+                <span>{item.votesCount} votes</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </CardContent>
+  <CardFooter>
+    <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+      View All Launches <ChevronRight className="h-4 w-4 ml-1" />
+    </Button>
+  </CardFooter>
+</Card>
 
               {/* GitHub Insights */}
               <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
@@ -1173,7 +1088,47 @@ export default function TechDashboard() {
                 </CardContent>
               </Card>
 
-            
+              {/* AI-Generated Summary */}
+              <Card className="md:col-span-3 bg-gray-800/30 border-gray-800 overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Badge className="mr-2 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 hover:text-indigo-300">
+                      <Zap className="h-3 w-3 mr-1" />
+                      AI
+                    </Badge>
+                    AI-Generated Tech Insights
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Continuously updated insights from across the tech ecosystem
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pb-0">
+                  <div className="relative h-32 overflow-hidden">
+                    <div className="absolute inset-0 flex items-center">
+                      <motion.div
+                        className="flex gap-4"
+                        animate={{ x: [0, -2000] }}
+                        transition={{
+                          repeat: Number.POSITIVE_INFINITY,
+                          duration: 30,
+                          ease: "linear",
+                        }}
+                      >
+                        {[...aiSummaries, ...aiSummaries].map((summary, i) => (
+                          <motion.div
+                            key={i}
+                            className="flex-shrink-0 w-80 h-24 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 p-4 text-white"
+                            whileHover={{ y: -5, scale: 1.02 }}
+                          >
+                            <p className="text-sm">{summary}</p>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Engagement Chart */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
                 <CardHeader>
