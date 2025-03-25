@@ -31,7 +31,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
-import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts"
+import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area , Line , LineChart , CartesianGrid } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
 // Sample data for charts and content
@@ -767,93 +767,58 @@ useEffect(() => {
             </div>
 
             {/* Top Stories Section */}
-            <Card className="bg-gray-800/30 border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-lg">
-                  <Badge className="mr-2 bg-green-500/20 text-green-400 hover:bg-green-500/30 hover:text-green-300">
-                    <Newspaper className="h-3 w-3 mr-1" />
-                    Featured
-                  </Badge>
-                  Top Stories
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                {hackerNewsStories.slice(0, 6).map((story, index) => (
-  <motion.div
-    key={story.id}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="flex gap-4 pb-4 border-b border-gray-700 last:border-0"
-  >
-    <div className="shrink-0">
-      <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center text-xs text-gray-400">
-        <Newspaper className="h-6 w-6" />
-      </div>
-    </div>
-    <div className="flex-1">
-      <div className="flex justify-between items-start mb-1">
-        <a
-          href={story.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-blue-300 hover:underline"
-        >
-          {story.title}
-        </a>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 rounded-full"
-          onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
-        >
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${expandedStory === story.id ? "rotate-180" : ""}`}
-          />
-        </Button>
-      </div>
-      <div className="flex justify-between text-xs text-gray-400 mb-1">
-        <span>by {story.author}</span>
-        <span>{story.score} points • {story.comments} comments</span>
-      </div>
-      <AnimatePresence>
-        {expandedStory === story.id && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-sm text-gray-300 mt-2 overflow-hidden"
-          >
-            <p>This story was posted on Hacker News by <strong>{story.author}</strong>.</p>
-            <div className="mt-2">
-              <Button
-                variant="link"
-                className="h-auto p-0 text-blue-400"
-                asChild
-              >
-                <a href={story.url} target="_blank" rel="noopener noreferrer">
-                  Read full story <ArrowRight className="h-3 w-3 ml-1" />
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </motion.div>
-))}
+            <Card className="bg-white border border-gray-200 dark:bg-gray-900 dark:border-gray-700">
+  <CardHeader className="pb-2">
+    <CardTitle className="flex items-center text-lg">
+      <Badge className="mr-2 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/30">
+        <Newspaper className="h-3 w-3 mr-1" />
+        Featured
+      </Badge>
+      Top Stories - Scores
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <ResponsiveContainer width="100%" height={250}>
+      <LineChart data={hackerNewsStories.slice(0, 6).map((story) => ({
+        name: story.title.length > 20 ? story.title.slice(0, 20) + "..." : story.title,
+        score: story.score,
+      }))}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
+        <XAxis 
+          dataKey="name" 
+          tick={{ fill: "#374151", fontSize: 12 }} 
+          tickLine={{ stroke: '#E5E7EB' }} 
+          className="dark:fill-gray-300"
+        />
+        <YAxis 
+          tick={{ fill: "#374151", fontSize: 12 }} 
+          tickLine={{ stroke: '#E5E7EB' }} 
+          className="dark:fill-gray-300"
+        />
+        <Tooltip
+          contentStyle={{ backgroundColor: "#F9FAFB", borderColor: "#D1D5DB", color: "#111827" }}
+          labelStyle={{ color: "#111827" }}
+          itemStyle={{ color: "#111827" }}
+          wrapperStyle={{ borderRadius: '0.5rem' }}
+        />
+        <Line
+          type="monotone"
+          dataKey="score"
+          stroke="#3B82F6"
+          activeDot={{ r: 6 }}
+          strokeWidth={2}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </CardContent>
+  <CardFooter>
+    <Button variant="ghost" size="sm" className="w-full text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-gray-100">
+      View All Stories <ChevronRight className="h-4 w-4 ml-1" />
+    </Button>
+  </CardFooter>
+</Card>
 
-                
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                  View All Stories <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardFooter>
-            </Card>
+
 
             {/* Main Dashboard Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1568,4 +1533,3 @@ const Eye = (props :any) => {
     </svg>
   )
 }
-
