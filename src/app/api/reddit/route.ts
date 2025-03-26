@@ -1,13 +1,19 @@
 // app/api/reddit/route.ts
 import { NextResponse } from 'next/server';
-import { fetchRedditTrends } from '../../../../lib/reddit';
+import prisma from '../../../../lib/db';
 
 export async function GET() {
   try {
-    const data = await fetchRedditTrends();
-    return NextResponse.json(data);
+    const posts = await prisma.redditPost.findMany({
+      orderBy: {
+        upvotes: 'desc',
+      },
+      take: 20, // limit to top 20 posts
+    });
+
+    return NextResponse.json(posts);
   } catch (error) {
     console.error('Error in GET /api/reddit:', error);
-    return NextResponse.json({ error: 'Failed to fetch Reddit data' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch Reddit data from DB' }, { status: 500 });
   }
 }
