@@ -179,7 +179,7 @@ export default function GithubPage() {
           {data ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Top Repos Card */}
-              <Card className="shadow-md border border-border">
+              <Card className=" bg-gray-800/30 border-gray-800">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Star className="h-5 w-5 text-yellow-500" /> Top Repositories
@@ -235,7 +235,7 @@ export default function GithubPage() {
               </Card>
 
               {/* Language Distribution */}
-              <Card className="shadow-md border border-border">
+              <Card className=" bg-gray-800/30 border-gray-800">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Code className="h-5 w-5 text-blue-500" /> Language Distribution
@@ -328,7 +328,7 @@ export default function GithubPage() {
 
           {/* Issues Chart */}
           {data ? (
-            <Card className="shadow-md border border-border">
+            <Card className=" bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <GitPullRequest className="h-5 w-5 text-purple-500" /> Most Discussed Issues
@@ -380,7 +380,7 @@ export default function GithubPage() {
 
           {/* Activity Timeline */}
           {data ? (
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <GitPullRequest className="h-5 w-5 text-green-500" /> Contribution Activity
@@ -414,7 +414,7 @@ export default function GithubPage() {
 
         <TabsContent value="repositories" className="space-y-6">
           {data ? (
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader>
                 <CardTitle>All Repositories</CardTitle>
               </CardHeader>
@@ -463,7 +463,7 @@ export default function GithubPage() {
 
         <TabsContent value="languages" className="space-y-6">
           {data ? (
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle>Language Distribution</CardTitle>
                 <div className="flex space-x-1">
@@ -554,7 +554,7 @@ export default function GithubPage() {
 
         <TabsContent value="issues" className="space-y-6">
           {data ? (
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader>
                 <CardTitle>All Issues</CardTitle>
               </CardHeader>

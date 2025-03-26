@@ -4,6 +4,10 @@ import type React from "react"
 import { BackgroundBeams } from "@/components/ui/beams"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"; // Ensure this path is correct
+    
+  
+    
 import {
   ArrowRight,
   Bell,
@@ -31,7 +35,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
-import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area , Line , LineChart , CartesianGrid } from "recharts"
+import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar,LineChart ,Line  } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
 // Sample data for charts and content
@@ -121,21 +125,28 @@ const memes = [
     title: "When your code works on the first try",
     upvotes: 9876,
     source: "r/ProgrammerHumor",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/memes/a.jpg",
   },
   {
     id: 2,
     title: "CSS positioning be like",
     upvotes: 8765,
     source: "r/webdev",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/memes/b.jpg",
   },
   {
     id: 3,
     title: "AI taking over programming jobs",
     upvotes: 7654,
     source: "r/ProgrammerHumor",
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/memes/c.png",
+  },
+  {
+    id: 4,
+    title: "AI taking over programming jobs",
+    upvotes: 7654,
+    source: "r/ProgrammerHumor",
+    image: "/memes/d.jpg",
   },
 ]
 
@@ -290,7 +301,9 @@ const aiSummaries = [
 export default function TechDashboard() {
     const [showAllReddit, setShowAllReddit] = useState(false)
     const [isDarkMode, setIsDarkMode] = useState(false) // Add this line to define isDarkMode
-
+    const [selectedChartType, setSelectedChartType] = useState<"pie" | "bar" | "line" | "area">("pie")
+    const colors = ["#a78bfa", "#7c3aed", "#10b981", "#f59e0b", "#ef4444", "#0ea5e9"];
+   
     interface StackOverflowQuestion {
       id: number
       title: string
@@ -302,11 +315,16 @@ export default function TechDashboard() {
       creationDate: string
     }
     interface TechNewsItem {
-      id: number;
-      title: string;
-      source: string;
-      image?: string;
-      createdAt: string;
+        source: {
+            id: string | null;
+            name: string;
+          };
+          author: string;
+          title: string;
+          description: string;
+          url: string;
+          urlToImage?: string;
+          publishedAt: string;
     }
     
     const [techNewsItems, setTechNewsItems] = useState<TechNewsItem[]>([]);
@@ -314,15 +332,15 @@ export default function TechDashboard() {
 useEffect(() => {
   const fetchNews = async () => {
     try {
-      const res = await fetch("/api/hackernews");
-      const json = await res.json();
-      const techNews = json.techNewsItems || [];
+        const res = await fetch("/api/gadgets");
+        const data = await res.json();
+        setTechNewsItems(data);
+      } catch (err) {
+        console.error("Failed to fetch gadget news:", err);
+      }
+    };
 
-      setTechNewsItems(techNews);
-    } catch (err) {
-      console.error("Error fetching Tech News:", err);
-    }
-  };
+
 
   fetchNews();
 }, []);
@@ -412,6 +430,16 @@ useEffect(() => {
         score: number
         createdAt: string
       }
+      const newsSourceData = Object.entries(
+        techNewsItems.reduce((acc: Record<string, number>, item) => {
+          const source = item.source || "Unknown"
+          acc[source.name] = (acc[source.name] || 0) + 1
+          return acc
+        }, {})
+      ).map(([name, count]) => ({
+        name,
+        count,
+      }))
       
       const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
       useEffect(() => {
@@ -427,7 +455,9 @@ useEffect(() => {
       
         fetchSocialPosts()
       }, [])
-                  
+     const topSources = newsSourceData
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 6)
     const [redditTrends, setRedditTrends] = useState<RedditTrend[]>([])
     useEffect(() => {
         const fetchRedditTrends = async () => {
@@ -512,6 +542,7 @@ useEffect(() => {
    
 
 const [showInputs, setShowInputs] = useState(false)
+const [chartType, setChartType] = useState<"bar" | "pie">("bar")
 
 
 const [dynamicMessage, setDynamicMessage] = useState("Join 12,000+ devs for weekly insights.")
@@ -577,14 +608,7 @@ useEffect(() => {
     return () => clearInterval(interval)
   }, [])
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email) {
-      setSubscribeStatus("success")
-      setTimeout(() => setSubscribeStatus(null), 3000)
-      setEmail("")
-    }
-  }
+  
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-background text-foreground' : 'light'}`}>    <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
@@ -596,17 +620,17 @@ useEffect(() => {
 >
 <div className="min-h-screen bg-background text-foreground">
 
-     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-             <motion.h1
-               className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"
-               initial={{ scale: 0.9 }}
-               animate={{ scale: 1 }}
-               transition={{ duration: 0.5 }}
-             >
-              Tech Trends Dashboard
-             </motion.h1>
-            
-           </div>
+<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <motion.h1
+    className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+    initial={{ scale: 0.9 }}
+    animate={{ scale: 1 }}
+    transition={{ duration: 0.5 }}
+  >
+    Tech Trends Dashboard
+  </motion.h1>
+</div>
+
 
        
 
@@ -616,14 +640,14 @@ useEffect(() => {
       
 
           
-           <Card className="shadow-md border border-border bg-card">
+           <Card className=" bg-gray-800/30 border-gray-800">
 
              
                 {/* AI-Generated Summary */}
                
                 <CardHeader>
                   <CardTitle className="flex items-center">
-                    <Badge className="mr-2 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 hover:text-indigo-300">
+                    <Badge className="mr-2 bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary-foreground">
                       <Zap className="h-3 w-3 mr-1" />
                       AI
                     </Badge>
@@ -765,259 +789,242 @@ useEffect(() => {
                 </motion.div>
               ))}
             </div>
-
-            {/* Top Stories Section */}
-            <Card className="bg-white border border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-  <CardHeader className="pb-2">
-    <CardTitle className="flex items-center text-lg">
-      <Badge className="mr-2 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-500/30">
-        <Newspaper className="h-3 w-3 mr-1" />
-        Featured
-      </Badge>
-      Top Stories - Scores
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    <ResponsiveContainer width="100%" height={250}>
-      <LineChart data={hackerNewsStories.slice(0, 6).map((story) => ({
-        name: story.title.length > 20 ? story.title.slice(0, 20) + "..." : story.title,
-        score: story.score,
-      }))}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
-        <XAxis 
-          dataKey="name" 
-          tick={{ fill: "#374151", fontSize: 12 }} 
-          tickLine={{ stroke: '#E5E7EB' }} 
-          className="dark:fill-gray-300"
-        />
-        <YAxis 
-          tick={{ fill: "#374151", fontSize: 12 }} 
-          tickLine={{ stroke: '#E5E7EB' }} 
-          className="dark:fill-gray-300"
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: "#F9FAFB", borderColor: "#D1D5DB", color: "#111827" }}
-          labelStyle={{ color: "#111827" }}
-          itemStyle={{ color: "#111827" }}
-          wrapperStyle={{ borderRadius: '0.5rem' }}
-        />
-        <Line
-          type="monotone"
-          dataKey="score"
-          stroke="#3B82F6"
-          activeDot={{ r: 6 }}
-          strokeWidth={2}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </CardContent>
-  <CardFooter>
-    <Button variant="ghost" size="sm" className="w-full text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-gray-100">
-      View All Stories <ChevronRight className="h-4 w-4 ml-1" />
-    </Button>
-  </CardFooter>
-</Card>
-
-
-
-            {/* Main Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Reddit Trends */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300">
-                      <MessageSquare className="h-3 w-3 mr-1" />
-                      Reddit
+                   {/* Languages & Top Repos */}
+                   <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
+                      <Code className="h-3 w-3 mr-1" />
+                      Languages
                     </Badge>
-                    Trending Discussions
+                    Languages & Top Repositories
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="space-y-4">
-                  {(showAllReddit ? redditTrends : redditTrends.slice(0, 4)).map((post, index) => (
-                      <motion.div
-                        key={post.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
-                      >
-                        <div className="shrink-0">
-                          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
-                            {index + 1}
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-sm mb-1 truncate">{post.title}</h3>
-                          <div className="flex justify-between text-xs text-gray-400">
-                            <span>{post.subreddit}</span>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center">
-                                <ThumbsUp className="h-3 w-3 mr-1" />
-                                <span>{post.upvotes.toLocaleString()}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <MessageSquare className="h-3 w-3 mr-1" />
-                                <span>{post.comments}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-1 text-xs text-green-400">{post.trend}</div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+                <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {/* Stack Overflow Questions */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 hover:text-orange-300">
-                      <HelpCircle className="h-3 w-3 mr-1" />
-                      Stack Overflow
-                    </Badge>
-                    Top Questions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="space-y-4">
-                    {stackOverflowQuestions.slice(0, 3).map((question, index) => (
-                      <motion.div
-                        key={question.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="pb-3 border-b border-gray-700 last:border-0"
+                    <div>
+                      <h3 className="font-medium mb-4 text-sm">Popular Languages</h3>
+                      <ChartContainer
+                        config={{
+                          javascript: {
+                            label: "JavaScript",
+                            color: "#f1e05a",
+                          },
+                          python: {
+                            label: "Python",
+                            color: "#3572A5",
+                          },
+                          typescript: {
+                            label: "TypeScript",
+                            color: "#2b7489",
+                          },
+                          go: {
+                            label: "Go",
+                            color: "#00ADD8",
+                          },
+                          rust: {
+                            label: "Rust",
+                            color: "#dea584",
+                          },
+                        }}
+                        className="h-[200px]"
                       >
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-sm mb-2">{question.title}</h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 rounded-full"
-                            onClick={() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}
-                          >
-                            <ChevronDown
-                              className={`h-4 w-4 transition-transform ${expandedQuestion === question.id ? "rotate-180" : ""}`}
-                            />
-                          </Button>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {question.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="bg-gray-700/50 text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-400">
-                          <div className="flex items-center">
-                            <ThumbsUp className="h-3 w-3 mr-1" />
-                            <span>{question.votes} votes</span>
-                          </div>
-                          <div className="flex items-center">
-                            <MessageSquare className="h-3 w-3 mr-1" />
-                            <span>{question.answers} answers</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Eye className="h-3 w-3 mr-1" />
-                            <span>{question.views.toLocaleString()} views</span>
-                          </div>
-                        </div>
-                        <AnimatePresence>
-                          {expandedQuestion === question.id && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="mt-3 text-sm bg-gray-700/30 p-3 rounded-md"
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={languageData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={2}
+                              dataKey="value"
                             >
-                              <p className="text-gray-300 mb-2">
-                                This question discusses best practices and optimization techniques related to{" "}
-                                {question.tags.join(", ")}.
-                              </p>
-                              <Button variant="link" className="h-auto p-0 text-blue-400">
-                                View on Stack Overflow <ArrowRight className="h-3 w-3 ml-1" />
-                              </Button>
+                              {languageData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<ChartTooltipContent />} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-4 text-sm">Top Repositories by Language</h3>
+                      <div className="space-y-4">
+                        {Object.entries(languageRepos)
+                          .slice(0, 3)
+                          .map(([language, repos]) => (
+                            <motion.div
+                              key={language}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="space-y-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-3 h-3 rounded-full"
+                                  style={{
+                                    backgroundColor: languageData.find((l) => l.name === language)?.color || "#ccc",
+                                  }}
+                                ></div>
+                                <span className="font-medium text-sm">{language}</span>
+                              </div>
+                              {repos.slice(0, 1).map((repo) => (
+                                <div key={repo.name} className="flex justify-between items-center pl-5">
+                                  <span className="text-xs text-gray-400">{repo.name}</span>
+                                  <div className="flex items-center text-xs">
+                                    <Star className="h-3 w-3 mr-1 text-yellow-400" />
+                                    <span>{repo.stars.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              ))}
+                              <Progress
+                                value={languageData.find((l) => l.name === language)?.value}
+                                className="h-1.5"
+                                style={
+                                  {
+                                    backgroundColor: "rgba(255,255,255,0.1)",
+                                    "--progress-background": languageData.find((l) => l.name === language)?.color,
+                                  } as React.CSSProperties
+                                }
+                              />
                             </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    ))}
+                          ))}
+                      </div>
+                    </div>
                   </div>
+                
+
                 </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All Questions <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
               </Card>
+            <Card className="bg-gray-800/30 border-gray-800">
+      <CardHeader className="flex justify-between items-center px-4 pt-4 pb-2">
+        <CardTitle className="flex items-center text-lg">
+          <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
+            <Newspaper className="h-3 w-3 mr-1" />
+            News Sources
+          </Badge>
+          News Sources Distribution
+        </CardTitle>
+        <Select onValueChange={(value) => setSelectedChartType(value as any)} defaultValue="pie">
+          <SelectTrigger className="w-32 text-sm h-8">
+            <SelectValue placeholder="Chart Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pie">Pie Chart</SelectItem>
+            <SelectItem value="bar">Bar Chart</SelectItem>
+            <SelectItem value="line">Line Chart</SelectItem>
+            <SelectItem value="area">Area Chart</SelectItem>
+          </SelectContent>
+        </Select>
+      </CardHeader>
 
-              <Card className="md:col-span-1 bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-gray-800">
-  <CardHeader>
-    <CardTitle>Stay Updated</CardTitle>
-    <CardDescription className="text-gray-300">
-      {dynamicMessage}
-    </CardDescription>
-  </CardHeader>
-  <CardContent>
-    {showInputs ? (
-      <form onSubmit={handleSubscribe} className="space-y-4">
-        <Input
-          type="text"
-          placeholder="Your Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <Input
-          type="email"
-          placeholder="your@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-          <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
-            <Send className="mr-2 h-4 w-4" />
-            Confirm Subscription
-          </Button>
-        </motion.div>
-        <AnimatePresence>
-          {subscribeStatus && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="text-sm text-green-400 text-center"
-            >
-              {subscribeStatus}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </form>
-    ) : (
-      <motion.div whileHover={{ scale: 1.02 }}>
-        <Button
-          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-          onClick={() => setShowInputs(true)}
-        >
-          <Send className="mr-2 h-4 w-4" />
-          Subscribe
-        </Button>
-      </motion.div>
-    )}
-  </CardContent>
-</Card>
+      <CardContent className="pb-6 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
 
+          {/* Left Side Labels */}
+          <div className="hidden md:block space-y-2">
+            {topSources.slice(0, 3).map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: colors[i % colors.length] }}
+                />
+                <span className="text-gray-300">{item.name}</span>
+                <span className="text-xs text-gray-400 ml-auto">{item.count}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Center Chart */}
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              {selectedChartType === "pie" && (
+                <PieChart>
+                  <Pie
+                    data={topSources}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="count"
+                  >
+                    {topSources.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              )}
+
+              {selectedChartType === "bar" && (
+                <BarChart data={topSources} barSize={32}>
+                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="count" fill="url(#barGradient)">
+                    {topSources.map((_, index) => (
+                      <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              )}
+
+              {selectedChartType === "line" && (
+                <LineChart data={topSources}>
+                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#a78bfa"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              )}
+
+              {selectedChartType === "area" && (
+                <AreaChart data={topSources}>
+                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                  <Tooltip content={<ChartTooltipContent />} />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#a78bfa"
+                    fill="#7c3aed"
+                    fillOpacity={0.3}
+                  />
+                </AreaChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+
+          {/* Right Side Labels */}
+          <div className="hidden md:block space-y-2">
+            {topSources.slice(3, 6).map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: colors[(i + 3) % colors.length] }}
+                />
+                <span className="text-gray-300">{item.name}</span>
+                <span className="text-xs text-gray-400 ml-auto">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
   <CardHeader className="pb-2 pt-4 px-4">
     <CardTitle className="flex items-center text-base">
@@ -1112,117 +1119,240 @@ useEffect(() => {
     </Button>
   </CardFooter>
 </Card>
-         
-
-              {/* Languages & Top Repos */}
-              <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
-                      <Code className="h-3 w-3 mr-1" />
-                      Languages
+</div>
+            {/* Main Dashboard Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Reddit Trends */}
+              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-lg">
+                    <Badge className="mr-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      Reddit
                     </Badge>
-                    Languages & Top Repositories
+                    Trending Discussions
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-medium mb-4 text-sm">Popular Languages</h3>
-                      <ChartContainer
-                        config={{
-                          javascript: {
-                            label: "JavaScript",
-                            color: "#f1e05a",
-                          },
-                          python: {
-                            label: "Python",
-                            color: "#3572A5",
-                          },
-                          typescript: {
-                            label: "TypeScript",
-                            color: "#2b7489",
-                          },
-                          go: {
-                            label: "Go",
-                            color: "#00ADD8",
-                          },
-                          rust: {
-                            label: "Rust",
-                            color: "#dea584",
-                          },
-                        }}
-                        className="h-[200px]"
+                <CardContent className="pb-2">
+                  <div className="space-y-4">
+                  {(showAllReddit ? redditTrends : redditTrends.slice(0, 5)).map((post, index) => (
+                      <motion.div
+                        key={post.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
                       >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={languageData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={2}
-                              dataKey="value"
-                            >
-                              {languageData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip content={<ChartTooltipContent />} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </ChartContainer>
-                    </div>
-                    <div>
-                      <h3 className="font-medium mb-4 text-sm">Top Repositories by Language</h3>
-                      <div className="space-y-4">
-                        {Object.entries(languageRepos)
-                          .slice(0, 3)
-                          .map(([language, repos]) => (
-                            <motion.div
-                              key={language}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3 }}
-                              className="space-y-2"
-                            >
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-3 h-3 rounded-full"
-                                  style={{
-                                    backgroundColor: languageData.find((l) => l.name === language)?.color || "#ccc",
-                                  }}
-                                ></div>
-                                <span className="font-medium text-sm">{language}</span>
+                        <div className="shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                            {index + 1}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm mb-1 truncate">{post.title}</h3>
+                          <div className="flex justify-between text-xs text-gray-400">
+                            <span>{post.subreddit}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center">
+                                <ThumbsUp className="h-3 w-3 mr-1" />
+                                <span>{post.upvotes.toLocaleString()}</span>
                               </div>
-                              {repos.slice(0, 1).map((repo) => (
-                                <div key={repo.name} className="flex justify-between items-center pl-5">
-                                  <span className="text-xs text-gray-400">{repo.name}</span>
-                                  <div className="flex items-center text-xs">
-                                    <Star className="h-3 w-3 mr-1 text-yellow-400" />
-                                    <span>{repo.stars.toLocaleString()}</span>
-                                  </div>
-                                </div>
-                              ))}
-                              <Progress
-                                value={languageData.find((l) => l.name === language)?.value}
-                                className="h-1.5"
-                                style={
-                                  {
-                                    backgroundColor: "rgba(255,255,255,0.1)",
-                                    "--progress-background": languageData.find((l) => l.name === language)?.color,
-                                  } as React.CSSProperties
-                                }
-                              />
-                            </motion.div>
-                          ))}
-                      </div>
-                    </div>
+                              <div className="flex items-center">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{post.comments}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-1 text-xs text-green-400">{post.trend}</div>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
                 </CardContent>
+                <CardFooter>
+                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+                    View All <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
               </Card>
 
+              {/* Stack Overflow Questions */}
+              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-lg">
+                    <Badge className="mr-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 hover:text-orange-300">
+                      <HelpCircle className="h-3 w-3 mr-1" />
+                      Stack Overflow
+                    </Badge>
+                    Top Questions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <div className="space-y-4">
+                    {stackOverflowQuestions.slice(0, 4).map((question, index) => (
+                      <motion.div
+                        key={question.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        className="pb-3 border-b border-gray-700 last:border-0"
+                      >
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-medium text-sm mb-2">{question.title}</h3>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 rounded-full"
+                            onClick={() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}
+                          >
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform ${expandedQuestion === question.id ? "rotate-180" : ""}`}
+                            />
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {question.tags.map((tag) => (
+                            <Badge key={tag} variant="outline" className="bg-gray-700/50 text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <div className="flex items-center">
+                            <ThumbsUp className="h-3 w-3 mr-1" />
+                            <span>{question.votes} votes</span>
+                          </div>
+                          <div className="flex items-center">
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            <span>{question.answers} answers</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Eye className="h-3 w-3 mr-1" />
+                            <span>{question.views.toLocaleString()} views</span>
+                          </div>
+                        </div>
+                        <AnimatePresence>
+                          {expandedQuestion === question.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="mt-3 text-sm bg-gray-700/30 p-3 rounded-md"
+                            >
+                              <p className="text-gray-300 mb-2">
+                                This question discusses best practices and optimization techniques related to{" "}
+                                {question.tags.join(", ")}.
+                              </p>
+                              <Button variant="link" className="h-auto p-0 text-blue-400">
+                                View on Stack Overflow <ArrowRight className="h-3 w-3 ml-1" />
+                              </Button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+                    View All Questions <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
+  {/* Top Stories Section */}
+  <Card className="bg-gray-800/30 border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center text-lg">
+                  <Badge className="mr-2 bg-green-500/20 text-green-400 hover:bg-green-500/30 hover:text-green-300">
+                    <Newspaper className="h-3 w-3 mr-1" />
+                    Featured
+                  </Badge>
+                  Top Stories
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                {hackerNewsStories.slice(0, 4).map((story, index) => (
+  <motion.div
+    key={story.id}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: index * 0.1, duration: 0.3 }}
+    className="flex gap-4 pb-4 border-b border-gray-700 last:border-0"
+  >
+    <div className="shrink-0">
+      <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center text-xs text-gray-400">
+        <Newspaper className="h-6 w-6" />
+      </div>
+    </div>
+    <div className="flex-1">
+      <div className="flex justify-between items-start mb-1">
+        <a
+          href={story.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-blue-300 hover:underline"
+        >
+          {story.title}
+        </a>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-6 w-6 p-0 rounded-full"
+          onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
+        >
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${expandedStory === story.id ? "rotate-180" : ""}`}
+          />
+        </Button>
+      </div>
+      <div className="flex justify-between text-xs text-gray-400 mb-1">
+        <span>by {story.author}</span>
+        <span>{story.score} points • {story.comments} comments</span>
+      </div>
+      <AnimatePresence>
+        {expandedStory === story.id && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-sm text-gray-300 mt-2 overflow-hidden"
+          >
+            <p>This story was posted on Hacker News by <strong>{story.author}</strong>.</p>
+            <div className="mt-2">
+              <Button
+                variant="link"
+                className="h-auto p-0 text-blue-400"
+                asChild
+              >
+                <a href={story.url} target="_blank" rel="noopener noreferrer">
+                  Read full story <ArrowRight className="h-3 w-3 ml-1" />
+                </a>
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  </motion.div>
+))}
+
+                
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+                  View All Stories <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+       
+          
+
+       
             
               {/* Engagement Chart */}
               <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
@@ -1296,52 +1426,62 @@ useEffect(() => {
 
               {/* Tech News Feed */}
               <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
-                      <Newspaper className="h-3 w-3 mr-1" />
-                      Tech News
-                    </Badge>
-                    Latest Headlines
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                  {techNewsItems.slice(0, 6).map((news, index) => (
-  <motion.div
-    key={news.id}
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
-  >
-    <div className="shrink-0">
-      <div className="w-10 h-10 rounded-md bg-gray-700 overflow-hidden">
-        <img
-          src={news.image || "/placeholder.svg"}
-          alt={news.source}
-          className="w-full h-full object-cover"
-        />
-      </div>
-    </div>
-    <div className="flex-1 min-w-0">
-      <h3 className="font-medium text-sm mb-1 line-clamp-2">{news.title}</h3>
-      <div className="flex justify-between text-xs text-gray-400">
-        <span>{news.source}</span>
-        <span>{new Date(news.createdAt).toLocaleDateString()}</span>
-      </div>
-    </div>
-  </motion.div>
-))}
+  <CardHeader className="pb-2">
+    <CardTitle className="flex items-center text-lg">
+      <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
+        <Newspaper className="h-3 w-3 mr-1" />
+        Tech News
+      </Badge>
+      Latest Headlines
+    </CardTitle>
+  </CardHeader>
 
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                    View All <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
-              </Card>
+  <CardContent>
+    <div className="space-y-4">
+      {techNewsItems.slice(0, 4).map((news, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1, duration: 0.3 }}
+          className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
+        >
+          <div className="shrink-0">
+            <div className="w-10 h-10 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center">
+              {news.urlToImage ? (
+                <img
+                  src={news.urlToImage}
+                  alt={news.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <Newspaper className="h-6 w-6 text-gray-400" />
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-sm mb-1 line-clamp-2">{news.title}</h3>
+            <div className="flex justify-between text-xs text-gray-400">
+              <span>{news.source?.name || "Unknown Source"}</span>
+              <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </CardContent>
+
+  <CardFooter>
+    <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+      View All <ChevronRight className="h-4 w-4 ml-1" />
+    </Button>
+  </CardFooter>
+</Card>
+
 
               {/* Social Media Buzz */}
               <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
@@ -1357,7 +1497,7 @@ useEffect(() => {
 
   <CardContent>
     <div className="space-y-4">
-      {socialPosts.slice(0, 6).map((post, index) => (
+      {socialPosts.slice(0, 4).map((post, index) => (
         <motion.div
           key={post.id}
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1405,7 +1545,7 @@ useEffect(() => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative h-[250px] overflow-hidden rounded-lg">
+                  <div className="relative h-[590px] overflow-hidden rounded-lg">
                     <AnimatePresence>
                       {memes.map(
                         (meme, index) =>
@@ -1422,7 +1562,7 @@ useEffect(() => {
                                 <img
                                   src={meme.image || "/placeholder.svg"}
                                   alt={meme.title}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-contain"
                                 />
                                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
                                   <h3 className="font-medium">{meme.title}</h3>
@@ -1533,3 +1673,4 @@ const Eye = (props :any) => {
     </svg>
   )
 }
+

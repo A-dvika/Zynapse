@@ -277,7 +277,7 @@ export default function HackerNewsPage() {
             {data ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Stories Card */}
-                <Card className="shadow-md border border-border">
+                <Card className="bg-gray-800/30 border-gray-800">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-orange-500" /> Top Stories
@@ -353,7 +353,7 @@ export default function HackerNewsPage() {
                 </Card>
 
                 {/* Engagement Stats */}
-                <Card className="shadow-md border border-border">
+                <Card className="bg-gray-800/30 border-gray-800">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-blue-500" /> Engagement Metrics
@@ -451,7 +451,7 @@ export default function HackerNewsPage() {
             )}
 
             {/* Tech News Sources Chart */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Filter className="h-5 w-5 text-purple-500" /> News Sources Distribution
@@ -490,7 +490,7 @@ export default function HackerNewsPage() {
             </Card>
 
             {/* Activity Timeline */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" /> Activity Timeline
@@ -525,7 +525,7 @@ export default function HackerNewsPage() {
           </TabsContent>
 
           <TabsContent value="stories" className="space-y-6">
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader>
                 <CardTitle>All Hacker News Stories</CardTitle>
               </CardHeader>
@@ -582,7 +582,7 @@ export default function HackerNewsPage() {
           </TabsContent>
 
           <TabsContent value="technews" className="space-y-6">
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">Latest Tech News</CardTitle>
                 <Button

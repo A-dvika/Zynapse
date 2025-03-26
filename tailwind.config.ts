@@ -7,7 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -28,8 +28,6 @@ const config = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
-        blur: {
-          sm: '1.5px',},
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -54,6 +52,17 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        blur: {
+          sm: '1.5px',
+        },
+
+        // 👇 Added custom brand color palette (based on subscribe button colors)
+        brand: {
+          DEFAULT: "#6366F1", // Indigo 500
+          dark: "#4F46E5",    // Indigo 600
+          light: "#8B5CF6",   // Purple 500
+          softer: "#A78BFA",  // Violet 400
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -73,7 +82,7 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        'rotate-360': 'rotate360 0.5s linear',
+        "rotate-360": "rotate360 0.5s linear",
       },
     },
   },

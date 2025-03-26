@@ -382,7 +382,7 @@ export default function ProductHuntPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Trending Products Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
@@ -478,7 +478,7 @@ export default function ProductHuntPage() {
             </Card>
 
             {/* Recent Products Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-green-500" /> Recent Launches
@@ -549,7 +549,7 @@ export default function ProductHuntPage() {
 
         
           {/* Engagement Metrics - New Useful Graph */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Newspaper className="h-5 w-5 text-purple-500" /> Latest Gadget News
@@ -562,7 +562,7 @@ export default function ProductHuntPage() {
         </TabsContent>
 
         <TabsContent value="products" className="space-y-6">
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>All Products</CardTitle>
               {categoryFilter && (
@@ -664,7 +664,7 @@ export default function ProductHuntPage() {
 
         <TabsContent value="trends" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader>
                 <CardTitle>Upvote Distribution</CardTitle>
               </CardHeader>
@@ -690,7 +690,7 @@ export default function ProductHuntPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader>
                 <CardTitle>Most Upvoted Products</CardTitle>
               </CardHeader>
@@ -736,7 +736,7 @@ export default function ProductHuntPage() {
           </div>
 
           {/* Upvote to Comment Ratio - New Useful Graph */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>Upvote to Comment Ratio</CardTitle>
               <CardDescription>Higher ratio indicates more passive engagement</CardDescription>
@@ -803,7 +803,7 @@ export default function ProductHuntPage() {
           </Card>
 
           {/* Launch Day Performance - New Useful Graph */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>Launch Day Performance</CardTitle>
               <CardDescription>Comparing upvotes by day of week</CardDescription>

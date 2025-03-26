@@ -405,7 +405,7 @@ export default function UnifiedDashboard() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Social Media Overview */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Heart className="h-5 w-5 text-purple-500" /> Social Media Highlights
@@ -479,7 +479,7 @@ export default function UnifiedDashboard() {
             </Card>
 
             {/* Reddit Overview */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-orange-500" /> Reddit Highlights
@@ -557,7 +557,7 @@ export default function UnifiedDashboard() {
           </div>
 
           {/* Platform Comparison */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>Platform Comparison</CardTitle>
             </CardHeader>
@@ -664,7 +664,7 @@ export default function UnifiedDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top Posts Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
@@ -755,7 +755,7 @@ export default function UnifiedDashboard() {
             </Card>
 
             {/* Platform Distribution Chart */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <PieChartIcon className="h-5 w-5 text-blue-500" /> Platform Distribution
@@ -827,7 +827,7 @@ export default function UnifiedDashboard() {
           </div>
 
           {/* Engagement Timeline */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2">
                 <LineChartIcon className="h-5 w-5 text-green-500" /> Engagement Timeline
@@ -887,7 +887,7 @@ export default function UnifiedDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Trending Posts Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
@@ -973,7 +973,7 @@ export default function UnifiedDashboard() {
             </Card>
 
             {/* Subreddit Distribution Chart */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <PieChartIcon className="h-5 w-5 text-purple-500" /> Subreddit Distribution
@@ -1044,7 +1044,7 @@ export default function UnifiedDashboard() {
           </div>
 
           {/* Engagement Timeline */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Clock className="h-5 w-5 text-green-500" /> Engagement Timeline

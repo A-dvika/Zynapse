@@ -294,7 +294,7 @@ export default function StackOverflowPage() {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top Questions Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
@@ -378,7 +378,7 @@ export default function StackOverflowPage() {
 
             {/* Top Answers Card */}
             {/* Top Answers Card */}
-            <Card className="shadow-md border border-border">
+            <Card className="bg-gray-800/30 border-gray-800">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <ThumbsUp className="h-5 w-5 text-green-500" /> Top Answers
@@ -451,7 +451,7 @@ export default function StackOverflowPage() {
           </div>
 
           {/* Tag Distribution Chart */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-xl flex items-center gap-2">
@@ -537,7 +537,7 @@ export default function StackOverflowPage() {
           </Card>
 
           {/* Reputation Timeline */}
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2">
               <CardTitle className="text-xl flex items-center gap-2">
                 <Clock className="h-5 w-5 text-blue-500" /> Reputation Timeline
@@ -567,7 +567,7 @@ export default function StackOverflowPage() {
         </TabsContent>
 
         <TabsContent value="questions" className="space-y-6">
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>All Questions</CardTitle>
               {tagFilter && (
@@ -652,7 +652,7 @@ export default function StackOverflowPage() {
         </TabsContent>
 
         <TabsContent value="answers" className="space-y-6">
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader>
               <CardTitle>All Answers</CardTitle>
             </CardHeader>
@@ -718,7 +718,7 @@ export default function StackOverflowPage() {
         </TabsContent>
 
         <TabsContent value="tags" className="space-y-6">
-          <Card className="shadow-md border border-border">
+          <Card className="bg-gray-800/30 border-gray-800">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle>Tag Distribution</CardTitle>
               <div className="flex space-x-1">
