@@ -1,7 +1,7 @@
 # Tech Trends Dashboard 🚀
 
 An interactive, AI-powered dashboard providing real-time insights into tech trends, community discussions, and social media buzz, complemented by automated personalized weekly newsletters.
-<video controls src="WhatsApp Video 2025-03-26 at 15.10.05_cdf1d18b.mp4" title="Title"></video>
+<video controls src="\public\memes\Zynapse_Demo.mp4" title="Title"></video>
 ---
 
 ## Overview 📌
