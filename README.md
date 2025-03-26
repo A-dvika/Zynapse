@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 TechTrends Dashboard
 
-## Getting Started
+TechTrends Dashboard is an interactive platform that aggregates and analyzes real-time data from popular tech platforms like Hackernews, GitHub, Twitter, Mastodon, Reddit, Stack Overflow, and ProductHunt. Stay informed about the latest trends and receive AI-generated weekly newsletters directly in your inbox!
 
-First, run the development server:
+---
+
+## 🌟 Features
+
+- **Real-Time Data Aggregation:** Fetch data daily from multiple tech platforms using automated cron jobs.
+- **AI-Powered Insights:** Generate key insights using Cohere API embeddings and Gemini API for summaries.
+- **Interactive Dashboard:** Visualize trends, stats, and sentiments with clear, interactive graphs.
+- **AI Chatbot:** Get instant answers powered by vector search and fallback web search via Gemini.
+- **Weekly Newsletters:** Receive personalized AI-generated newsletters every Monday at 6 AM.
+- **Explain Section:** Generate AI-based summaries to get a quick overview of what's trending.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js (TypeScript) for a seamless user experience.
+- **Backend:** FastAPI for API endpoints and logic.
+- **Database:** Prisma (PostgreSQL) for data storage.
+- **Caching:** Redis for fast data retrieval.
+- **AI & Embeddings:** Cohere API for vector generation.
+- **Vector Database:** Pinecone for semantic search.
+- **LLM:** Gemini API for chatbot responses and newsletters.
+- **Scheduler:** Vercel Cron Jobs for automated tasks.
+- **Email Delivery:** Nodemailer for sending newsletters.
+
+---
+
+## ⚙️ Project Architecture
+
+The architecture includes several components working together to provide insights and summaries.
+
+- **Data Collection:** Daily cron jobs at 2 AM fetch data from external APIs.
+- **Data Processing:** Processed and stored in the Prisma database.
+- **Embedding Generation:** Cohere API creates vector embeddings stored in Pinecone for semantic search.
+- **AI Chatbot:** Answers queries using Gemini API and falls back on Google/YouTube if needed.
+- **Newsletter Generation:** Weekly newsletters are generated using chain-of-thought prompting and sent via Nodemailer.
+
+---
+
+## 📦 Installation
+
+Follow these steps to set up the project locally:
 
 ```bash
+# Clone the repository
+git clone git@github.com:WiSEdestined/Dash.git
+cd TechTrends-Dashboard
+
+# Install dependencies
+npm install
+
+# Configure environment variables
+cp .env.example .env
+
+# Run database migrations
+npx prisma migrate dev
+
+# Start the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Access the dashboard at `http://localhost:3000`.
+2. Explore real-time data visualizations.
+3. Chat with the AI-powered chatbot for tech insights.
+4. Subscribe to weekly newsletters.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧑‍💻 Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Contributions are welcome! Please follow these steps to contribute:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Fork the repo.
+2. Create a new branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add a new feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Create a pull request.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Stay updated with the latest in tech using **TechTrends Dashboard**! 🚀
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
