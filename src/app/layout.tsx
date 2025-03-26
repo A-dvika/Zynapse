@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import FloatingChatbot from "./FloatingChatbot/page";
 
-// Removed unused font variables to fix eslint errors
+
 
 export const metadata: Metadata = {
   title: "Zynapse",
