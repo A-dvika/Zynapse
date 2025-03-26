@@ -10,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
     
 import {
   ArrowRight,
-  Bell,
+
   ChevronDown,
   ChevronRight,
   Code,
@@ -19,14 +19,11 @@ import {
   HelpCircle,
   MessageSquare,
   Newspaper,
-  Search,
-  Send,
-  Settings,
-  Share2,
+  
   Star,
   ThumbsUp,
   Twitter,
-  User,
+ 
   Zap,
 } from "lucide-react"
 
@@ -34,7 +31,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
+
 import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar,LineChart ,Line  } from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
@@ -1013,68 +1010,70 @@ useEffect(() => {
           {/* Center Chart */}
           <div className="h-[240px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              {selectedChartType === "pie" && (
-                <PieChart>
-                  <Pie
-                    data={topSources}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="count"
-                  >
-                    {topSources.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              )}
+              <>
+                {selectedChartType === "pie" && (
+                  <PieChart>
+                    <Pie
+                      data={topSources}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="count"
+                    >
+                      {topSources.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                )}
 
-              {selectedChartType === "bar" && (
-                <BarChart data={topSources} barSize={32}>
-                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <Tooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="url(#barGradient)">
-                    {topSources.map((_, index) => (
-                      <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              )}
+                {selectedChartType === "bar" && (
+                  <BarChart data={topSources} barSize={32}>
+                    <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <Tooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="count" fill="url(#barGradient)">
+                      {topSources.map((_, index) => (
+                        <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                )}
 
-              {selectedChartType === "line" && (
-                <LineChart data={topSources}>
-                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <Tooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#a78bfa"
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              )}
+                {selectedChartType === "line" && (
+                  <LineChart data={topSources}>
+                    <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <Tooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#a78bfa"
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                )}
 
-              {selectedChartType === "area" && (
-                <AreaChart data={topSources}>
-                  <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                  <Tooltip content={<ChartTooltipContent />} />
-                  <Area
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#a78bfa"
-                    fill="#7c3aed"
-                    fillOpacity={0.3}
-                  />
-                </AreaChart>
-              )}
+                {selectedChartType === "area" && (
+                  <AreaChart data={topSources}>
+                    <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                    <Tooltip content={<ChartTooltipContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#a78bfa"
+                      fill="#7c3aed"
+                      fillOpacity={0.3}
+                    />
+                  </AreaChart>
+                )}
+              </>
             </ResponsiveContainer>
 
           </div>

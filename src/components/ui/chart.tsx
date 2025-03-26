@@ -33,9 +33,7 @@ const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
 )
 ChartContainer.displayName = "ChartContainer"
 
-interface ChartTooltipProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-const ChartTooltip = React.forwardRef<HTMLDivElement, ChartTooltipProps>(({ className, ...props }, ref) => {
+const ChartTooltip = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
   return <div ref={ref} className={cn("rounded-lg border bg-background p-2 shadow-md", className)} {...props} />
 })
 ChartTooltip.displayName = "ChartTooltip"
