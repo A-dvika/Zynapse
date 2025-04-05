@@ -203,14 +203,17 @@ export default function StackOverflowPage() {
   }
 
   return (
-    <div className="relative">
-    {/* Background beams in the background */}
-    <BackgroundBeams className="absolute inset-0 -z-10 pointer-events-none" />
+    <div className="min-h-screen bg-neondark-bg text-foreground">
+    {/* Background gradients */}
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
+    
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="p-6 space-y-8 max-w-7xl mx-auto"
+      className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
