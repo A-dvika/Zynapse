@@ -8,8 +8,8 @@ import { CardBody, CardContainer, CardItem } from "./ui/3d-card";
 export function ThreeDCardDemo() {
   return (
     <CardContainer className="inter-var scale-105 md:scale-110"> {/* Slightly larger on load */}
-      <CardBody className="bg-gray-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-black/[0.1] w-full sm:w-[32rem] md:w-[38rem] h-auto rounded-2xl p-8 border transition-all duration-300 ease-in-out">
-        
+      <CardBody className="bg-transparent relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-transparent dark:border-white border-black/[0.1] w-full sm:w-[32rem] md:w-[38rem] h-auto rounded-2xl p-8 border transition-all duration-300 ease-in-out">
+      
       
 
       

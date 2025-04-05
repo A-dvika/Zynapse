@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Cpu, Globe, LineChart, Lock, Zap, ChevronRight, ArrowRight } from "lucide-react"
+import { BarChart3, Cpu, Globe, LineChart, Lock, Zap, ChevronRight, ArrowRight, Github, MessageSquare, Database, BarChart4, Newspaper, Twitter } from "lucide-react"
 import { ThreeDCardDemo } from "@/components/hero"
 
 export default function LandingPage() {
@@ -9,7 +9,6 @@ export default function LandingPage() {
     <div className="min-h-screen bg-neondark-bg text-foreground">
       {/* Header */}
   
-
       {/* Hero Section */}
       <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
@@ -18,17 +17,16 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="inline-block px-3 py-1 rounded-full bg-cyan-500/10 border border-neondark-border text-neondark-text text-sm">
-                The Future of Analytics
+                AI-Powered Tech Insights
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Monitor Your Digital Empire in <span className="text-neondark-text">Real-Time</span>
+                Zynapse <span className="text-neondark-text"></span>
               </h1>
               <p className="text-lg text-neondark-muted max-w-lg">
-                NeonDash brings your data to life with stunning visualizations and powerful analytics tools designed for
-                the digital age.
+                An interactive, AI-powered dashboard providing real-time insights into Zynapse, community discussions, and social media buzz, complemented by automated personalized weekly newsletters.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button className="bg-cyan-500 text-black hover:bg-cyan-400 h-12 px-6">Start Free Trial</Button>
+                <Button className="bg-cyan-500 text-black hover:bg-cyan-400 h-12 px-6">Get Started</Button>
                 <Button
                   variant="outline"
                   className="border-neondark-border text-neondark-text hover:bg-neondark-accent/10 h-12 px-6"
@@ -47,27 +45,25 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-sm text-neondark-muted">
-                  <span className="text-neondark-text font-medium">2,500+</span> data analysts trust NeonDash
+                  <span className="text-neondark-text font-medium">2,500+</span> developers trust Zynapse
                 </p>
               </div>
             </div>
             <div className="relative perspective-[1000px]">
-  {/* Glow/Blur background */}
-  <div className="absolute -inset-0.5 bg-cyan-500/20 rounded-lg blur-xl z-0" />
+              {/* Glow/Blur background */}
+              <div className="absolute -inset-0.5 bg-cyan-500/20 rounded-lg blur-xl z-0" />
 
-  {/* 3D Card Wrapper */}
-  <div className="relative z-10">
-    {/* Don't wrap inside another div — let <CardContainer> handle perspective */}
-    <ThreeDCardDemo />
-  </div>
+              {/* 3D Card Wrapper */}
+              <div className="relative z-10">
+                <ThreeDCardDemo />
+              </div>
 
-  {/* Overlay Gradient */}
-  <div className="absolute inset-0 bg-gradient-to-t from-neondark-bg/80 to-transparent rounded-lg z-20 pointer-events-none" />
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-neondark-bg/80 to-transparent rounded-lg z-20 pointer-events-none" />
 
-  {/* Neon blur orb */}
-  <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-xl z-0" />
-</div>
-
+              {/* Neon blur orb */}
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-xl z-0" />
+            </div>
           </div>
         </div>
 
@@ -75,20 +71,27 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
       </section>
 
-      {/* Logos Section */}
+      {/* Data Sources Section */}
       <section className="py-12 border-t border-b border-neondark-border bg-neondark-card/80 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <p className="text-center text-neondark-muted mb-8">TRUSTED BY INNOVATIVE COMPANIES</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center opacity-70">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-8">
-                <Image
-                  src="/placeholder.svg?height=40&width=120"
-                  width={120}
-                  height={40}
-                  alt={`Company logo ${i}`}
-                  className="h-full w-auto grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all"
-                />
+          <p className="text-center text-neondark-muted mb-8">AGGREGATING TRENDS FROM LEADING PLATFORMS</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center justify-items-center">
+            {[
+              { name: "HackerNews", icon: "Newspaper" },
+              { name: "GitHub", icon: "Github" },
+              { name: "Twitter", icon: "Twitter" },
+              { name: "Mastodon", icon: "MessageSquare" },
+              { name: "Reddit", icon: "MessageSquare" },
+              { name: "Stack Overflow", icon: "Database" },
+              { name: "ProductHunt", icon: "BarChart3" },
+              { name: "NewsAPI", icon: "Newspaper" }
+            ].map((platform, i) => (
+              <div key={i} className="flex flex-col items-center opacity-70 hover:opacity-100 transition-all group">
+                <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-neondark-text mb-2 group-hover:bg-cyan-500/20 transition-all">
+                  {/* Use appropriate icon */}
+                  <Cpu className="h-6 w-6" />
+                </div>
+                <span className="text-sm text-neondark-muted group-hover:text-neondark-text transition-all">{platform.name}</span>
               </div>
             ))}
           </div>
@@ -101,11 +104,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Powerful Features for the <span className="text-neondark-text">Digital Age</span>
+              Powerful <span className="text-neondark-text">Features</span>
             </h2>
             <p className="text-neondark-muted">
-              Our cutting-edge dashboard combines powerful analytics with an intuitive interface, giving you complete
-              control over your data.
+              Our Zynapse dashboard combines multiple data sources with advanced AI capabilities to provide comprehensive insights into the tech world.
             </p>
           </div>
 
@@ -113,33 +115,33 @@ export default function LandingPage() {
             {[
               {
                 icon: <BarChart3 className="h-6 w-6" />,
-                title: "Real-time Analytics",
-                description: "Monitor your metrics in real-time with millisecond precision and instant updates.",
+                title: "Interactive Dashboard",
+                description: "Summary metrics showing trending posts, active discussions, GitHub repositories, and popular queries at a glance.",
               },
               {
-                icon: <LineChart className="h-6 w-6" />,
-                title: "Predictive Insights",
-                description: "Leverage AI-powered predictions to anticipate trends before they happen.",
+                icon: <Github className="h-6 w-6" />,
+                title: "GitHub & Reddit Insights",
+                description: "Track engaging topics, trending repositories, language popularity, and active contributions across platforms.",
+              },
+              {
+                icon: <Database className="h-6 w-6" />,
+                title: "Stack Overflow Trends",
+                description: "See popular questions, best answers, and unanswered queries, organized by technology and topic.",
+              },
+              {
+                icon: <Twitter className="h-6 w-6" />,
+                title: "Social Media Buzz",
+                description: "Aggregated trending hashtags and posts from Twitter and Mastodon in one convenient view.",
               },
               {
                 icon: <Zap className="h-6 w-6" />,
-                title: "Lightning Performance",
-                description: "Experience blazing fast load times and smooth interactions, even with massive datasets.",
+                title: "AI Chatbot Integration",
+                description: "Queries resolved using vector embeddings (Cohere + Pinecone) and Gemini LLM with fallback to Google and YouTube searches.",
               },
               {
-                icon: <Lock className="h-6 w-6" />,
-                title: "Enterprise Security",
-                description: "Bank-level encryption and comprehensive access controls keep your data safe.",
-              },
-              {
-                icon: <Globe className="h-6 w-6" />,
-                title: "Global CDN",
-                description: "Access your dashboard from anywhere with our globally distributed network.",
-              },
-              {
-                icon: <Cpu className="h-6 w-6" />,
-                title: "API Integration",
-                description: "Connect with any data source through our flexible and powerful API ecosystem.",
+                icon: <Newspaper className="h-6 w-6" />,
+                title: "Automated Newsletters",
+                description: "Weekly insights and tech highlights delivered automatically every Monday with AI-generated summaries.",
               },
             ].map((feature, i) => (
               <div
@@ -169,10 +171,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Visualize Your Data Like <span className="text-neondark-text">Never Before</span>
+              Track Zynapse in <span className="text-neondark-text">Real-Time</span>
             </h2>
             <p className="text-neondark-muted">
-              Our intuitive interface makes complex data simple to understand and act upon.
+              Our intuitive interface aggregates data from multiple sources to provide comprehensive insights.
             </p>
           </div>
 
@@ -194,181 +196,74 @@ export default function LandingPage() {
               <div className="w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center mb-2 text-black font-bold">
                 1
               </div>
-              <p className="text-neondark-text font-medium">Real-time Metrics</p>
-              <p className="text-neondark-muted text-xs">Monitor key performance indicators with millisecond updates</p>
+              <p className="text-neondark-text font-medium">Reddit & GitHub Insights</p>
+              <p className="text-neondark-muted text-xs">Track trending repositories and engaging discussions</p>
             </div>
 
             <div className="absolute top-[40%] right-[10%] w-48 p-3 bg-neondark-card/80 backdrop-blur-sm border border-neondark-border rounded-lg text-sm">
               <div className="w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center mb-2 text-black font-bold">
                 2
               </div>
-              <p className="text-neondark-text font-medium">Custom Dashboards</p>
-              <p className="text-neondark-muted text-xs">Create personalized views tailored to your specific needs</p>
+              <p className="text-neondark-text font-medium">AI Chatbot</p>
+              <p className="text-neondark-muted text-xs">Get answers using advanced vector embeddings and LLM technology</p>
             </div>
 
             <div className="absolute bottom-[20%] left-[20%] w-48 p-3 bg-neondark-card/80 backdrop-blur-sm border border-neondark-border rounded-lg text-sm">
               <div className="w-6 h-6 rounded-full bg-cyan-500 flex items-center justify-center mb-2 text-black font-bold">
                 3
               </div>
-              <p className="text-neondark-text font-medium">Advanced Filtering</p>
-              <p className="text-neondark-muted text-xs">Drill down into your data with powerful filtering options</p>
+              <p className="text-neondark-text font-medium">Weekly Newsletters</p>
+              <p className="text-neondark-muted text-xs">AI-generated summaries delivered automatically every Monday</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.1),transparent_70%)] dark:opacity-100 opacity-30"></div>
+      {/* Tech Stack Section */}
+
+
+      {/* Workflow Section */}
+ 
+      {/* Unique Features Section */}
+      <section className="py-20 relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Trusted by <span className="text-neondark-text">Data Leaders</span>
+              What's <span className="text-neondark-text">Unique</span>
             </h2>
             <p className="text-neondark-muted">
-              See what our customers are saying about their experience with NeonDash.
+              Features that set the Zynapse Dashboard apart from other solutions.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
-                quote:
-                  "NeonDash transformed how we analyze our customer data. The real-time insights have been game-changing for our business.",
-                name: "Alex Chen",
-                title: "CTO, TechCorp",
+                title: "Multi-source aggregation",
+                description: "Comprehensive trend analysis from multiple platforms in one unified dashboard."
               },
               {
-                quote:
-                  "The predictive analytics feature helped us anticipate market trends months in advance. This platform is worth every penny.",
-                name: "Sarah Johnson",
-                title: "Data Scientist, FutureTech",
+                title: "AI-driven newsletters",
+                description: "Automated weekly summaries tailored to your personal interests and tech focus."
               },
               {
-                quote:
-                  "I've used many analytics platforms, but none compare to the speed and flexibility of NeonDash. It's become essential to our operations.",
-                name: "Michael Rodriguez",
-                title: "VP of Analytics, DataDrive",
+                title: "Enhanced accessibility",
+                description: "Multi-language support and accessibility-first design for all users."
               },
-            ].map((testimonial, i) => (
+              {
+                title: "Community engagement",
+                description: "Interactive meme trends and social media integration for active participation."
+              }
+            ].map((feature, i) => (
               <div
                 key={i}
                 className="relative p-6 rounded-lg border border-neondark-border bg-gradient-to-br from-neondark-card to-neondark-bg"
               >
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 rounded-lg blur"></div>
                 <div className="relative">
-                  <div className="text-neondark-text text-4xl font-serif mb-4">"</div>
-                  <p className="text-foreground mb-6">{testimonial.quote}</p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 mr-3"></div>
-                    <div>
-                      <p className="font-medium">{testimonial.name}</p>
-                      <p className="text-neondark-muted text-sm">{testimonial.title}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 relative bg-gradient-to-b from-neondark-bg to-neondark-card">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Simple, Transparent <span className="text-neondark-text">Pricing</span>
-            </h2>
-            <p className="text-neondark-muted">
-              Choose the plan that fits your needs. All plans include a 14-day free trial.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                name: "Starter",
-                price: "$49",
-                description: "Perfect for individuals and small teams just getting started with analytics.",
-                features: [
-                  "Up to 100,000 events/month",
-                  "5 custom dashboards",
-                  "7-day data retention",
-                  "Basic support",
-                  "1 team member",
-                ],
-              },
-              {
-                name: "Professional",
-                price: "$149",
-                description: "Ideal for growing businesses that need more power and flexibility.",
-                features: [
-                  "Up to 1M events/month",
-                  "Unlimited dashboards",
-                  "30-day data retention",
-                  "Priority support",
-                  "5 team members",
-                  "API access",
-                ],
-                highlighted: true,
-              },
-              {
-                name: "Enterprise",
-                price: "Custom",
-                description: "For organizations with advanced needs and large-scale data operations.",
-                features: [
-                  "Unlimited events",
-                  "Unlimited dashboards",
-                  "1-year data retention",
-                  "24/7 dedicated support",
-                  "Unlimited team members",
-                  "Advanced security features",
-                  "Custom integrations",
-                ],
-              },
-            ].map((plan, i) => (
-              <div
-                key={i}
-                className={`relative p-6 rounded-lg border ${
-                  plan.highlighted
-                    ? "border-neondark-accent/50 bg-gradient-to-br from-cyan-950/50 to-neondark-card"
-                    : "border-neondark-border bg-gradient-to-br from-neondark-card to-neondark-bg"
-                }`}
-              >
-                {plan.highlighted && (
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/0 via-cyan-500/30 to-cyan-500/0 rounded-lg blur"></div>
-                )}
-                <div className="relative">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                    <div className="flex items-center justify-center">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      {plan.price !== "Custom" && <span className="text-neondark-muted ml-1">/month</span>}
-                    </div>
-                    <p className="text-neondark-muted mt-2 text-sm">{plan.description}</p>
-                  </div>
-
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, j) => (
-                      <li key={j} className="flex items-start">
-                        <div className="mr-2 mt-1 w-4 h-4 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-neondark-text"></div>
-                        </div>
-                        <span className="text-foreground text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    className={`w-full ${
-                      plan.highlighted
-                        ? "bg-cyan-500 text-black hover:bg-cyan-400"
-                        : "bg-neondark-card hover:bg-neondark-card/70"
-                    }`}
-                  >
-                    {plan.price === "Custom" ? "Contact Sales" : "Get Started"}
-                  </Button>
+                  <h3 className="text-xl font-semibold mb-2 text-neondark-text">{feature.title}</h3>
+                  <p className="text-neondark-muted">{feature.description}</p>
                 </div>
               </div>
             ))}
@@ -377,24 +272,23 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 relative">
+      <section className="py-20 relative bg-gradient-to-b from-neondark-bg to-neondark-card">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to <span className="text-neondark-text">Transform</span> Your Data Experience?
+              Ready to <span className="text-neondark-text">Explore</span> Zynapse?
             </h2>
             <p className="text-neondark-muted mb-8 max-w-2xl mx-auto">
-              Join thousands of data-driven companies that trust NeonDash to power their analytics. Start your free
-              trial today.
+              Join thousands of developers and tech enthusiasts who trust our dashboard to stay informed about the latest in technology.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-cyan-500 text-black hover:bg-cyan-400 h-12 px-8">Start Free Trial</Button>
+              <Button className="bg-cyan-500 text-black hover:bg-cyan-400 h-12 px-8">Get Started</Button>
               <Button
                 variant="outline"
                 className="border-neondark-border text-neondark-text hover:bg-neondark-accent/10 h-12 px-8"
               >
-                Schedule Demo
+                View Documentation
               </Button>
             </div>
           </div>
@@ -410,10 +304,10 @@ export default function LandingPage() {
                 <div className="w-8 h-8 rounded-md bg-cyan-500 flex items-center justify-center">
                   <Cpu className="w-5 h-5 text-black" />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-neondark-text">NeonDash</span>
+                <span className="text-xl font-bold tracking-tight text-neondark-text">Zynapse</span>
               </div>
               <p className="text-neondark-muted text-sm mb-4">
-                Empowering data-driven decisions with cutting-edge analytics and visualization tools.
+                Real-time tech insights powered by AI and comprehensive data aggregation.
               </p>
               <div className="flex gap-4">
                 {[1, 2, 3, 4].map((i) => (
@@ -429,22 +323,9 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h3 className="font-medium mb-4">Product</h3>
+              <h3 className="font-medium mb-4">Features</h3>
               <ul className="space-y-2">
-                {["Features", "Pricing", "Integrations", "Changelog", "Documentation", "API"].map((item, i) => (
-                  <li key={i}>
-                    <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-4">Company</h3>
-              <ul className="space-y-2">
-                {["About", "Customers", "Careers", "Blog", "Press", "Partners"].map((item, i) => (
+                {["Dashboard", "AI Chatbot", "Newsletter", "Integrations", "Data Sources", "API"].map((item, i) => (
                   <li key={i}>
                     <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
                       {item}
@@ -457,7 +338,20 @@ export default function LandingPage() {
             <div>
               <h3 className="font-medium mb-4">Resources</h3>
               <ul className="space-y-2">
-                {["Community", "Contact", "Support", "FAQ", "Terms", "Privacy"].map((item, i) => (
+                {["Documentation", "GitHub", "API Reference", "Examples", "Tutorials", "Blog"].map((item, i) => (
+                  <li key={i}>
+                    <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-medium mb-4">About</h3>
+              <ul className="space-y-2">
+                {["Project", "Contributors", "Open Source", "License", "Terms", "Privacy"].map((item, i) => (
                   <li key={i}>
                     <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
                       {item}
@@ -469,7 +363,7 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-neondark-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-neondark-muted text-sm">© {new Date().getFullYear()} NeonDash. All rights reserved.</p>
+            <p className="text-neondark-muted text-sm">© {new Date().getFullYear()} Zynapse Dashboard. Licensed under MIT.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
               <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
                 Privacy Policy
@@ -478,7 +372,7 @@ export default function LandingPage() {
                 Terms of Service
               </a>
               <a href="#" className="text-neondark-muted hover:text-neondark-text text-sm">
-                Cookie Policy
+                License
               </a>
             </div>
           </div>
@@ -487,4 +381,3 @@ export default function LandingPage() {
     </div>
   )
 }
-
