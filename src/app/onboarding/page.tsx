@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { ThumbsUp, ThumbsDown, ArrowRight, Newspaper, ExternalLink } from "lucide-react";
 import { BackgroundBeams } from "@/components/ui/beams";
 
-// Sample news data (will be replaced with API calls)
 const sampleNews = [
   {
     id: "news1",
@@ -59,6 +58,7 @@ const contentTypes = [
 export default function OnboardingPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  
   const [step, setStep] = useState<"news" | "interests" | "sources" | "contentTypes">("news");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
@@ -71,45 +71,45 @@ export default function OnboardingPage() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        // Try to fetch from multiple sources
         const [gadgetsRes, hackernewsRes] = await Promise.all([
+          // Gracefully handle failures with .catch
           fetch("/api/gadgets").catch(() => ({ ok: false })) as Promise<Response | { ok: boolean }>,
-          fetch("/api/hackernews").catch(() => ({ ok: false })) as Promise<Response | { ok: boolean }>
+          fetch("/api/hackernews").catch(() => ({ ok: false })) as Promise<Response | { ok: boolean }>,
         ]);
-        
+
         let newsData: any[] = [];
-        
-        if (gadgetsRes.ok && 'json' in gadgetsRes) {
+
+        if (gadgetsRes.ok && "json" in gadgetsRes) {
           const gadgetsData = await gadgetsRes.json();
           newsData = [...newsData, ...gadgetsData.slice(0, 2)];
         }
-        
-        if (hackernewsRes.ok && 'json' in hackernewsRes) {
+
+        if (hackernewsRes.ok && "json" in hackernewsRes) {
           const hackernewsData = await hackernewsRes.json();
           if (hackernewsData.hackerNewsStories) {
             newsData = [...newsData, ...hackernewsData.hackerNewsStories.slice(0, 2)];
           }
         }
-        
-        // If API calls failed, use sample data
+
+        // If API calls failed or returned nothing, use sample data
         if (newsData.length === 0) {
           newsData = sampleNews;
         }
-        
+
         setNewsItems(newsData);
       } catch (error) {
         console.error("Error fetching news:", error);
         setNewsItems(sampleNews);
       }
     };
-    
+
     fetchNews();
   }, []);
 
   const handleNewsLike = (newsId: string) => {
-    setLikedNews(prev => [...prev, newsId]);
+    setLikedNews((prev) => [...prev, newsId]);
     if (currentNewsIndex < newsItems.length - 1) {
-      setCurrentNewsIndex(prev => prev + 1);
+      setCurrentNewsIndex((prev) => prev + 1);
     } else {
       setStep("interests");
     }
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
 
   const handleNewsSkip = () => {
     if (currentNewsIndex < newsItems.length - 1) {
-      setCurrentNewsIndex(prev => prev + 1);
+      setCurrentNewsIndex((prev) => prev + 1);
     } else {
       setStep("interests");
     }
@@ -195,15 +195,15 @@ export default function OnboardingPage() {
       <BackgroundBeams />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-      
+
       <div className="relative z-10 container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text">
             Customize Your Experience
           </h1>
           <p className="text-neondark-muted text-lg">
-            {step === "news" 
-              ? "Like the news you're interested in to personalize your feed" 
+            {step === "news"
+              ? "Like the news you're interested in to personalize your feed"
               : "Select your preferences to get a tailored experience"}
           </p>
         </div>
@@ -211,10 +211,26 @@ export default function OnboardingPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-semibold text-center mb-2">{getStepTitle()}</h2>
           <div className="flex justify-center space-x-2">
-            <div className={`h-2 w-16 rounded ${step === "news" ? "bg-cyan-500" : "bg-neondark-muted"}`} />
-            <div className={`h-2 w-16 rounded ${step === "interests" ? "bg-cyan-500" : "bg-neondark-muted"}`} />
-            <div className={`h-2 w-16 rounded ${step === "sources" ? "bg-cyan-500" : "bg-neondark-muted"}`} />
-            <div className={`h-2 w-16 rounded ${step === "contentTypes" ? "bg-cyan-500" : "bg-neondark-muted"}`} />
+            <div
+              className={`h-2 w-16 rounded ${
+                step === "news" ? "bg-cyan-500" : "bg-neondark-muted"
+              }`}
+            />
+            <div
+              className={`h-2 w-16 rounded ${
+                step === "interests" ? "bg-cyan-500" : "bg-neondark-muted"
+              }`}
+            />
+            <div
+              className={`h-2 w-16 rounded ${
+                step === "sources" ? "bg-cyan-500" : "bg-neondark-muted"
+              }`}
+            />
+            <div
+              className={`h-2 w-16 rounded ${
+                step === "contentTypes" ? "bg-cyan-500" : "bg-neondark-muted"
+              }`}
+            />
           </div>
         </div>
 
@@ -234,16 +250,26 @@ export default function OnboardingPage() {
                       <div className="flex justify-between items-start">
                         <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
                           <Newspaper className="h-3 w-3 mr-1" />
-                          {newsItems[currentNewsIndex].source || "Tech News"}
+                          {/* If `source` might be an object with { id, name }, render name */}
+                          {typeof newsItems[currentNewsIndex].source === "object"
+                            ? newsItems[currentNewsIndex].source.name
+                            : newsItems[currentNewsIndex].source || "Tech News"}
                         </Badge>
                         <span className="text-xs text-neondark-muted">
                           {new Date(newsItems[currentNewsIndex].publishedAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <CardTitle className="text-xl mt-2">{newsItems[currentNewsIndex].title}</CardTitle>
+                      <CardTitle className="text-xl mt-2">
+                        {/* Similarly, if title might be an object, render something like `.name` */}
+                        {typeof newsItems[currentNewsIndex].title === "object"
+                          ? newsItems[currentNewsIndex].title.name
+                          : newsItems[currentNewsIndex].title}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-neondark-muted mb-4">{newsItems[currentNewsIndex].description}</p>
+                      <p className="text-neondark-muted mb-4">
+                        {newsItems[currentNewsIndex].description}
+                      </p>
                       <div className="flex justify-between items-center">
                         <Button
                           variant="outline"
@@ -253,9 +279,9 @@ export default function OnboardingPage() {
                         >
                           <ThumbsDown className="h-6 w-6" />
                         </Button>
-                        <a 
-                          href={newsItems[currentNewsIndex].url} 
-                          target="_blank" 
+                        <a
+                          href={newsItems[currentNewsIndex].url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
                         >
@@ -275,7 +301,7 @@ export default function OnboardingPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-            
+
             {currentNewsIndex >= newsItems.length && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -307,7 +333,7 @@ export default function OnboardingPage() {
                   whileHover={{ scale: 1.02 }}
                   className="relative"
                 >
-                  <Card 
+                  <Card
                     className={`h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border cursor-pointer transition-all ${
                       (step === "interests" && selectedInterests.includes(item.id)) ||
                       (step === "sources" && selectedSources.includes(item.id)) ||
@@ -317,21 +343,21 @@ export default function OnboardingPage() {
                     }`}
                     onClick={() => {
                       if (step === "interests") {
-                        setSelectedInterests(prev => 
-                          prev.includes(item.id) 
-                            ? prev.filter(id => id !== item.id)
+                        setSelectedInterests((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
                             : [...prev, item.id]
                         );
                       } else if (step === "sources") {
-                        setSelectedSources(prev => 
-                          prev.includes(item.id) 
-                            ? prev.filter(id => id !== item.id)
+                        setSelectedSources((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
                             : [...prev, item.id]
                         );
                       } else if (step === "contentTypes") {
-                        setSelectedContentTypes(prev => 
-                          prev.includes(item.id) 
-                            ? prev.filter(id => id !== item.id)
+                        setSelectedContentTypes((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
                             : [...prev, item.id]
                         );
                       }
@@ -350,7 +376,7 @@ export default function OnboardingPage() {
                 </motion.div>
               ))}
             </div>
-            
+
             <div className="mt-8 flex justify-center">
               <Button
                 className="bg-cyan-500 text-black hover:bg-cyan-400"

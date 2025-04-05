@@ -7,7 +7,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { BackgroundBeams } from "@/components/ui/beams";
 import { Github, Mail, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -15,18 +22,23 @@ import Link from "next/link";
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // For credentials signup
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  // For displaying error/success messages
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      // In a real app, you would register the user here
-      // For this demo, we'll just sign them in with credentials
+      // Sign in with credentials (for demo purposes, we're using signIn)
       const result = await signIn("credentials", {
         email,
         password,
@@ -36,11 +48,15 @@ export default function SignupPage() {
       if (result?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/onboarding");
+        setSuccess("You've successfully signed up! Redirecting to Onboarding...");
+        // Delay a moment to allow the user to see the success message
+        setTimeout(() => {
+          router.push("/onboarding");
+        }, 1000);
       }
     } catch (error) {
-      setError("An error occurred. Please try again.");
       console.error("Signup error:", error);
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +64,11 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     setIsLoading(true);
+    setError("");
+    setSuccess("");
+
     try {
+      // Redirects to Google OAuth flow; callbackUrl handles redirection on success
       await signIn("google", { callbackUrl: "/onboarding" });
     } catch (error) {
       console.error("Google signup error:", error);
@@ -59,7 +79,11 @@ export default function SignupPage() {
 
   const handleGithubSignup = async () => {
     setIsLoading(true);
+    setError("");
+    setSuccess("");
+
     try {
+      // Redirects to GitHub OAuth flow; callbackUrl handles redirection on success
       await signIn("github", { callbackUrl: "/onboarding" });
     } catch (error) {
       console.error("GitHub signup error:", error);
@@ -70,16 +94,14 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
-      {/* Background with cyan grid and gradients */}
+      {/* Background with gradients */}
       <BackgroundBeams />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-    {/* Background gradients */}
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
-    
-    
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
+
       <div className="relative z-10 container mx-auto px-4 py-16 flex items-center justify-center min-h-screen">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,7 +129,12 @@ export default function SignupPage() {
                   {error}
                 </div>
               )}
-              
+              {success && (
+                <div className="p-3 rounded-md bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
+                  {success}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   variant="outline"
@@ -145,19 +172,23 @@ export default function SignupPage() {
                   GitHub
                 </Button>
               </div>
-              
+
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-neondark-border"></span>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-neondark-card/80 px-2 text-neondark-muted">Or continue with</span>
+                  <span className="bg-neondark-card/80 px-2 text-neondark-muted">
+                    Or continue with
+                  </span>
                 </div>
               </div>
-              
+
               <form onSubmit={handleEmailSignup} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-neondark-text">Email</Label>
+                  <Label htmlFor="email" className="text-neondark-text">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -169,7 +200,9 @@ export default function SignupPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-neondark-text">Password</Label>
+                  <Label htmlFor="password" className="text-neondark-text">
+                    Password
+                  </Label>
                   <Input
                     id="password"
                     type="password"
