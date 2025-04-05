@@ -1,12 +1,13 @@
 import type { Config } from "tailwindcss"
 
 const config = {
-  darkMode: ["class", "html"],
+  darkMode: ["class", "dark"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+    "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
   theme: {
@@ -52,16 +53,28 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        blur: {
-          sm: '1.5px',
+        // Custom cyberpunk colors
+        cyan: {
+          50: "#E6FFFF",
+          100: "#CCFFFF",
+          200: "#99FFFF",
+          300: "#66FFFF",
+          400: "#00FFFF", // Neon Cyan
+          500: "#00DFDF",
+          600: "#00BFBF",
+          700: "#009F9F",
+          800: "#007F7F",
+          900: "#003333",
+          950: "#002222",
         },
-
-        // 👇 Added custom brand color palette (based on subscribe button colors)
-        brand: {
-          DEFAULT: "#6366F1", // Indigo 500
-          dark: "#4F46E5",    // Indigo 600
-          light: "#8B5CF6",   // Purple 500
-          softer: "#A78BFA",  // Violet 400
+        // Theme-adaptive colors
+        neondark: {
+          bg: "var(--neondark-bg)",
+          card: "var(--neondark-card)",
+          border: "var(--neondark-border)",
+          text: "var(--neondark-text)",
+          muted: "var(--neondark-muted)",
+          accent: "var(--neondark-accent)",
         },
       },
       borderRadius: {
@@ -82,7 +95,6 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "rotate-360": "rotate360 0.5s linear",
       },
     },
   },
@@ -90,3 +102,4 @@ const config = {
 } satisfies Config
 
 export default config
+
