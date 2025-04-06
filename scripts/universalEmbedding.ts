@@ -3,9 +3,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { PrismaClient } from "@prisma/client";
-import axios from "axios";
 import { index2 } from "../lib/pinecone"; // Your Pinecone client/index instance
-import { redisClient } from "../lib/cache"; // Your Redis client (if available)
+import { generateSummary } from "../lib/ai"; // Gemini enhancement via GoogleGenerativeAI
 
 const prisma = new PrismaClient();
 
@@ -19,7 +18,7 @@ type ContentItem = {
 };
 
 /**
- * Enhance content using Gemini if the content type is sparse.
+ * Enhance content using Gemini via the GoogleGenerativeAI library.
  * Falls back to the original title if Gemini fails.
  */
 async function enhanceWithGemini(content: ContentItem): Promise<string> {
@@ -38,36 +37,19 @@ async function enhanceWithGemini(content: ContentItem): Promise<string> {
       prompt = `Provide a concise one-liner summary for this Hacker News item titled: "${content.title}"`;
       break;
     case "Meme":
-      prompt = `Describe the sentiment and context of this meme. Title: "${content.title}"${
-        content.summary ? `, Caption: "${content.summary}"` : ""
-      }`;
+      prompt = `Describe the sentiment and context of this meme. Title: "${content.title}"${content.summary ? `, Caption: "${content.summary}"` : ""}`;
       break;
     default:
       return content.summary ? `${content.title} - ${content.summary}` : content.title;
   }
 
   console.log(`Calling Gemini for content ${content.id} with prompt: ${prompt}`);
-
   try {
-    const response = await axios.post(
-      process.env.GEMINI_API_URL!,
-      { prompt },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        timeout: 15000, // 15 seconds timeout
-      }
-    );
-    const enhancedText: string = response.data.enhancedText;
+    const enhancedText = await generateSummary(prompt);
     console.log(`Gemini response for content ${content.id}: ${enhancedText}`);
     return enhancedText || content.title;
   } catch (error: any) {
-    console.error(
-      `Gemini enhancement failed for content ${content.id}:`,
-      error.response?.data || error.message
-    );
+    console.error(`Gemini enhancement failed for content ${content.id}:`, error);
     return content.title;
   }
 }
@@ -84,21 +66,19 @@ async function generateEmbedding(text: string): Promise<number[]> {
   console.log(`Generating embedding for text (length: ${text.length})...`);
 
   try {
-    const response = await axios.post(
-      url,
-      {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cohereApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         texts: [text],
         model: "embed-english-light-v2.0",
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${cohereApiKey}`,
-          "Content-Type": "application/json",
-        },
-        timeout: 15000, // 15 seconds timeout
-      }
-    );
-    const embedding = response.data.embeddings[0] as number[];
+      }),
+    });
+    const data = await response.json();
+    const embedding = data.embeddings[0] as number[];
     console.log(`Embedding generated (dimension: ${embedding.length})`);
     return embedding;
   } catch (error: any) {
@@ -174,22 +154,7 @@ async function processContentItems() {
       if (
         ["RedditPost", "GitHubRepo", "GitHubIssue", "HackerNewsItem", "Meme"].includes(contentItem.type)
       ) {
-        const cacheKey = `enhanced:${contentItem.id}`;
-        let enhancedText: string | null = null;
-        try {
-          enhancedText = await redisClient.get(cacheKey);
-          if (enhancedText) {
-            console.info(`Using cached enhanced text for content ${contentItem.id}`);
-          } else {
-            enhancedText = await enhanceWithGemini(contentItem);
-            await redisClient.set(cacheKey, enhancedText);
-            console.info(`Cached enhanced text for content ${contentItem.id}`);
-          }
-        } catch (cacheError) {
-          console.error(`Cache error for content ${contentItem.id}:`, cacheError);
-          enhancedText = await enhanceWithGemini(contentItem);
-        }
-        textToEmbed = enhancedText;
+        textToEmbed = await enhanceWithGemini(contentItem);
       } else {
         textToEmbed = contentItem.summary
           ? `${contentItem.title} - ${contentItem.summary}`
