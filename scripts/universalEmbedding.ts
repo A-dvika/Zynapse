@@ -18,8 +18,21 @@ type ContentItem = {
 };
 
 /**
+ * Helper function to infer the source from content type.
+ */
+function inferSourceFromType(type: string): string {
+  const lower = type.toLowerCase();
+  if (lower.includes("github")) return "github";
+  if (lower.includes("reddit")) return "reddit";
+  if (lower.includes("hackernews")) return "hackernews";
+  if (lower.includes("producthunt")) return "producthunt";
+  if (lower.includes("devto")) return "devto";
+  return "unknown";
+}
+
+/**
  * Enhance content using Gemini via the GoogleGenerativeAI library.
- * Falls back to the original title if Gemini fails.
+ * Returns the AI-generated summary, which will be used both for embedding and as metadata.
  */
 async function enhanceWithGemini(content: ContentItem): Promise<string> {
   let prompt = "";
@@ -92,15 +105,18 @@ async function generateEmbedding(text: string): Promise<number[]> {
 
 /**
  * Save the embedding and metadata to Pinecone.
+ * Uses the AI-generated summary as the 'summary' field.
  */
-async function saveToPinecone(content: ContentItem, embedding: number[]): Promise<void> {
+async function saveToPinecone(content: ContentItem, embedding: number[], finalSummary: string): Promise<void> {
+  // Build metadata with proper types. We ensure summary is a string.
   const metadata = {
     id: content.id,
-    type: content.type,
     title: content.title,
     url: content.url,
     tags: content.tags,
-    ...(content.summary ? { summary: content.summary } : {}),
+    summary: finalSummary, // Use the AI-generated summary here
+    type: content.type,
+    source: inferSourceFromType(content.type),
   };
 
   const vector = {
@@ -109,7 +125,7 @@ async function saveToPinecone(content: ContentItem, embedding: number[]): Promis
     metadata,
   };
 
-  console.log(`Upserting vector to Pinecone for content ${content.id}...`);
+  console.log(`Upserting vector to Pinecone for content ${content.id} with metadata:`, metadata);
 
   try {
     await index2.upsert([vector]);
@@ -125,9 +141,9 @@ async function saveToPinecone(content: ContentItem, embedding: number[]): Promis
 /**
  * Main processing function:
  * 1. Loop through all Content items.
- * 2. Enhance content with Gemini if necessary.
- * 3. Generate embedding with Cohere.
- * 4. Save the vector to Pinecone.
+ * 2. For eligible content, generate an AI-enhanced summary.
+ * 3. Generate embedding with Cohere using the final summary.
+ * 4. Save the vector (with metadata including the AI-generated summary) to Pinecone.
  */
 async function processContentItems() {
   console.info("Starting universal embedding process...");
@@ -139,7 +155,8 @@ async function processContentItems() {
     let processedCount = 0;
     for (const content of contents) {
       console.info(`Processing content ${content.id} of type ${content.type}...`);
-      // Map Prisma result to our ContentItem type
+
+      // Map Prisma result to our ContentItem type.
       const contentItem: ContentItem = {
         id: content.id,
         type: content.type,
@@ -149,24 +166,19 @@ async function processContentItems() {
         tags: content.tags,
       };
 
-      // Determine the text to embed: enhance with Gemini for specific types.
-      let textToEmbed: string;
-      if (
-        ["RedditPost", "GitHubRepo", "GitHubIssue", "HackerNewsItem", "Meme"].includes(contentItem.type)
-      ) {
-        textToEmbed = await enhanceWithGemini(contentItem);
+      // Determine the final summary to embed: use AI enhancement if applicable.
+      let finalSummary: string;
+      if (["RedditPost", "GitHubRepo", "GitHubIssue", "HackerNewsItem", "Meme"].includes(contentItem.type)) {
+        finalSummary = await enhanceWithGemini(contentItem);
       } else {
-        textToEmbed = contentItem.summary
-          ? `${contentItem.title} - ${contentItem.summary}`
-          : contentItem.title;
+        finalSummary = contentItem.summary ? `${contentItem.title} - ${contentItem.summary}` : contentItem.title;
       }
+      console.info(`Final summary for content ${contentItem.id}: ${finalSummary}`);
 
-      console.info(`Text to embed for content ${contentItem.id}: ${textToEmbed}`);
-
-      // Generate embedding via Cohere.
+      // Generate embedding via Cohere using the final summary.
       let embedding: number[];
       try {
-        embedding = await generateEmbedding(textToEmbed);
+        embedding = await generateEmbedding(finalSummary);
       } catch (embError) {
         console.error(`Skipping content ${contentItem.id} due to embedding error.`);
         continue;
@@ -177,8 +189,8 @@ async function processContentItems() {
         continue;
       }
 
-      // Save vector to Pinecone.
-      await saveToPinecone(contentItem, embedding);
+      // Save vector to Pinecone, including the AI-generated summary in metadata.
+      await saveToPinecone(contentItem, embedding, finalSummary);
       processedCount++;
     }
     console.info(`Finished processing ${processedCount} content items out of ${contents.length}.`);
