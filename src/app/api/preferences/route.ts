@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   // Parse the incoming JSON body.
   const body = await request.json();
-  const { interests, sources, contentTypes } = body;
+  const { interests, sources, contentTypes, githubLanguages } = body;
 
   try {
     // Save user preferences to the database.
@@ -23,6 +23,8 @@ export async function POST(request: Request) {
         interests,
         sources,
         contentTypes,
+        // Add GitHub languages to interests if provided
+        interests: githubLanguages ? [...interests, ...githubLanguages] : interests,
       },
     });
     return NextResponse.json(prefs, { status: 200 });
