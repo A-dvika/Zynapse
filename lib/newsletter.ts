@@ -1,17 +1,23 @@
-// lib/newsletter.ts
-import prisma from './db';
+import prisma from "./db"
 
-interface SubscriptionInput {
-  email: string;
-  name?: string;
-}
 
-export async function subscribeNewsletter({ email, name }: SubscriptionInput) {
-  // Upsert the subscription so that if the email already exists, update it; otherwise, create it.
-  const subscription = await prisma.newsletterSubscription.upsert({
+
+export async function subscribeNewsletter({
+  email,
+  name,
+  topics = [],
+  sources = [],
+  frequency = "weekly",
+}: {
+  email: string
+  name?: string
+  topics?: string[]
+  sources?: string[]
+  frequency?: string
+}) {
+  return await prisma.newsletterSubscription.upsert({
     where: { email },
-    update: { name, subscribedAt: new Date() },
-    create: { email, name, subscribedAt: new Date() },
+    update: { name, sources, frequency },
+    create: { email, name, sources, frequency },
   });
-  return subscription;
 }

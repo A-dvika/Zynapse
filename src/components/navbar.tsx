@@ -7,12 +7,14 @@ import { ModeToggle } from "./ui/darkmode";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
+import SubscribeModal from "./SubscribeModal";
 
 const Navbar = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
   const links = [
     { name: "Overview", href: "/overview" },
@@ -62,7 +64,10 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-
+            {/* Subscribe Button */}
+            <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
+              Subscribe
+            </Button>
             {/* Auth Buttons */}
             {!isAuthenticated ? (
               <>
@@ -112,7 +117,17 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-
+            {/* Subscribe Button for Mobile */}
+            <Button
+              variant="outline"
+              className="w-full px-4 py-2"
+              onClick={() => {
+                setSubscribeModalOpen(true);
+                setMenuOpen(false);
+              }}
+            >
+              Subscribe
+            </Button>
             {/* Mobile Auth Buttons */}
             {!isAuthenticated ? (
               <>
@@ -137,6 +152,7 @@ const Navbar = () => {
           </div>
         )}
       </nav>
+      <SubscribeModal open={subscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} />
     </>
   );
 };

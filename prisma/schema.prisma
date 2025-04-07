@@ -1,11 +1,10 @@
-// prisma/schema.prisma
-datasource db {
-  provider = "postgresql" // or your preferred provider (mysql, sqlite, etc.)
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model RedditPost {
@@ -17,7 +16,6 @@ model RedditPost {
   comments  Int
   createdAt DateTime
   author    String
-  // Optional: Timestamp for when this record was inserted/updated
   updatedAt DateTime @updatedAt
 }
 
@@ -33,11 +31,10 @@ model GitHubRepo {
   language  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // Add more fields if needed (e.g. open issues, topics, description, etc.)
 }
 
 model GitHubIssue {
-  id        String   @id // <-- Changed from Int to String
+  id        String   @id
   repoName  String
   issueUrl  String   @unique
   title     String
@@ -60,8 +57,6 @@ model StackOverflowQuestion {
   viewCount    Int
   answerCount  Int
   score        Int
-  // If using PostgreSQL, you can use String[]
-  // Otherwise consider Json or comma‑separated values:
   tags         String[]
   isAnswered   Boolean
   creationDate DateTime
@@ -70,7 +65,7 @@ model StackOverflowQuestion {
 model StackOverflowAnswer {
   id           Int      @id
   questionId   Int
-  link         String // <-- Required
+  link         String
   score        Int
   isAccepted   Boolean
   creationDate DateTime
@@ -84,7 +79,7 @@ model StackOverflowTagStat {
 }
 
 model HackerNewsItem {
-  id        Int      @id // HN item ID
+  id        Int      @id
   title     String
   url       String?
   author    String?
@@ -95,12 +90,12 @@ model HackerNewsItem {
 }
 
 model TechNewsItem {
-  id        String   @id // e.g. a unique slug/UUID for your curated feed
+  id        String   @id
   title     String
   url       String
   source    String?
-  summary   String? // "concise insights" or short description
-  createdAt DateTime @default(now()) // When we added it to DB
+  summary   String?
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
@@ -117,15 +112,15 @@ model SocialMediaPost {
 }
 
 model Meme {
-  id        String   @id // Unique ID from source (e.g. Reddit post ID, Tweet ID)
-  platform  String // "reddit", "twitter", or "instagram"
-  title     String? // Optional caption or title
-  caption   String? // Additional text if available
-  imageUrl  String // Direct URL to the meme image
-  upvotes   Int? // Optional: Upvotes, likes, or score from the source
-  link      String // URL linking back to the original post
-  createdAt DateTime // When the meme was created on the source
-  updatedAt DateTime @updatedAt // Auto-updated on modifications
+  id        String   @id
+  platform  String
+  title     String?
+  caption   String?
+  imageUrl  String
+  upvotes   Int?
+  link      String
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
 }
 
 model NewsletterSubscription {
@@ -133,12 +128,15 @@ model NewsletterSubscription {
   email        String   @unique
   name         String?
   subscribedAt DateTime @default(now())
+  frequency    String?
+  sources      String[]
+  topics       String[]
 }
 
 model DataSummary {
   id        Int      @id @default(autoincrement())
   source    String   @unique
-  subject   String? // New optional field for the email subject
+  subject   String?
   summary   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,35 +151,30 @@ model ProductHuntPost {
   commentsCount Int
   createdAt     DateTime
   aggregatedAt  DateTime
-  thumbnailUrl  String? // Optional field for product image URL
-  description   String? // Optional field for a detailed description
+  description   String?
+  thumbnailUrl  String?
 }
 
-// User model: stores essential user info
 model User {
-  id            String    @id @default(cuid()) // Unique user identifier
+  id            String           @id @default(cuid())
   name          String?
-  email         String?   @unique // Email is used for sign-in
+  email         String?          @unique
   emailVerified DateTime?
-  image         String? // User's profile image
-
-  // Relationships
-  accounts    Account[] // User's linked accounts (OAuth)
-  sessions    Session[] // User sessions (NextAuth)
-  preferences UserPreferences? // User's content preferences
-  history     UserHistory[] // User's interaction history
-
-  createdAt DateTime @default(now()) // When the user was created
-  updatedAt DateTime @updatedAt // Auto-updated when user info changes
+  image         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  history       UserHistory[]
+  preferences   UserPreferences?
 }
 
-// Account model: stores OAuth accounts linked to a user (e.g., GitHub, Google)
 model Account {
   id                String  @id @default(cuid())
   userId            String
-  type              String // e.g., 'oauth', 'credentials'
-  provider          String // e.g., 'google', 'github'
-  providerAccountId String // Account ID from OAuth provider
+  type              String
+  provider          String
+  providerAccountId String
   refresh_token     String?
   access_token      String?
   expires_at        Int?
@@ -189,23 +182,19 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-// Session model: stores sessions for NextAuth (for keeping users logged in)
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// VerificationToken: stores tokens for email-based authentication
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -214,37 +203,51 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// UserPreferences: stores user-specific preferences (could be topics, content types, etc.)
 model UserPreferences {
   id           String   @id @default(cuid())
   userId       String   @unique
-  interests    String[] // e.g., ["AI", "Tech", "Finance"]
-  sources      String[] // e.g., ["Reddit", "GitHub"]
-  contentTypes String[] // e.g., ["Articles", "Videos"]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interests    String[]
+  sources      String[]
+  contentTypes String[]
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// UserHistory: stores user interaction history (content they interacted with)
 model UserHistory {
   id        String   @id @default(cuid())
   userId    String
-  contentId String // ID of the content the user interacted with
-  action    String // e.g., 'viewed', 'liked', 'shared'
+  contentId String
+  action    String
   createdAt DateTime @default(now())
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content Content @relation(fields: [contentId], references: [id])
+  content   Content  @relation(fields: [contentId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Content model: stores the content users interact with (e.g., Reddit posts, GitHub repos, etc.)
 model Content {
   id          String        @id @default(cuid())
-  type        String // e.g., "RedditPost", "GitHubRepo", "TechNews"
+  type        String
   title       String
   url         String
-  summary     String? // Optional summary for easier embedding
-  tags        String[] // e.g., ["AI", "MachineLearning"]
+  summary     String?
+  tags        String[]
   createdAt   DateTime      @default(now())
   userHistory UserHistory[]
+}
+model SourceSummary {
+  id        String   @id @default(cuid())
+  source    String
+  summary   String
+  weekStart DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([source, weekStart]) // Composite unique index
+}
+
+model PersonalizedNewsletter {
+  id        String   @id @default(cuid())
+  email     String
+  content   String
+  weekStart DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, weekStart]) // Composite unique index
 }
