@@ -40,7 +40,6 @@ const sampleNews = [
 
 // More detailed interests with icons and descriptions
 const interests = [
-  { id: "tech", title: "Technology", description: "Latest in tech and innovation", category: "interests", icon: <Code className="h-5 w-5" /> },
   { id: "ai", title: "Artificial Intelligence", description: "AI and machine learning", category: "interests", icon: <Sparkles className="h-5 w-5" /> },
   { id: "web", title: "Web Development", description: "Web technologies and frameworks", category: "interests", icon: <Globe className="h-5 w-5" /> },
   { id: "mobile", title: "Mobile Development", description: "iOS and Android development", category: "interests", icon: <Code className="h-5 w-5" /> },
@@ -57,8 +56,7 @@ const sources = [
   { id: "github", title: "GitHub", description: "Code repositories and projects", category: "sources", icon: <Github className="h-5 w-5" /> },
   { id: "reddit", title: "Reddit", description: "Tech communities and discussions", category: "sources", icon: <Globe className="h-5 w-5" /> },
   { id: "twitter", title: "Twitter", description: "Tech news and updates", category: "sources", icon: <Globe className="h-5 w-5" /> },
-  { id: "medium", title: "Medium", description: "Tech articles and tutorials", category: "sources", icon: <BookOpen className="h-5 w-5" /> },
-  { id: "devto", title: "Dev.to", description: "Developer stories and experiences", category: "sources", icon: <Code className="h-5 w-5" /> },
+
   { id: "stackoverflow", title: "Stack Overflow", description: "Programming Q&A and knowledge", category: "sources", icon: <Code className="h-5 w-5" /> },
   { id: "hackernews", title: "Hacker News", description: "Tech news and discussions", category: "sources", icon: <Newspaper className="h-5 w-5" /> },
   { id: "producthunt", title: "Product Hunt", description: "New tech products and startups", category: "sources", icon: <Sparkles className="h-5 w-5" /> },
@@ -67,10 +65,9 @@ const sources = [
 // More detailed content types with icons
 const contentTypes = [
   { id: "articles", title: "Articles", description: "In-depth written content", category: "contentTypes", icon: <BookOpen className="h-5 w-5" /> },
-  { id: "videos", title: "Videos", description: "Video tutorials and lectures", category: "contentTypes", icon: <Video className="h-5 w-5" /> },
-  { id: "tutorials", title: "Tutorials", description: "Step-by-step guides", category: "contentTypes", icon: <Code className="h-5 w-5" /> },
+
   { id: "podcasts", title: "Podcasts", description: "Audio content and discussions", category: "contentTypes", icon: <Headphones className="h-5 w-5" /> },
-  { id: "news", title: "News", description: "Latest tech news and updates", category: "contentTypes", icon: <Newspaper className="h-5 w-5" /> },
+  { id: "memes", title: "Memes", description: "Latest tech news and updates", category: "contentTypes", icon: <Newspaper className="h-5 w-5" /> },
   { id: "repositories", title: "Repositories", description: "Code repositories and projects", category: "contentTypes", icon: <Github className="h-5 w-5" /> },
 ];
 
@@ -240,7 +237,7 @@ export default function OnboardingPage() {
   const getStepTitle = () => {
     switch (step) {
       case "welcome":
-        return "Welcome to WiseF";
+        return "Welcome to Zynapse";
       case "news":
         return "What news interests you?";
       case "github":
@@ -291,7 +288,7 @@ export default function OnboardingPage() {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text">
-                Welcome to WiseF
+                Welcome to Zynapse
               </h1>
               <p className="text-neondark-muted text-xl mb-8">
                 Your personalized tech news and content aggregator
