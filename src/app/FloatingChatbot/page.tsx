@@ -26,7 +26,6 @@ export default function FloatingChatbot() {
     } else {
       document.body.classList.remove("chatbot-open")
     }
-
     return () => {
       document.body.classList.remove("chatbot-open")
     }
@@ -55,8 +54,7 @@ export default function FloatingChatbot() {
         body: JSON.stringify({ query: question }),
       })
       const data = await response.json()
-      const answer = data.answer || <p>Sorry, I couldn&apos;t find an answer.</p>
-
+      const answer = data.answer || "Sorry, I couldn't find an answer."
 
       // Update the last message with the bot's answer
       setChatHistory((prev) => {
@@ -92,7 +90,7 @@ export default function FloatingChatbot() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
-        <div className="relative cursor-pointer h-14 w-14 flex items-center justify-center bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full shadow-lg">
+        <div className="relative cursor-pointer h-14 w-14 flex items-center justify-center bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full shadow-lg">
           <Sparkles className="text-white h-6 w-6" />
           {chatHistory.length > 0 && !open && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
@@ -106,17 +104,17 @@ export default function FloatingChatbot() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-y-0 right-0 w-full sm:w-96 bg-white dark:bg-gray-900 shadow-2xl z-50 flex flex-col rounded-l-2xl overflow-hidden"
+            className="fixed inset-y-0 right-0 w-full sm:w-96 bg-background dark:bg-neondark-bg text-foreground dark:text-neondark-text shadow-2xl z-50 flex flex-col rounded-l-2xl overflow-hidden"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white shadow">
               <div className="flex items-center space-x-2">
                 <Sparkles className="h-5 w-5" />
-                <h2 className="font-bold text-lg">Sparkly Assistant</h2>
+                <h2 className="font-bold text-lg">Neon Assistant</h2>
               </div>
               <button
                 onClick={() => setOpen(false)}
@@ -127,62 +125,60 @@ export default function FloatingChatbot() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 p-4 overflow-auto bg-gray-50 dark:bg-gray-800">
+            <div className="flex-1 p-4 overflow-auto bg-card dark:bg-neondark-card">
               {chatHistory.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500 dark:text-gray-400">
-                  <Sparkles className="h-12 w-12 mb-4 text-purple-500" />
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
+                  <Sparkles className="h-12 w-12 mb-4 text-cyan-400" />
                   <h3 className="text-lg font-medium mb-2">
-                    Welcome to Sparkly Assistant!
+                    Welcome to Neon Assistant!
                   </h3>
                   <p>Ask me anything and I&apos;ll try to help you out.</p>
-
                 </div>
               ) : (
                 <div className="space-y-4">
                   {chatHistory.map((chat, index) => (
                     <div key={index} className="space-y-2">
-                      {/* User Bubble */}
-                      <div className="flex justify-end">
-                        <div className="bg-indigo-100 dark:bg-indigo-900 dark:text-white p-3 rounded-2xl rounded-tr-none max-w-[80%]">
-                          <p>{chat.question}</p>
-                          <div className="text-xs text-right mt-1 text-gray-500 dark:text-gray-400">
-                            {formatTime(chat.timestamp)}
-                          </div>
-                        </div>
-                      </div>
+                  {/* User Bubble */}
+<div className="flex justify-end">
+  <div className="bg-cyan-100 dark:bg-cyan-800 text-gray-900 dark:text-gray-50 p-3 rounded-2xl rounded-tr-none max-w-[80%]">
+    <p>{chat.question}</p>
+    <div className="text-xs text-right mt-1 text-gray-500 dark:text-gray-300">
+      {formatTime(chat.timestamp)}
+    </div>
+  </div>
+</div>
 
-                      {/* Bot Bubble */}
-                      <div className="flex">
-                        <div
-                          className={cn(
-                            "bg-white dark:bg-gray-700 p-3 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm",
-                            loading && index === chatHistory.length - 1 ? "animate-pulse" : "",
-                          )}
-                        >
-                          <ReactMarkdown
-                            components={{
-                              p: ({ ...props }) => (
-                                <p
-                                  {...props}
-                                  className="prose prose-sm dark:prose-invert"
-                                />
-                              ),
-                              a: ({ ...props }) => (
-                                <a
-                                  {...props}
-                                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
-                                />
-                              ),
-                            }}
-                          >
-                            {chat.answer}
-                          </ReactMarkdown>
-                          <div className="text-xs mt-1 text-gray-500 dark:text-gray-400">
-                            {formatTime(chat.timestamp)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+{/* Bot Bubble */}
+<div className="flex">
+  <div
+    className={cn(
+      "bg-white dark:bg-neondark-card text-gray-900 dark:text-black-50 p-3 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm",
+      loading && index === chatHistory.length - 1
+        ? "animate-pulse"
+        : ""
+    )}
+  >
+    <ReactMarkdown
+      components={{
+        p: ({ ...props }) => (
+          <p {...props} className="prose prose-sm dark:prose-invert" />
+        ),
+        a: ({ ...props }) => (
+          <a
+            {...props}
+            className="text-cyan-600 dark:text-cyan-400 hover:underline"
+          />
+        ),
+      }}
+    >
+      {chat.answer}
+    </ReactMarkdown>
+    <div className="text-xs mt-1 text-gray-500 dark:text-gray-700">
+      {formatTime(chat.timestamp)}
+    </div>
+  </div>
+</div>
+</div>
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
@@ -190,7 +186,7 @@ export default function FloatingChatbot() {
             </div>
 
             {/* Input */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <div className="p-4 border-t border-border dark:border-neondark-border bg-background dark:bg-neondark-bg">
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
@@ -204,14 +200,16 @@ export default function FloatingChatbot() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-800 dark:text-white"
+                  className="flex-1 px-4 py-2 rounded-full border border-gray-300 dark:border-neondark-border focus:outline-none focus:ring-2 focus:ring-cyan-400 dark:bg-neondark-card"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
                   className={cn(
-                    "p-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white",
-                    !input.trim() || loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg transition-shadow"
+                    "p-2 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-600 text-white",
+                    !input.trim() || loading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:shadow-lg transition-shadow"
                   )}
                 >
                   <svg
