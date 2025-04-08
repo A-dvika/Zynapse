@@ -1,100 +1,120 @@
-// src/app/api/for-you/route.ts
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../../../lib/auth";
-import prisma from "../../../../lib/db";
+import { getServerSession } from "next-auth";
 import { generateEmbedding } from "../../../../lib/embedding";
 import { index2 } from "../../../../lib/pinecone";
+import prisma from "../../../../lib/db";
+import { authOptions } from "../../../../lib/auth";
+import { redisClient } from "../../../../lib/cache";
+import { generateSummary } from "../../../../lib/ai";
 
 export async function GET(request: Request) {
   try {
-    console.log("🔐 Authenticating user...");
+    // 1. Get user session
     const session = await getServerSession(authOptions);
-    if (!session) {
-      console.log("❌ Not signed in.");
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = session.user.id;
-    console.log("✅ User ID:", userId);
 
-    // Step 1: Fetch user preferences
-    console.log("📥 Fetching preferences...");
-    const preferences = await prisma.userPreferences.findUnique({ where: { userId } });
-    console.log("✅ Preferences fetched:", preferences);
+    // 2. Parse query params
+    const { searchParams } = new URL(request.url);
+    const sourceParam = searchParams.get("source"); // e.g. "stackoverflow", "producthunt", "gadgets", "hackernews", "all"
+    const typeParam = searchParams.get("type");         // e.g. "question", "repo", "article"
+    const topKParam = searchParams.get("topK");         // e.g. "30"
+    const discoverParam = searchParams.get("discover"); // "1" or undefined
+    const topK = topKParam ? parseInt(topKParam, 10) : 30;
 
-    // Step 2: Fetch preferred content from Content table based on user interests (using tags)
-    let preferredContent = [];
-    if (preferences && preferences.interests && preferences.interests.length > 0) {
-      console.log("📥 Fetching preferred content from database...");
-      preferredContent = await prisma.content.findMany({
-        where: {
-          tags: { hasSome: preferences.interests },
-        },
-        take: 10,
-      });
-      console.log("✅ Preferred content count:", preferredContent.length);
-    }
-
-    // Step 3: Build a text summary from the preferred content
-    // (combine summaries if available; fallback to title if not)
-    let preferredText = "";
-    if (preferredContent.length > 0) {
-      preferredText = preferredContent
-        .map((item) => item.summary || item.title)
-        .join(" ");
-    } else if (preferences) {
-      preferredText = `Interests: ${preferences.interests.join(", ")}. Sources: ${preferences.sources.join(", ")}.`;
-    } else {
-      preferredText = "General tech news and updates.";
-    }
-    console.log("✅ Preferred text for discovery:", preferredText);
-
-    // Step 4: Generate embedding from the preferred text
-    console.log("📡 Generating embedding...");
-    const userVector = await generateEmbedding(preferredText);
-    if (!userVector || !Array.isArray(userVector)) {
-      throw new Error("❌ generateEmbedding failed or returned invalid result.");
-    }
-    console.log("✅ Embedding generated, vector length:", userVector.length);
-
-    // Step 5: Build Pinecone filter using preferred sources (if provided)
-    console.log("🧾 Building Pinecone filter...");
-    let filter: Record<string, any> = {};
-    if (preferences?.sources && preferences.sources.length > 0) {
-      filter.source = { $in: preferences.sources };
-    }
-    console.log("✅ Pinecone filter:", filter);
-
-    // Step 6: Query Pinecone for discovery recommendations (similar to the preferred content)
-    console.log("🔍 Querying Pinecone for discovery recommendations...");
-    const queryResponse = await index2.query({
-      vector: userVector,
-      topK: 10,
-      includeMetadata: true,
-      filter: Object.keys(filter).length > 0 ? filter : undefined,
+    // 3. Fetch user preferences
+    const userPreferences = await prisma.userPreferences.findUnique({
+      where: { userId: session.user.id },
     });
-    console.log("✅ Pinecone returned results:", queryResponse.matches?.length ?? 0);
+    if (!userPreferences) {
+      return NextResponse.json({ error: "No user preferences" }, { status: 404 });
+    }
 
-    const recommended = queryResponse.matches?.map((match) => ({
-      id: match.id,
-      score: match.score,
-      title: match.metadata?.title,
-      summary: match.metadata?.summary,
-      url: match.metadata?.url,
-      source: match.metadata?.source,
-      type: match.metadata?.type,
-      tags: match.metadata?.tags ?? [],
-    })) ?? [];
+    const { interests, sources, contentTypes } = userPreferences;
 
-    // Return both preferred and discovery (recommended) content
-    return NextResponse.json({ preferred: preferredContent, recommended });
-  } catch (error: any) {
-    console.error("🔥 ERROR TRACE:");
-    console.error(error.message);
-    console.error(error.stack);
-    return NextResponse.json(
-      { error: "Internal Server Error", detail: error.message },
-      { status: 500 }
-    );
+    // 4. Build a detailed prompt with Gemini to produce a richer profile summary
+    const summaryPrompt = `
+      The user is interested in: ${interests.join(", ")}.
+      They prefer content from: ${sources.join(", ")}.
+      They like content types such as: ${contentTypes.join(", ")}.
+      Write a concise summary describing what kind of personalized content would be most valuable and interesting for this user.
+    `;
+    
+    // Generate the summary from Gemini.
+    const smartProfileText = await generateSummary(summaryPrompt);
+
+    // 5. Generate the embedding for the user's refined profile text
+    let userEmbedding: number[];
+    try {
+      userEmbedding = await generateEmbedding(smartProfileText);
+    } catch (err) {
+      return NextResponse.json({ error: "Failed to generate user embedding" }, { status: 500 });
+    }
+
+    // 6. Create a unique cache key for this query
+    const cacheKey = `for-you:${session.user.id}:${sourceParam || "all"}:${typeParam || "all"}:${topK}:${discoverParam || "0"}`;
+    const cachedResult = await redisClient.get(cacheKey);
+    if (cachedResult) {
+      console.log("Cache hit for key:", cacheKey);
+      return NextResponse.json(JSON.parse(cachedResult));
+    }
+    console.log("Cache miss for key:", cacheKey);
+
+    // 7. Build a Pinecone filter based on query parameters
+    const pineconeFilter: Record<string, any> = {};
+    const isDiscover = discoverParam === "1";
+    const isAll = sourceParam === "all";
+    if (!isDiscover && !isAll && sourceParam) {
+      pineconeFilter.source = sourceParam.toLowerCase();
+    }
+    if (typeParam && typeParam !== "all") {
+      pineconeFilter.type = typeParam.toLowerCase();
+    }
+
+    // 8. Query Pinecone with the generated embedding and filters
+    const filterKeys = Object.keys(pineconeFilter);
+    const pineconeResult = await index2.query({
+      vector: userEmbedding,
+      topK,
+      includeMetadata: true,
+      filter: filterKeys.length > 0 ? pineconeFilter : undefined,
+    });
+
+    if (!pineconeResult?.matches) {
+      // Cache empty result for 1 hour
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify([]));
+      return NextResponse.json([], { status: 200 });
+    }
+
+    // Existing re-ranking logic
+const resultsWithReRank = pineconeResult.matches.map((match) => {
+  const meta = match.metadata || {}
+  const itemTags = meta.tags || []
+  const overlapCount = itemTags.filter((tag: string) => interests.includes(tag)).length
+  const adjustedScore = match.score + overlapCount * 0.01
+
+  return {
+    ...meta,
+    relevanceScore: Math.round(adjustedScore * 100),
+  }
+})
+
+// 👇 ADD THIS FILTER for discover
+let finalResults = resultsWithReRank
+if (isDiscover) {
+  finalResults = resultsWithReRank.filter((item) => item.relevanceScore < 40)
+}
+
+// Sort by relevance descending
+finalResults.sort((a, b) => b.relevanceScore - a.relevanceScore)
+
+// Limit to topK and cache
+await redisClient.setEx(cacheKey, 3600, JSON.stringify(finalResults.slice(0, topK)))
+return NextResponse.json(finalResults.slice(0, topK))
+
+  } catch (err: any) {
+    console.error("Error in /api/for-you:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

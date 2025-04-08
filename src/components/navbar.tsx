@@ -16,27 +16,29 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
+  
   const links = [
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Overview", href: "/overview" },
-    { name: "Github", href: "/github" },
-    { name: "ProductHunt", href: "/producthunt" },
-    { name: "Stack Overflow", href: "/stack-overflow" },
-    { name: "HackerNews", href: "/hackernews" },
-    { name: "Socials", href: "/socials" },
+    { name: "GitHub", href: "/github" },
+    { name: "Launches", href: "/producthunt" },
+    { name: "Dev Q&A", href: "/stack-overflow" },
+    { name: "Hacker News", href: "/hackernews" },
+    { name: "Social Feed", href: "/socials" },
   ];
-
+  
   return (
     <>
       {/* 
-        Neon / Cyberpunk-inspired Navbar
-        Replace bg-card/dark:bg-neondark-card with your actual theme tokens
-        if you use something like bg-background/dark:bg-neondark-bg, 
-        or whichever suits your setup best.
+        Neon / Cyberpunk-inspired Navbar.
+        Replace bg-card/dark:bg-neondark-card with your theme tokens as needed.
       */}
-      <nav className="z-50 max-w-[90%] m-auto sticky top-0 
-                     bg-card dark:bg-neondark-card 
-                     backdrop-blur-md rounded-b-xl shadow-sm
-                     text-foreground dark:text-neondark-text">
+      <nav
+        className="z-50 max-w-[90%] m-auto sticky top-0 
+                   bg-card dark:bg-neondark-card 
+                   backdrop-blur-md rounded-b-xl shadow-sm
+                   text-foreground dark:text-neondark-text"
+      >
         <section className="flex w-full justify-between items-center p-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-semibold text-xl">
@@ -71,11 +73,10 @@ const Navbar = () => {
                               ${
                                 active
                                   ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
-                                  : "text-gray-700 dark:text-gray-300 " +
-                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                                  : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"
                               }`}
                 >
-                  {link?.name}
+                  {link.name}
                 </Link>
               );
             })}
@@ -134,11 +135,10 @@ const Navbar = () => {
                               ${
                                 active
                                   ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
-                                  : "text-gray-700 dark:text-gray-300 " +
-                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                                  : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"
                               }`}
                 >
-                  {link?.name}
+                  {link.name}
                 </Link>
               );
             })}
@@ -180,10 +180,7 @@ const Navbar = () => {
         )}
       </nav>
 
-      <SubscribeModal
-        open={!!subscribeModalOpen}
-        onClose={() => setSubscribeModalOpen(false)}
-      />
+      <SubscribeModal open={!!subscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} />
     </>
   );
 };

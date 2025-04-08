@@ -230,6 +230,7 @@ model Content {
   summary     String?
   tags        String[]
   createdAt   DateTime      @default(now())
+  score      Int?      // For aggregated engagement signals
   userHistory UserHistory[]
 }
 model SourceSummary {
