@@ -1,29 +1,4 @@
-import dotenv from "dotenv";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
-import { marked } from "marked";
 
-// Load environment variables from .env file
-dotenv.config();
-
-// Configure Cloudinary for URL generation (no API credentials needed for public images)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // e.g. "dufy5k0xj"
-});
-
-// Generate the public URL of the chart image (adjust the image path as needed)
-const chartUrl = cloudinary.url(
-  "https://res.cloudinary.com/dufy5k0xj/image/upload/v1744098177/github-charts/test-chart.png",
-  {
-    format: "png",
-    secure: true,
-  }
-);
-
-// This is your actual email template from your sendWeeklyReportEmail function,
-// now enhanced to include a Cloudinary chart section. In production, "report"
-// would be retrieved from your database (weeklyReportData.summary converted with marked).
-const emailTemplate = (name: string, report: string, chartUrl: string) => `
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -137,14 +112,22 @@ const emailTemplate = (name: string, report: string, chartUrl: string) => `
       </div>
       <!-- Content Section -->
       <div class="content">
-        <h2>Hello, ${name}!</h2>
+        <h2>Hello, Valued Subscriber!</h2>
         <p>Below is your comprehensive update for the week:</p>
         <div class="report">
-          ${report}
+          <h1>Weekly Summary</h1>
+<p>Here’s a detailed review of our tech trends:</p>
+<ul>
+<li><strong>GitHub:</strong> Projects achieved new milestone stars.</li>
+<li><strong>Hacker News:</strong> Discussions sparked innovative ideas.</li>
+<li><strong>Social Media:</strong> Buzzing trends and insights were captured.</li>
+</ul>
+<p><em>For more details, please visit our site.</em></p>
+
         </div>
         <div class="chart">
           <h2>Language Distribution Chart</h2>
-          <img src="${chartUrl}" alt="Language Distribution Chart" />
+          <img src="https://res.cloudinary.com/dufy5k0xj/image/upload/v1744098177/github-charts/test-chart.png" alt="Language Distribution Chart" />
         </div>
         <div class="cta">
           <a href="https://example.com">View More Details</a>
@@ -158,30 +141,3 @@ const emailTemplate = (name: string, report: string, chartUrl: string) => `
     </div>
   </body>
 </html>
-`;
-
-// Instead of using dummy content, in your production code you would retrieve the
-// weekly report from your database. For preview purposes, convert your actual Markdown
-// report (or a sample version) with marked. Replace the markdown below with your actual data.
-const actualReportMarkdown = `
-# Weekly Summary
-
-Here’s a detailed review of our tech trends:
-
-- **GitHub:** Projects achieved new milestone stars.
-- **Hacker News:** Discussions sparked innovative ideas.
-- **Social Media:** Buzzing trends and insights were captured.
-
-_For more details, please visit our site._
-`;
-
-// Convert the Markdown report into HTML
-const reportHtml = marked(actualReportMarkdown);
-
-// Build the final email HTML using your actual template along with the Cloudinary chart
-const finalEmailHtml = emailTemplate("Valued Subscriber", reportHtml, chartUrl);
-
-// Write the generated HTML to a file so you can preview it in your browser
-fs.writeFileSync("newsletter-preview.html", finalEmailHtml, "utf-8");
-
-console.log("Newsletter preview generated and saved to newsletter-preview.html");

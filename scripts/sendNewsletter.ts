@@ -1,6 +1,15 @@
 import nodemailer from 'nodemailer';
 import prisma from '../lib/db';
 import { marked } from 'marked'; // For Markdown -> HTML conversion
+import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// Configure Cloudinary using your .env settings
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // e.g. "dufy5k0xj"
+});
 
 async function sendWeeklyReportEmail() {
   // Retrieve the saved weekly report
@@ -32,8 +41,14 @@ async function sendWeeklyReportEmail() {
   // Convert the summary (Markdown) to HTML
   const reportHtml = await marked(weeklyReportData.summary);
 
-  // Define an enhanced HTML email template with inline CSS
-  const emailTemplate = (name: string, report: string) => `
+  // Generate the public URL of the chart using Cloudinary
+  const chartUrl = cloudinary.url("https://res.cloudinary.com/dufy5k0xj/image/upload/v1744098177/github-charts/test-chart.png", {
+    format: "png",
+    secure: true,
+  });
+
+  // Define an enhanced HTML email template with inline CSS, including the Cloudinary chart
+  const emailTemplate = (name: string, report: string, chartUrl: string) => `
   <!DOCTYPE html>
   <html lang="en">
     <head>
@@ -91,6 +106,15 @@ async function sendWeeklyReportEmail() {
           border-left: 4px solid #7f00ff;
           margin-bottom: 20px;
         }
+        .chart {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .chart img {
+          max-width: 100%;
+          height: auto;
+          border: 1px solid #ddd;
+        }
         .cta {
           text-align: center;
           margin-bottom: 20px;
@@ -143,6 +167,11 @@ async function sendWeeklyReportEmail() {
           <div class="report">
             ${report}
           </div>
+          <!-- Cloudinary Chart Section -->
+          <div class="chart">
+            <h2>Language Distribution Chart</h2>
+            <img src="${chartUrl}" alt="Language Distribution Chart" />
+          </div>
           <div class="cta">
             <a href="https://example.com">View More Details</a>
           </div>
@@ -164,7 +193,7 @@ async function sendWeeklyReportEmail() {
         from: `"Tech Newsletter" <${process.env.GMAIL_USER}>`,
         subject: 'Diving Deep into the Digital Depths: Your Weekly Dose of Tech Trends!',
         to: sub.email,
-        html: emailTemplate(sub.name || 'Valued Subscriber', reportHtml),
+        html: emailTemplate(sub.name || 'Valued Subscriber', reportHtml, chartUrl),
       });
       console.log(`Email sent to ${sub.email}: ${info.messageId}`);
     } catch (error) {
