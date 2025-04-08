@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,14 +30,13 @@ import {
   Clock,
   ExternalLink,
   Filter,
-  LineChart as LineChartIcon,
+  LineChartIcon,
   MessageSquare,
   Search,
   TrendingUp,
   User,
   Calendar,
 } from "lucide-react"
-import { BackgroundBeams } from "@/components/ui/beams"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function HackerNewsPage() {
@@ -69,7 +70,7 @@ export default function HackerNewsPage() {
     ? data.hackerNewsStories.filter(
         (story: any) =>
           story.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          story.by?.toLowerCase().includes(searchTerm.toLowerCase())
+          story.by?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : []
 
@@ -77,7 +78,7 @@ export default function HackerNewsPage() {
     ? data.techNewsItems.filter(
         (item: any) =>
           item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.source?.toLowerCase().includes(searchTerm.toLowerCase())
+          item.source?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : []
 
@@ -85,8 +86,7 @@ export default function HackerNewsPage() {
   const generateEngagementData = () => {
     return data
       ? data.hackerNewsStories.map((story: any) => ({
-          title:
-            story.title?.length > 20 ? story.title.substring(0, 20) + "..." : story.title,
+          title: story.title?.length > 20 ? story.title.substring(0, 20) + "..." : story.title,
           comments: story.descendants || 0,
           score: story.score || 0,
         }))
@@ -124,25 +124,17 @@ export default function HackerNewsPage() {
   // Calculate metrics
   const totalStories = data ? data.hackerNewsStories.length : 0
   const totalComments = data
-    ? data.hackerNewsStories.reduce(
-        (acc: number, story: any) => acc + (story.descendants || 0),
-        0
-      )
+    ? data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.descendants || 0), 0)
     : 0
   const avgScore = data
-    ? Math.round(
-        data.hackerNewsStories.reduce(
-          (acc: number, story: any) => acc + (story.score || 0),
-          0
-        ) / totalStories
-      )
+    ? Math.round(data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.score || 0), 0) / totalStories)
     : 0
   const totalTechNews = data ? data.techNewsItems.length : 0
 
   // Colors for charts
   const colors = [
     "#ff6600", // HN orange
-    "#3b82f6", // Blue
+    "#00FFFF", // Neon Cyan
     "#10b981", // Green
     "#8b5cf6", // Purple
     "#f59e0b", // Yellow
@@ -168,27 +160,25 @@ export default function HackerNewsPage() {
 
   return (
     <div className="min-h-screen bg-neondark-bg text-foreground">
-    {/* Background gradients */}
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
-    
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
-    >
+      {/* Background gradients */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
+
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
+      >
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <motion.h1
-            className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            Hacker News Dashboard
-          </motion.h1>
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+              Hacker News Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">Track top stories, tech news, and engagement</p>
+          </motion.div>
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -196,7 +186,7 @@ export default function HackerNewsPage() {
                 placeholder="Search stories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 w-[200px] md:w-[260px]"
+                className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
               />
             </div>
             <div className="border-l h-6 mx-2 opacity-20"></div>
@@ -204,7 +194,7 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "day" ? "default" : "outline"}
-                className="h-9"
+                className={`h-9 ${timeRange === "day" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
                 onClick={() => setTimeRange("day")}
               >
                 Day
@@ -212,7 +202,7 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "week" ? "default" : "outline"}
-                className="h-9"
+                className={`h-9 ${timeRange === "week" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
                 onClick={() => setTimeRange("week")}
               >
                 Week
@@ -220,7 +210,7 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "month" ? "default" : "outline"}
-                className="h-9"
+                className={`h-9 ${timeRange === "month" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
                 onClick={() => setTimeRange("month")}
               >
                 Month
@@ -244,7 +234,7 @@ export default function HackerNewsPage() {
                 title="Total Comments"
                 value={totalComments}
                 icon={<MessageSquare className="h-4 w-4" />}
-                color="bg-blue-500"
+                color="bg-cyan-400"
                 index={1}
               />
               <StatsCard
@@ -263,24 +253,28 @@ export default function HackerNewsPage() {
               />
             </>
           ) : (
-            Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full bg-gray-800/50" />)
           )}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="stories">Top Stories</TabsTrigger>
-            <TabsTrigger value="technews">Tech News</TabsTrigger>
+          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3 bg-gray-800/50">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="stories" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
+              Top Stories
+            </TabsTrigger>
+            <TabsTrigger value="technews" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
+              Tech News
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             {data ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Stories Card */}
-                <Card className="bg-gray-800/30 border-gray-800">
+                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-orange-500" /> Top Stories
@@ -289,7 +283,7 @@ export default function HackerNewsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleExpand("topStories")}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 hover:bg-cyan-950"
                     >
                       {expandedCards.topStories ? (
                         <ChevronUp className="h-4 w-4" />
@@ -305,7 +299,7 @@ export default function HackerNewsPage() {
                         .map((story: any, index: number) => (
                           <motion.li
                             key={story.id}
-                            className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -316,18 +310,18 @@ export default function HackerNewsPage() {
                                 href={story.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-primary hover:underline flex items-center"
+                                className="font-medium text-primary hover:underline hover:text-cyan-400 flex items-center"
                               >
                                 {story.title}
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
-                              <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300">
+                              <Badge className="bg-orange-950 text-orange-300 border-orange-800">
                                 {story.score} points
                               </Badge>
                             </div>
                             <div className="flex items-center mt-2 text-sm text-muted-foreground">
                               <div className="flex items-center mr-4">
-                                <User className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                                <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
                               </div>
                               <div className="flex items-center mr-4">
@@ -347,7 +341,7 @@ export default function HackerNewsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleExpand("topStories")}
-                        className="w-full mt-3"
+                        className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
                       >
                         View all {filteredStories.length} stories
                       </Button>
@@ -356,16 +350,16 @@ export default function HackerNewsPage() {
                 </Card>
 
                 {/* Engagement Stats */}
-                <Card className="bg-gray-800/30 border-gray-800">
+                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-blue-500" /> Engagement Metrics
+                      <BarChart3 className="h-5 w-5 text-cyan-400" /> Engagement Metrics
                     </CardTitle>
                     <div className="flex space-x-1">
                       <Button
                         variant={chartType === "bar" ? "default" : "outline"}
                         size="icon"
-                        className="h-8 w-8"
+                        className={`h-8 w-8 ${chartType === "bar" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
                         onClick={() => setChartType("bar")}
                       >
                         <BarChart3 className="h-4 w-4" />
@@ -373,7 +367,7 @@ export default function HackerNewsPage() {
                       <Button
                         variant={chartType === "line" ? "default" : "outline"}
                         size="icon"
-                        className="h-8 w-8"
+                        className={`h-8 w-8 ${chartType === "line" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
                         onClick={() => setChartType("line")}
                       >
                         <LineChartIcon className="h-4 w-4" />
@@ -405,26 +399,19 @@ export default function HackerNewsPage() {
                             />
                             <YAxis />
                             <RechartsTooltip
-                              formatter={(value, name) =>
-                                [value, name === "score" ? "Points" : "Comments"]
-                              }
+                              formatter={(value, name) => [value, name === "score" ? "Points" : "Comments"]}
                               labelFormatter={(label) => `Story: ${label}`}
                             />
                             <Bar name="score" dataKey="score" fill="#ff6600" radius={[8, 8, 0, 0]} />
-                            <Bar name="comments" dataKey="comments" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                            <Bar name="comments" dataKey="comments" fill="#00FFFF" radius={[8, 8, 0, 0]} />
                           </BarChart>
                         ) : (
-                          <LineChart
-                            data={generateTimeData()}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                          >
+                          <LineChart data={generateTimeData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                             <XAxis dataKey="date" />
                             <YAxis />
                             <RechartsTooltip
-                              formatter={(value, name) =>
-                                [value, name === "stories" ? "Stories" : "Comments"]
-                              }
+                              formatter={(value, name) => [value, name === "stories" ? "Stories" : "Comments"]}
                             />
                             <Line
                               type="monotone"
@@ -437,7 +424,7 @@ export default function HackerNewsPage() {
                             <Line
                               type="monotone"
                               dataKey="comments"
-                              stroke="#3b82f6"
+                              stroke="#00FFFF"
                               strokeWidth={2}
                               dot={{ r: 3 }}
                               activeDot={{ r: 5, strokeWidth: 0 }}
@@ -450,11 +437,11 @@ export default function HackerNewsPage() {
                 </Card>
               </div>
             ) : (
-              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-96 w-full bg-gray-800/50" />
             )}
 
             {/* Tech News Sources Chart */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Filter className="h-5 w-5 text-purple-500" /> News Sources Distribution
@@ -486,14 +473,14 @@ export default function HackerNewsPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full bg-gray-800/50" />
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Activity Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" /> Activity Timeline
@@ -520,7 +507,7 @@ export default function HackerNewsPage() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full" />
+                    <Skeleton className="h-full w-full bg-gray-800/50" />
                   )}
                 </div>
               </CardContent>
@@ -528,7 +515,7 @@ export default function HackerNewsPage() {
           </TabsContent>
 
           <TabsContent value="stories" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
                 <CardTitle>All Hacker News Stories</CardTitle>
               </CardHeader>
@@ -538,7 +525,7 @@ export default function HackerNewsPage() {
                     {filteredStories.map((story: any, index: number) => (
                       <motion.div
                         key={story.id}
-                        className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                        className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -550,14 +537,14 @@ export default function HackerNewsPage() {
                               href={story.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="font-medium text-primary hover:underline flex items-center"
+                              className="font-medium text-primary hover:underline hover:text-cyan-400 flex items-center"
                             >
                               {story.title}
                               <ExternalLink className="ml-1 h-3 w-3" />
                             </a>
                             <div className="flex flex-wrap items-center mt-2 text-sm text-muted-foreground gap-x-4 gap-y-2">
                               <div className="flex items-center">
-                                <User className="h-3.5 w-3.5 mr-1 text-blue-500" />
+                                <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
                               </div>
                               <div className="flex items-center">
@@ -570,7 +557,7 @@ export default function HackerNewsPage() {
                               </div>
                             </div>
                           </div>
-                          <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300">
+                          <Badge className="bg-orange-950 text-orange-300 border-orange-800">
                             {story.score} points
                           </Badge>
                         </div>
@@ -578,84 +565,79 @@ export default function HackerNewsPage() {
                     ))}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full" />
+                  <Skeleton className="h-96 w-full bg-gray-800/50" />
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="technews" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">Latest Tech News</CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleExpand("techNews")}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 hover:bg-cyan-950"
                 >
-                  {expandedCards.techNews ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  {expandedCards.techNews ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </Button>
               </CardHeader>
               <CardContent>
                 {data ? (
                   <div className="space-y-4">
-                    {(expandedCards.techNews
-                      ? filteredTechNews
-                      : filteredTechNews.slice(0, 5)
-                    ).map((item: any, index: number) => (
-                      <motion.div
-                        key={item.id}
-                        className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2, delay: index * 0.05 }}
-                        whileHover={{ scale: 1.01 }}
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <div className="flex-1">
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-primary hover:underline flex items-center"
-                            >
-                              {item.title}
-                              <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                            {item.description && (
-                              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                {item.description}
-                              </p>
-                            )}
-                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                              <div className="flex items-center">
-                                <Calendar className="h-3.5 w-3.5 mr-1 text-blue-500" />
-                                {formatDate(item.createdAt)}
+                    {(expandedCards.techNews ? filteredTechNews : filteredTechNews.slice(0, 5)).map(
+                      (item: any, index: number) => (
+                        <motion.div
+                          key={item.id}
+                          className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: index * 0.05 }}
+                          whileHover={{ scale: 1.01 }}
+                        >
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div className="flex-1">
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-primary hover:underline hover:text-cyan-400 flex items-center"
+                              >
+                                {item.title}
+                                <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                              {item.description && (
+                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                              )}
+                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                                <div className="flex items-center">
+                                  <Calendar className="h-3.5 w-3.5 mr-1 text-cyan-400" />
+                                  {formatDate(item.createdAt)}
+                                </div>
                               </div>
                             </div>
+                            <Badge variant="outline" className="border-cyan-800 text-cyan-400">
+                              {item.source}
+                            </Badge>
                           </div>
-                          <Badge variant="outline">{item.source}</Badge>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ),
+                    )}
                     {filteredTechNews.length > 5 && !expandedCards.techNews && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleExpand("techNews")}
-                        className="w-full mt-3"
+                        className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
                       >
                         View all {filteredTechNews.length} tech news items
                       </Button>
                     )}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full" />
+                  <Skeleton className="h-96 w-full bg-gray-800/50" />
                 )}
               </CardContent>
             </Card>
@@ -664,7 +646,7 @@ export default function HackerNewsPage() {
 
         {/* Tech Quote */}
         <motion.div
-          className="text-center mt-10 text-lg italic text-muted-foreground"
+          className="text-center mt-10 textt-lg italic text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -696,7 +678,7 @@ function StatsCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
-      <Card>
+      <Card className="border border-gray-800 bg-gray-800/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
