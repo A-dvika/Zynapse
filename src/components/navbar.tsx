@@ -17,6 +17,7 @@ const Navbar = () => {
   const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
   const links = [
+    { name: "Home", href: "/" },
     { name: "Overview", href: "/overview" },
     { name: "Github", href: "/github" },
     { name: "ProductHunt", href: "/producthunt" },
@@ -27,12 +28,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* 
-        Neon / Cyberpunk-inspired Navbar
-        Replace bg-card/dark:bg-neondark-card with your actual theme tokens
-        if you use something like bg-background/dark:bg-neondark-bg, 
-        or whichever suits your setup best.
-      */}
       <nav className="z-50 max-w-[90%] m-auto sticky top-0 
                      bg-card dark:bg-neondark-card 
                      backdrop-blur-md rounded-b-xl shadow-sm
@@ -59,7 +54,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex gap-6 items-center">
+          <div className="hidden lg:flex gap-2 items-center">
             {links.map((link) => {
               const active = pathname === link.href;
               return (
@@ -75,51 +70,87 @@ const Navbar = () => {
                                     "hover:bg-cyan-50 dark:hover:bg-cyan-700"
                               }`}
                 >
-                  {link?.name}
+                  {link.name}
                 </Link>
               );
             })}
 
-            {/* Subscribe Button */}
-            <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
+            {/* Subscribe Link */}
+            <button
+              onClick={() => setSubscribeModalOpen(true)}
+              className={`text-base font-medium px-3 py-2 rounded-lg 
+                          transition-colors
+                          text-gray-700 dark:text-gray-300 
+                          hover:bg-cyan-50 dark:hover:bg-cyan-700`}
+            >
               Subscribe
-            </Button>
+            </button>
 
-            {/* Auth Buttons */}
+            {/* Auth Links */}
             {!isAuthenticated ? (
               <>
-                <Link href="/login">
-                  <Button variant="outline" className="px-4 py-2">
-                    Login
-                  </Button>
+                <Link
+                  href="/login"
+                  className={`text-base font-medium px-3 py-2 rounded-lg 
+                              transition-colors
+                              ${
+                                pathname === "/login"
+                                  ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                  : "text-gray-700 dark:text-gray-300 " +
+                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                              }`}
+                >
+                  Login
                 </Link>
-                <Link href="/signup">
-                  <Button variant="outline" className="px-4 py-2">
-                    Signup
-                  </Button>
+                <Link
+                  href="/signup"
+                  className={`text-base font-medium px-3 py-2 rounded-lg 
+                              transition-colors
+                              ${
+                                pathname === "/signup"
+                                  ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                  : "text-gray-700 dark:text-gray-300 " +
+                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                              }`}
+                >
+                  Signup
                 </Link>
               </>
             ) : (
-              <Link href="/profile">
-                <Button variant="outline" className="px-4 py-2">
-                  Profile
-                </Button>
+              <Link
+                href="/profile"
+                className={`text-base font-medium px-3 py-2 rounded-lg 
+                            transition-colors
+                            ${
+                              pathname === "/profile"
+                                ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                : "text-gray-700 dark:text-gray-300 " +
+                                  "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                            }`}
+              >
+                Profile
               </Link>
             )}
           </div>
 
           {/* Dark Mode Toggle */}
-          <ModeToggle />
+          <div className="flex items-center gap-2">
+            <ModeToggle />
 
-          {/* Mobile Menu Toggle */}
-          <button className="lg:hidden ml-4" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="lg:hidden ml-2" 
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </section>
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="lg:hidden flex flex-col gap-4 p-4 
+          <div className="lg:hidden flex flex-col gap-2 p-4 
                           bg-card dark:bg-neondark-card 
                           rounded-xl shadow-md mx-4 mt-2 z-40">
             {links.map((link) => {
@@ -138,42 +169,71 @@ const Navbar = () => {
                                     "hover:bg-cyan-50 dark:hover:bg-cyan-700"
                               }`}
                 >
-                  {link?.name}
+                  {link.name}
                 </Link>
               );
             })}
 
             {/* Subscribe Button (Mobile) */}
-            <Button
-              variant="outline"
-              className="w-full px-4 py-2"
+            <button
               onClick={() => {
                 setSubscribeModalOpen(true);
                 setMenuOpen(false);
               }}
+              className={`text-base font-medium px-3 py-2 rounded-lg 
+                          transition-colors text-left
+                          text-gray-700 dark:text-gray-300 
+                          hover:bg-cyan-50 dark:hover:bg-cyan-700`}
             >
               Subscribe
-            </Button>
+            </button>
 
-            {/* Mobile Auth Buttons */}
+            {/* Mobile Auth Links */}
             {!isAuthenticated ? (
               <>
-                <Link href="/login" onClick={() => setMenuOpen(false)}>
-                  <Button variant="outline" className="w-full px-4 py-2">
-                    Login
-                  </Button>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className={`text-base font-medium px-3 py-2 rounded-lg 
+                              transition-colors block
+                              ${
+                                pathname === "/login"
+                                  ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                  : "text-gray-700 dark:text-gray-300 " +
+                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                              }`}
+                >
+                  Login
                 </Link>
-                <Link href="/signup" onClick={() => setMenuOpen(false)}>
-                  <Button variant="outline" className="w-full px-4 py-2">
-                    Signup
-                  </Button>
+                <Link
+                  href="/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className={`text-base font-medium px-3 py-2 rounded-lg 
+                              transition-colors block
+                              ${
+                                pathname === "/signup"
+                                  ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                  : "text-gray-700 dark:text-gray-300 " +
+                                    "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                              }`}
+                >
+                  Signup
                 </Link>
               </>
             ) : (
-              <Link href="/profile" onClick={() => setMenuOpen(false)}>
-                <Button variant="outline" className="w-full px-4 py-2">
-                  Profile
-                </Button>
+              <Link
+                href="/profile"
+                onClick={() => setMenuOpen(false)}
+                className={`text-base font-medium px-3 py-2 rounded-lg 
+                            transition-colors block
+                            ${
+                              pathname === "/profile"
+                                ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                                : "text-gray-700 dark:text-gray-300 " +
+                                  "hover:bg-cyan-50 dark:hover:bg-cyan-700"
+                            }`}
+              >
+                Profile
               </Link>
             )}
           </div>
@@ -181,7 +241,7 @@ const Navbar = () => {
       </nav>
 
       <SubscribeModal
-        open={!!subscribeModalOpen}
+        open={subscribeModalOpen}
         onClose={() => setSubscribeModalOpen(false)}
       />
     </>
