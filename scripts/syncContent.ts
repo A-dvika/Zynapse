@@ -1,10 +1,19 @@
-import prisma from "../lib/db";
+import prisma from "../lib/db"
 
-
-
+// Utility: Returns the start of today's date
+function getStartOfToday(): Date {
+  const now = new Date()
+  now.setHours(0, 0, 0, 0) // midnight
+  return now
+}
 
 async function syncRedditPosts() {
-  const posts = await prisma.redditPost.findMany();
+  const startOfToday = getStartOfToday()
+  const posts = await prisma.redditPost.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const post of posts) {
     await prisma.content.upsert({
       where: { id: `reddit-${post.id}` },
@@ -22,13 +31,18 @@ async function syncRedditPosts() {
         tags: [post.subreddit],
         createdAt: post.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${posts.length} Reddit posts`);
+  console.log(`✅ Synced ${posts.length} Reddit posts from today.`)
 }
 
 async function syncGitHubRepos() {
-  const repos = await prisma.gitHubRepo.findMany();
+  const startOfToday = getStartOfToday()
+  const repos = await prisma.gitHubRepo.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const repo of repos) {
     await prisma.content.upsert({
       where: { id: `githubrepo-${repo.id}` },
@@ -46,13 +60,18 @@ async function syncGitHubRepos() {
         tags: repo.language ? [repo.language] : [],
         createdAt: repo.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${repos.length} GitHub repos`);
+  console.log(`✅ Synced ${repos.length} GitHub repos from today.`)
 }
 
 async function syncGitHubIssues() {
-  const issues = await prisma.gitHubIssue.findMany();
+  const startOfToday = getStartOfToday()
+  const issues = await prisma.gitHubIssue.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const issue of issues) {
     await prisma.content.upsert({
       where: { id: `githubissue-${issue.id}` },
@@ -70,13 +89,18 @@ async function syncGitHubIssues() {
         tags: [issue.repoName],
         createdAt: issue.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${issues.length} GitHub issues`);
+  console.log(`✅ Synced ${issues.length} GitHub issues from today.`)
 }
 
 async function syncHackerNewsItems() {
-  const items = await prisma.hackerNewsItem.findMany();
+  const startOfToday = getStartOfToday()
+  const items = await prisma.hackerNewsItem.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const item of items) {
     await prisma.content.upsert({
       where: { id: `hn-${item.id}` },
@@ -94,13 +118,18 @@ async function syncHackerNewsItems() {
         tags: item.author ? [item.author] : [],
         createdAt: item.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${items.length} Hacker News items`);
+  console.log(`✅ Synced ${items.length} Hacker News items from today.`)
 }
 
 async function syncTechNewsItems() {
-  const items = await prisma.techNewsItem.findMany();
+  const startOfToday = getStartOfToday()
+  const items = await prisma.techNewsItem.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const item of items) {
     await prisma.content.upsert({
       where: { id: `technews-${item.id}` },
@@ -120,13 +149,18 @@ async function syncTechNewsItems() {
         summary: item.summary || null,
         createdAt: item.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${items.length} Tech News items`);
+  console.log(`✅ Synced ${items.length} Tech News items from today.`)
 }
 
 async function syncStackOverflowQuestions() {
-  const questions = await prisma.stackOverflowQuestion.findMany();
+  const startOfToday = getStartOfToday()
+  const questions = await prisma.stackOverflowQuestion.findMany({
+    where: {
+      creationDate: { gte: startOfToday },
+    },
+  })
   for (const q of questions) {
     await prisma.content.upsert({
       where: { id: `soq-${q.id}` },
@@ -144,13 +178,18 @@ async function syncStackOverflowQuestions() {
         tags: q.tags,
         createdAt: q.creationDate,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${questions.length} Stack Overflow questions`);
+  console.log(`✅ Synced ${questions.length} Stack Overflow questions from today.`)
 }
 
 async function syncSocialMediaPosts() {
-  const posts = await prisma.socialMediaPost.findMany();
+  const startOfToday = getStartOfToday()
+  const posts = await prisma.socialMediaPost.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const post of posts) {
     await prisma.content.upsert({
       where: { id: `smp-${post.id}` },
@@ -168,13 +207,18 @@ async function syncSocialMediaPosts() {
         tags: post.hashtags,
         createdAt: post.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${posts.length} Social Media posts`);
+  console.log(`✅ Synced ${posts.length} Social Media posts from today.`)
 }
 
 async function syncProductHuntPosts() {
-  const posts = await prisma.productHuntPost.findMany();
+  const startOfToday = getStartOfToday()
+  const posts = await prisma.productHuntPost.findMany({
+    where: {
+      createdAt: { gte: startOfToday },
+    },
+  })
   for (const post of posts) {
     await prisma.content.upsert({
       where: { id: `ph-${post.id}` },
@@ -194,27 +238,28 @@ async function syncProductHuntPosts() {
         tags: [],
         createdAt: post.createdAt,
       },
-    });
+    })
   }
-  console.log(`✅ Synced ${posts.length} Product Hunt posts`);
+  console.log(`✅ Synced ${posts.length} Product Hunt posts from today.`)
 }
 
 async function main() {
-  await syncRedditPosts();
-  await syncGitHubRepos();
-  await syncGitHubIssues();
-  await syncHackerNewsItems();
-  await syncTechNewsItems();
-  await syncStackOverflowQuestions();
-  await syncSocialMediaPosts();
-  await syncProductHuntPosts();
+  // Fire each sync function
+  await syncRedditPosts()
+  await syncGitHubRepos()
+  await syncGitHubIssues()
+  await syncHackerNewsItems()
+  await syncTechNewsItems()
+  await syncStackOverflowQuestions()
+  await syncSocialMediaPosts()
+  await syncProductHuntPosts()
 
-  console.log("🎉 All sources synced into `Content` table");
-  await prisma.$disconnect();
+  console.log("🎉 Synced all 'today' content into the `Content` table!")
+  await prisma.$disconnect()
 }
 
 main().catch((err) => {
-  console.error("❌ Sync failed:", err);
-  prisma.$disconnect();
-  process.exit(1);
-});
+  console.error("❌ Sync failed:", err)
+  prisma.$disconnect()
+  process.exit(1)
+})
