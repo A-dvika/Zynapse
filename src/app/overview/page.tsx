@@ -1,16 +1,11 @@
 "use client"
 
 import type React from "react"
-import { BackgroundBeams } from "@/components/ui/beams"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"; // Ensure this path is correct
-    
-  
-    
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import {
   ArrowRight,
-  Bell,
   ChevronDown,
   ChevronRight,
   Code,
@@ -19,14 +14,9 @@ import {
   HelpCircle,
   MessageSquare,
   Newspaper,
-  Search,
-  Send,
-  Settings,
-  Share2,
   Star,
   ThumbsUp,
   Twitter,
-  User,
   Zap,
 } from "lucide-react"
 
@@ -34,8 +24,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
-import { PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar,LineChart ,Line  } from "recharts"
+import {
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+} from "recharts"
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart"
 
 // Sample data for charts and content
@@ -56,7 +59,6 @@ const engagementData = [
   { name: "Sat", reddit: 240, github: 190, stackoverflow: 180 },
   { name: "Sun", reddit: 280, github: 220, stackoverflow: 200 },
 ]
-
 
 const techNews = [
   {
@@ -299,342 +301,314 @@ const aiSummaries = [
 ]
 
 export default function TechDashboard() {
-    const [showAllReddit, setShowAllReddit] = useState(false)
-    const [isDarkMode, setIsDarkMode] = useState(false) // Add this line to define isDarkMode
-    const [selectedChartType, setSelectedChartType] = useState<"pie" | "bar" | "line" | "area">("pie")
-    const colors = ["#a78bfa", "#7c3aed", "#10b981", "#f59e0b", "#ef4444", "#0ea5e9"];
-   
-    interface StackOverflowQuestion {
-      id: number
-      title: string
-      votes: number
-      answers: number
-      views: number
-      tags: string[]
-      link: string
-      creationDate: string
-    }
-    interface TechNewsItem {
-        source: {
-            id: string | null;
-            name: string;
-          };
-          author: string;
-          title: string;
-          description: string;
-          url: string;
-          urlToImage?: string;
-          publishedAt: string;
-    }
-    
-    const [techNewsItems, setTechNewsItems] = useState<TechNewsItem[]>([]);
+  const [showAllReddit, setShowAllReddit] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [selectedChartType, setSelectedChartType] = useState<"pie" | "bar" | "line" | "area">("pie")
+  const colors = ["#00FFFF", "#7C3AED", "#10B981", "#F59E0B", "#EF4444", "#0EA5E9"]
 
-useEffect(() => {
-  const fetchNews = async () => {
-    try {
-        const res = await fetch("/api/gadgets");
-        const data = await res.json();
-        setTechNewsItems(data);
-      } catch (err) {
-        console.error("Failed to fetch gadget news:", err);
-      }
-    };
-
-
-
-  fetchNews();
-}, []);
-
-    const [showAllRepos, setShowAllRepos] = useState(false)
-    const [stackOverflowQuestions, setStackOverflowQuestions] = useState<StackOverflowQuestion[]>([])
-    useEffect(() => {
-        const fetchStackOverflow = async () => {
-          try {
-            const res = await fetch("/api/stackoverflow") // Update if your endpoint differs
-            const json = await res.json()
-            const questions = json.questions || []
-      
-            const mapped = questions.map((q: any) => ({
-              id: q.id,
-              title: q.title,
-              votes: q.score,
-              answers: q.answerCount,
-              views: q.viewCount,
-              tags: q.tags,
-              link: q.link,
-              creationDate: q.creationDate,
-            }))
-      
-            setStackOverflowQuestions(mapped)
-          } catch (err) {
-            console.error("Error fetching StackOverflow data:", err)
-          }
-        }
-      
-        fetchStackOverflow()
-      }, [])
-      
-    interface RedditTrend {
-      id: number
-      title: string
-      subreddit: string
-      upvotes: number
-      comments: number
-      trend: string
-      url: string
-      image: string
-    }
-    interface HackerNewsStory {
-        id: number
-        title: string
-        url: string
-        author: string
-        score: number
-        comments: number
-        createdAt: string
-      }
-      
-      const [hackerNewsStories, setHackerNewsStories] = useState<HackerNewsStory[]>([])
-      useEffect(() => {
-        const fetchHackerNews = async () => {
-          try {
-            const res = await fetch("/api/hackernews")
-            const json = await res.json()
-            const stories = json.hackerNewsStories || []
-      
-            const mapped = stories.map((story: any) => ({
-              id: story.id,
-              title: story.title,
-              url: story.url,
-              author: story.author,
-              score: story.score,
-              comments: story.comments,
-              createdAt: story.createdAt,
-            }))
-      
-            setHackerNewsStories(mapped)
-          } catch (err) {
-            console.error("Error fetching Hacker News data:", err)
-          }
-        }
-      
-        fetchHackerNews()
-      }, [])
-      interface SocialPost {
-        id: string
-        platform: string
-        content: string
-        author: string
-        hashtags: string[]
-        url: string
-        score: number
-        createdAt: string
-      }
-      const newsSourceData = Object.entries(
-        techNewsItems.reduce((acc: Record<string, number>, item) => {
-          const source = item.source || "Unknown"
-          acc[source.name] = (acc[source.name] || 0) + 1
-          return acc
-        }, {})
-      ).map(([name, count]) => ({
-        name,
-        count,
-      }))
-      
-      const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
-      useEffect(() => {
-        const fetchSocialPosts = async () => {
-          try {
-            const res = await fetch("/api/socialmedia")
-            const data = await res.json()
-            setSocialPosts(data)
-          } catch (err) {
-            console.error("Failed to fetch social media posts", err)
-          }
-        }
-      
-        fetchSocialPosts()
-      }, [])
-     const topSources = newsSourceData
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 6)
-    const [redditTrends, setRedditTrends] = useState<RedditTrend[]>([])
-    useEffect(() => {
-        const fetchRedditTrends = async () => {
-          try {
-            const res = await fetch("/api/reddit") // use your real API route here
-            const json = await res.json()
-            const posts = json.reddit || json // depending on how your API returns it
-      
-            const mapped = posts.map((post: RedditTrend) => ({
-              id: post.id,
-              title: post.title,
-              subreddit: `r/${post.subreddit}`,
-              upvotes: post.upvotes,
-              comments: post.comments,
-              trend: "+0%", // placeholder or compute trend later
-              url: post.url,
-              image: "/placeholder.svg?height=40&width=40", // optional placeholder
-            }))
-      
-            setRedditTrends(mapped)
-          } catch (error) {
-            console.error("Failed to fetch Reddit data:", error)
-          }
-        }
-      
-        fetchRedditTrends()
-      }, [])
-      
-    interface GitHubRepo {
-      id: number
+  interface StackOverflowQuestion {
+    id: number
+    title: string
+    votes: number
+    answers: number
+    views: number
+    tags: string[]
+    link: string
+    creationDate: string
+  }
+  interface TechNewsItem {
+    source: {
+      id: string | null
       name: string
-      description: string
-      stars: number
-      forks: number
-      language: string
-      color: string
     }
-    
-    const [githubRepos, setGithubRepos] = useState<GitHubRepo[]>([])
-    const [expandedRepo, setExpandedRepo] = useState<number | null>(null)
-
- const getLanguageColor = (lang: string) => {
-  const colors: Record<string, string> = {
-    JavaScript: "#f1e05a",
-    TypeScript: "#2b7489",
-    Python: "#3572A5",
-    Go: "#00ADD8",
-    Rust: "#dea584",
-    "C#": "#178600",
+    author: string
+    title: string
+    description: string
+    url: string
+    urlToImage?: string
+    publishedAt: string
   }
-  return colors[lang] || "#ccc"
-}
 
-    useEffect(() => {
-      const fetchGitHubRepos = async () => {
-        try {
-          const res = await fetch("/api/github")
-          const json = await res.json()
-          const repos = json.repos || []
-    
-          const mapped = repos.map((repo: any) => ({
-            id: repo.id,
-            name: repo.fullName,
-            description: repo.name,
-            stars: repo.stars,
-            forks: repo.forks,
-            language: repo.language,
-            color: getLanguageColor(repo.language),
-          }))
-    
-          setGithubRepos(mapped)
-        } catch (error) {
-          console.error("Failed to fetch GitHub repos:", error)
-        }
+  const [techNewsItems, setTechNewsItems] = useState<TechNewsItem[]>([])
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch("/api/gadgets")
+        const data = await res.json()
+        setTechNewsItems(data)
+      } catch (err) {
+        console.error("Failed to fetch gadget news:", err)
       }
-    
-      fetchGitHubRepos()
-    }, [])
-    
-    const [name, setName] = useState("")
-   
-   
+    }
 
-const [showInputs, setShowInputs] = useState(false)
-const [chartType, setChartType] = useState<"bar" | "pie">("bar")
+    fetchNews()
+  }, [])
 
-const renderChart = () => {
-  if (selectedChartType === "pie") {
-    return (
-      <PieChart>
-        <Pie
-          data={topSources}
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={80}
-          paddingAngle={2}
-          dataKey="count"
-        >
-          {topSources.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-        <Tooltip content={<ChartTooltipContent />} />
-      </PieChart>
-    );
-  } else if (selectedChartType === "bar") {
-    return (
-      <BarChart data={topSources} barSize={32}>
-        <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <Tooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="count" fill="url(#barGradient)">
-          {topSources.map((_, index) => (
-            <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Bar>
-        <defs>
-          <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.8} />
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity={1} />
-          </linearGradient>
-        </defs>
-      </BarChart>
-    );
-  } else if (selectedChartType === "line") {
-    return (
-      <LineChart data={topSources}>
-        <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <Tooltip content={<ChartTooltipContent />} />
-        <Line
-          type="monotone"
-          dataKey="count"
-          stroke="#a78bfa"
-          strokeWidth={2}
-          dot={{ r: 4 }}
-          activeDot={{ r: 6 }}
-        />
-      </LineChart>
-    );
-  } else if (selectedChartType === "area") {
-    return (
-      <AreaChart data={topSources}>
-        <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-        <Tooltip content={<ChartTooltipContent />} />
-        <Area
-          type="monotone"
-          dataKey="count"
-          stroke="#a78bfa"
-          fill="#7c3aed"
-          fillOpacity={0.3}
-        />
-      </AreaChart>
-    );
+  const [showAllRepos, setShowAllRepos] = useState(false)
+  const [stackOverflowQuestions, setStackOverflowQuestions] = useState<StackOverflowQuestion[]>([])
+  useEffect(() => {
+    const fetchStackOverflow = async () => {
+      try {
+        const res = await fetch("/api/stackoverflow") // Update if your endpoint differs
+        const json = await res.json()
+        const questions = json.questions || []
+
+        const mapped = questions.map((q: any) => ({
+          id: q.id,
+          title: q.title,
+          votes: q.score,
+          answers: q.answerCount,
+          views: q.viewCount,
+          tags: q.tags,
+          link: q.link,
+          creationDate: q.creationDate,
+        }))
+
+        setStackOverflowQuestions(mapped)
+      } catch (err) {
+        console.error("Error fetching StackOverflow data:", err)
+      }
+    }
+
+    fetchStackOverflow()
+  }, [])
+
+  interface RedditTrend {
+    id: number
+    title: string
+    subreddit: string
+    upvotes: number
+    comments: number
+    trend: string
+    url: string
+    image: string
   }
-  return null;
-};
+  interface HackerNewsStory {
+    id: number
+    title: string
+    url: string
+    author: string
+    score: number
+    comments: number
+    createdAt: string
+  }
 
-const [dynamicMessage, setDynamicMessage] = useState("Join 12,000+ devs for weekly insights.")
-const messages = [
-  "Join 12,000+ devs for weekly insights.",
-  "Stay ahead of the curve. Get updates!",
-  "Only the best tech. No spam, ever.",
-  "Dev trends delivered to your inbox.",
-]
+  const [hackerNewsStories, setHackerNewsStories] = useState<HackerNewsStory[]>([])
+  useEffect(() => {
+    const fetchHackerNews = async () => {
+      try {
+        const res = await fetch("/api/hackernews")
+        const json = await res.json()
+        const stories = json.hackerNewsStories || []
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    const next = messages[Math.floor(Math.random() * messages.length)]
-    setDynamicMessage(next)
-  }, 4000)
-  return () => clearInterval(interval)
-}, [])
+        const mapped = stories.map((story: any) => ({
+          id: story.id,
+          title: story.title,
+          url: story.url,
+          author: story.author,
+          score: story.score,
+          comments: story.comments,
+          createdAt: story.createdAt,
+        }))
 
-    
+        setHackerNewsStories(mapped)
+      } catch (err) {
+        console.error("Error fetching Hacker News data:", err)
+      }
+    }
+
+    fetchHackerNews()
+  }, [])
+  interface SocialPost {
+    id: string
+    platform: string
+    content: string
+    author: string
+    hashtags: string[]
+    url: string
+    score: number
+    createdAt: string
+  }
+  const newsSourceData = Object.entries(
+    techNewsItems.reduce((acc: Record<string, number>, item) => {
+      const source = item.source || "Unknown"
+      acc[source.name] = (acc[source.name] || 0) + 1
+      return acc
+    }, {}),
+  ).map(([name, count]) => ({
+    name,
+    count,
+  }))
+
+  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
+  useEffect(() => {
+    const fetchSocialPosts = async () => {
+      try {
+        const res = await fetch("/api/socialmedia")
+        const data = await res.json()
+        setSocialPosts(data)
+      } catch (err) {
+        console.error("Failed to fetch social media posts", err)
+      }
+    }
+
+    fetchSocialPosts()
+  }, [])
+  const topSources = newsSourceData.sort((a, b) => b.count - a.count).slice(0, 6)
+  const [redditTrends, setRedditTrends] = useState<RedditTrend[]>([])
+  useEffect(() => {
+    const fetchRedditTrends = async () => {
+      try {
+        const res = await fetch("/api/reddit") // use your real API route here
+        const json = await res.json()
+        const posts = json.reddit || json // depending on how your API returns it
+
+        const mapped = posts.map((post: RedditTrend) => ({
+          id: post.id,
+          title: post.title,
+          subreddit: `r/${post.subreddit}`,
+          upvotes: post.upvotes,
+          comments: post.comments,
+          trend: "+0%", // placeholder or compute trend later
+          url: post.url,
+          image: "/placeholder.svg?height=40&width=40", // optional placeholder
+        }))
+
+        setRedditTrends(mapped)
+      } catch (error) {
+        console.error("Failed to fetch Reddit data:", error)
+      }
+    }
+
+    fetchRedditTrends()
+  }, [])
+
+  interface GitHubRepo {
+    id: number
+    name: string
+    description: string
+    stars: number
+    forks: number
+    language: string
+    color: string
+  }
+
+  const [githubRepos, setGithubRepos] = useState<GitHubRepo[]>([])
+  const [expandedRepo, setExpandedRepo] = useState<number | null>(null)
+
+  const getLanguageColor = (lang: string) => {
+    const colors: Record<string, string> = {
+      JavaScript: "#f1e05a",
+      TypeScript: "#2b7489",
+      Python: "#3572A5",
+      Go: "#00ADD8",
+      Rust: "#dea584",
+      "C#": "#178600",
+    }
+    return colors[lang] || "#ccc"
+  }
+
+  useEffect(() => {
+    const fetchGitHubRepos = async () => {
+      try {
+        const res = await fetch("/api/github")
+        const json = await res.json()
+        const repos = json.repos || []
+
+        const mapped = repos.map((repo: any) => ({
+          id: repo.id,
+          name: repo.fullName,
+          description: repo.name,
+          stars: repo.stars,
+          forks: repo.forks,
+          language: repo.language,
+          color: getLanguageColor(repo.language),
+        }))
+
+        setGithubRepos(mapped)
+      } catch (error) {
+        console.error("Failed to fetch GitHub repos:", error)
+      }
+    }
+
+    fetchGitHubRepos()
+  }, [])
+
+  const [name, setName] = useState("")
+
+  const [showInputs, setShowInputs] = useState(false)
+  const [chartType, setChartType] = useState<"bar" | "pie">("bar")
+
+  const renderChart = () => {
+    if (selectedChartType === "pie") {
+      return (
+        <PieChart>
+          <Pie data={topSources} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="count">
+            {topSources.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Pie>
+          <Tooltip content={<ChartTooltipContent />} />
+        </PieChart>
+      )
+    } else if (selectedChartType === "bar") {
+      return (
+        <BarChart data={topSources} barSize={32}>
+          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <Tooltip content={<ChartTooltipContent />} />
+          <Bar dataKey="count" fill="url(#barGradient)">
+            {topSources.map((_, index) => (
+              <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Bar>
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#00FFFF" stopOpacity={0.8} />
+              <stop offset="100%" stopColor="#00BFBF" stopOpacity={1} />
+            </linearGradient>
+          </defs>
+        </BarChart>
+      )
+    } else if (selectedChartType === "line") {
+      return (
+        <LineChart data={topSources}>
+          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <Tooltip content={<ChartTooltipContent />} />
+          <Line type="monotone" dataKey="count" stroke="#00FFFF" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+        </LineChart>
+      )
+    } else if (selectedChartType === "area") {
+      return (
+        <AreaChart data={topSources}>
+          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+          <Tooltip content={<ChartTooltipContent />} />
+          <Area type="monotone" dataKey="count" stroke="#00FFFF" fill="#00FFFF" fillOpacity={0.3} />
+        </AreaChart>
+      )
+    }
+    return null
+  }
+
+  const [dynamicMessage, setDynamicMessage] = useState("Join 12,000+ devs for weekly insights.")
+  const messages = [
+    "Join 12,000+ devs for weekly insights.",
+    "Stay ahead of the curve. Get updates!",
+    "Only the best tech. No spam, ever.",
+    "Dev trends delivered to your inbox.",
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const next = messages[Math.floor(Math.random() * messages.length)]
+      setDynamicMessage(next)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
   const [currentMeme, setCurrentMeme] = useState(0)
   const [searchValue, setSearchValue] = useState("")
   const [activeTab, setActiveTab] = useState("overview")
@@ -642,33 +616,33 @@ useEffect(() => {
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
   const [email, setEmail] = useState("")
   const [subscribeStatus, setSubscribeStatus] = useState<string | null>(null)
-interface Gadget {
-  id: number
-  thumbnailUrl?: string
-  urlToImage?: string
-  name?: string
-  title?: string
-  url?: string
-  source?: { name: string }
-  tagline?: string
-  description?: string
-  votesCount?: number
-}
-
-const [gadgets, setGadgets] = useState<Gadget[]>([])
-const [productHunt, setProductHunt] = useState<Gadget[]>([])
-
-useEffect(() => {
-  const fetchData = async () => {
-    const [gadgetsRes, productHuntRes] = await Promise.all([
-      fetch("/api/gadgets").then(res => res.json()),
-      fetch("/api/producthunt").then(res => res.json()),
-    ])
-    setGadgets(gadgetsRes)
-    setProductHunt(productHuntRes)
+  interface Gadget {
+    id: number
+    thumbnailUrl?: string
+    urlToImage?: string
+    name?: string
+    title?: string
+    url?: string
+    source?: { name: string }
+    tagline?: string
+    description?: string
+    votesCount?: number
   }
-  fetchData()
-}, [])
+
+  const [gadgets, setGadgets] = useState<Gadget[]>([])
+  const [productHunt, setProductHunt] = useState<Gadget[]>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [gadgetsRes, productHuntRes] = await Promise.all([
+        fetch("/api/gadgets").then((res) => res.json()),
+        fetch("/api/producthunt").then((res) => res.json()),
+      ])
+      setGadgets(gadgetsRes)
+      setProductHunt(productHuntRes)
+    }
+    fetchData()
+  }, [])
 
   // Animation for the weekly digest cards
   const containerRef = useRef(null)
@@ -681,364 +655,355 @@ useEffect(() => {
     return () => clearInterval(interval)
   }, [])
 
-  
-
   return (
-    <div className="min-h-screen bg-neondark-bg text-foreground">
-    {/* Background gradients */}
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
-    
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
-    >
+    <div className="min-h-screen bg-neondark-bg text-neondark-text">
+      {/* Background gradients */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
 
-<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-  <motion.h1
-    className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
-    initial={{ scale: 0.9 }}
-    animate={{ scale: 1 }}
-    transition={{ duration: 0.5 }}
-  >
-    Tech Trends Dashboard
-  </motion.h1>
-</div>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <motion.h1
+            className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-500 bg-clip-text text-transparent"
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            Tech Trends Dashboard
+          </motion.h1>
+        </div>
 
-
-       
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-      <div className="space-y-6">
-      
-
-           {/* Top row - 4 equal charts */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        {quickStats.map((stat, index) => (
-                          <motion.div
-                            key={stat.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1, duration: 0.3 }}
-                          >
-                            <Card className="bg-gray-800/50 border-gray-800">
-                              <CardContent className="p-4">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="text-sm text-gray-400 mb-1">{stat.title}</p>
-                                    <p className="text-2xl font-bold">{stat.value}</p>
-                                  </div>
-                                  <div className={`p-2 rounded-full ${stat.isPositive ? "bg-green-500/20" : "bg-red-500/20"}`}>
-                                    {stat.icon}
-                                  </div>
-                                </div>
-                                <div className={`text-sm mt-2 ${stat.isPositive ? "text-green-400" : "text-red-400"}`}>
-                                  {stat.change} from last week
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        ))}
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-6">
+          <div className="space-y-6">
+            {/* Top row - 4 equal charts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {quickStats.map((stat, index) => (
+                <motion.div
+                  key={stat.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                >
+                  <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm text-neondark-muted mb-1">{stat.title}</p>
+                          <p className="text-2xl font-bold text-cyan-400">{stat.value}</p>
+                        </div>
+                        <div
+                          className={`p-2 rounded-full ${
+                            stat.isPositive ? "bg-cyan-950 text-cyan-400" : "bg-red-950 text-red-400"
+                          }`}
+                        >
+                          {stat.icon}
+                        </div>
                       </div>
-          
-                      {/* Second row - 2 charts */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Platform Engagement Chart */}
-                        <Card className="bg-gray-800/30 border-gray-800">
-                          <CardHeader>
-                            <CardTitle>Platform Engagement</CardTitle>
-                            <CardDescription className="text-gray-400">Weekly activity across tech platforms</CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <ChartContainer
-                              config={{
-                                reddit: {
-                                  label: "Reddit",
-                                  color: "hsl(0, 100%, 67%)",
-                                },
-                                github: {
-                                  label: "GitHub",
-                                  color: "hsl(210, 100%, 67%)",
-                                },
-                                stackoverflow: {
-                                  label: "Stack Overflow",
-                                  color: "hsl(30, 100%, 67%)",
-                                },
-                              }}
-                              className="h-[300px]"
-                            >
-                              <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={engagementData}>
-                                  <defs>
-                                    <linearGradient id="redditGradient" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="hsl(0, 100%, 67%)" stopOpacity={0.3} />
-                                      <stop offset="95%" stopColor="hsl(0, 100%, 67%)" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="githubGradient" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="hsl(210, 100%, 67%)" stopOpacity={0.3} />
-                                      <stop offset="95%" stopColor="hsl(210, 100%, 67%)" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="stackoverflowGradient" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="hsl(30, 100%, 67%)" stopOpacity={0.3} />
-                                      <stop offset="95%" stopColor="hsl(30, 100%, 67%)" stopOpacity={0} />
-                                    </linearGradient>
-                                  </defs>
-                                  <XAxis dataKey="name" stroke="#6b7280" />
-                                  <YAxis stroke="#6b7280" />
-                                  <Tooltip content={<ChartTooltipContent />} />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="reddit"
-                                    stroke="var(--color-reddit)"
-                                    fillOpacity={1}
-                                    fill="url(#redditGradient)"
-                                  />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="github"
-                                    stroke="var(--color-github)"
-                                    fillOpacity={1}
-                                    fill="url(#githubGradient)"
-                                  />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="stackoverflow"
-                                    stroke="var(--color-stackoverflow)"
-                                    fillOpacity={1}
-                                    fill="url(#stackoverflowGradient)"
-                                  />
-                                </AreaChart>
-                              </ResponsiveContainer>
-                            </ChartContainer>
-                          </CardContent>
-                        </Card>
-          
-                        {/* Languages & Top Repos */}
-                        <Card className="bg-gray-800/30 border-gray-800">
-                          <CardHeader>
-                            <CardTitle className="flex items-center">
-                              <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
-                                <Code className="h-3 w-3 mr-1" />
-                                Languages
-                              </Badge>
-                              Languages & Top Repositories
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <h3 className="font-medium mb-4 text-sm">Popular Languages</h3>
-                                <ChartContainer
-                                  config={{
-                                    javascript: {
-                                      label: "JavaScript",
-                                      color: "#f1e05a",
-                                    },
-                                    python: {
-                                      label: "Python",
-                                      color: "#3572A5",
-                                    },
-                                    typescript: {
-                                      label: "TypeScript",
-                                      color: "#2b7489",
-                                    },
-                                    go: {
-                                      label: "Go",
-                                      color: "#00ADD8",
-                                    },
-                                    rust: {
-                                      label: "Rust",
-                                      color: "#dea584",
-                                    },
-                                  }}
-                                  className="h-[200px]"
-                                >
-                                  <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                      <Pie
-                                        data={languageData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={2}
-                                        dataKey="value"
-                                      >
-                                        {languageData.map((entry, index) => (
-                                          <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                      </Pie>
-                                      <Tooltip content={<ChartTooltipContent />} />
-                                    </PieChart>
-                                  </ResponsiveContainer>
-                                </ChartContainer>
-                              </div>
-                              <div>
-                                <h3 className="font-medium mb-4 text-sm">Top Repositories by Language</h3>
-                                <div className="space-y-4">
-                                  {Object.entries(languageRepos)
-                                    .slice(0, 3)
-                                    .map(([language, repos]) => (
-                                      <motion.div
-                                        key={language}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="space-y-2"
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          <div
-                                            className="w-3 h-3 rounded-full"
-                                            style={{
-                                              backgroundColor: languageData.find((l) => l.name === language)?.color || "#ccc",
-                                            }}
-                                          ></div>
-                                          <span className="font-medium text-sm">{language}</span>
-                                        </div>
-                                        {repos.slice(0, 1).map((repo) => (
-                                          <div key={repo.name} className="flex justify-between items-center pl-5">
-                                            <span className="text-xs text-gray-400">{repo.name}</span>
-                                            <div className="flex items-center text-xs">
-                                              <Star className="h-3 w-3 mr-1 text-yellow-400" />
-                                              <span>{repo.stars.toLocaleString()}</span>
-                                            </div>
-                                          </div>
-                                        ))}
-                                        <Progress
-                                          value={languageData.find((l) => l.name === language)?.value}
-                                          className="h-1.5"
-                                          style={
-                                            {
-                                              backgroundColor: "rgba(255,255,255,0.1)",
-                                              "--progress-background": languageData.find((l) => l.name === language)?.color,
-                                            } as React.CSSProperties
-                                          }
-                                        />
-                                      </motion.div>
-                                    ))}
-                                </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                      <div className={`text-sm mt-2 ${stat.isPositive ? "text-cyan-400" : "text-red-400"}`}>
+                        {stat.change} from last week
                       </div>
-           <Card className=" bg-gray-800/30 border-gray-800">
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
 
-             
-                {/* AI-Generated Summary */}
-               
+            {/* Second row - 2 charts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Platform Engagement Chart */}
+              <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Badge className="mr-2 bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary-foreground">
-                      <Zap className="h-3 w-3 mr-1" />
-                      AI
-                    </Badge>
-                    AI-Generated Tech Insights
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Continuously updated insights from across the tech ecosystem
+                  <CardTitle className="text-neondark-text">Platform Engagement</CardTitle>
+                  <CardDescription className="text-neondark-muted">
+                    Weekly activity across tech platforms
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pb-0">
-                  <div className="relative h-32 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center">
-                      <motion.div
-                        className="flex gap-4"
-                        animate={{ x: [0, -2000] }}
-                        transition={{
-                          repeat: Number.POSITIVE_INFINITY,
-                          duration: 30,
-                          ease: "linear",
+                <CardContent>
+                  <ChartContainer
+                    config={{
+                      reddit: {
+                        label: "Reddit",
+                        color: "hsl(0, 100%, 67%)",
+                      },
+                      github: {
+                        label: "GitHub",
+                        color: "hsl(210, 100%, 67%)",
+                      },
+                      stackoverflow: {
+                        label: "Stack Overflow",
+                        color: "hsl(30, 100%, 67%)",
+                      },
+                    }}
+                    className="h-[300px]"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={engagementData}>
+                        <defs>
+                          <linearGradient id="redditGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(0, 100%, 67%)" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(0, 100%, 67%)" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="githubGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(210, 100%, 67%)" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(210, 100%, 67%)" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="stackoverflowGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(30, 100%, 67%)" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(30, 100%, 67%)" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" />
+                        <Tooltip content={<ChartTooltipContent />} />
+                        <Area
+                          type="monotone"
+                          dataKey="reddit"
+                          stroke="var(--color-reddit)"
+                          fillOpacity={1}
+                          fill="url(#redditGradient)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="github"
+                          stroke="var(--color-github)"
+                          fillOpacity={1}
+                          fill="url(#githubGradient)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="stackoverflow"
+                          stroke="var(--color-stackoverflow)"
+                          fillOpacity={1}
+                          fill="url(#stackoverflowGradient)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+
+              {/* Languages & Top Repos */}
+              <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-neondark-text">
+                    <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                      <Code className="h-3 w-3 mr-1" />
+                      Languages
+                    </Badge>
+                    Languages & Top Repositories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-medium mb-4 text-sm text-neondark-text">Popular Languages</h3>
+                      <ChartContainer
+                        config={{
+                          javascript: {
+                            label: "JavaScript",
+                            color: "#f1e05a",
+                          },
+                          python: {
+                            label: "Python",
+                            color: "#3572A5",
+                          },
+                          typescript: {
+                            label: "TypeScript",
+                            color: "#2b7489",
+                          },
+                          go: {
+                            label: "Go",
+                            color: "#00ADD8",
+                          },
+                          rust: {
+                            label: "Rust",
+                            color: "#dea584",
+                          },
                         }}
+                        className="h-[200px]"
                       >
-                        {[...aiSummaries, ...aiSummaries].map((summary, i) => (
-                          <motion.div
-                            key={i}
-                            className="flex-shrink-0 w-80 h-24 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 p-4 text-white"
-                            whileHover={{ y: -5, scale: 1.02 }}
-                          >
-                            <p className="text-sm">{summary}</p>
-                          </motion.div>
-                        ))}
-                      </motion.div>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={languageData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              paddingAngle={2}
+                              dataKey="value"
+                            >
+                              {languageData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip content={<ChartTooltipContent />} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-4 text-sm text-neondark-text">Top Repositories by Language</h3>
+                      <div className="space-y-4">
+                        {Object.entries(languageRepos)
+                          .slice(0, 3)
+                          .map(([language, repos]) => (
+                            <motion.div
+                              key={language}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="space-y-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-3 h-3 rounded-full"
+                                  style={{
+                                    backgroundColor: languageData.find((l) => l.name === language)?.color || "#ccc",
+                                  }}
+                                ></div>
+                                <span className="font-medium text-sm text-neondark-text">{language}</span>
+                              </div>
+                              {repos.slice(0, 1).map((repo) => (
+                                <div key={repo.name} className="flex justify-between items-center pl-5">
+                                  <span className="text-xs text-neondark-muted">{repo.name}</span>
+                                  <div className="flex items-center text-xs text-neondark-muted">
+                                    <Star className="h-3 w-3 mr-1 text-cyan-400" />
+                                    <span>{repo.stars.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              ))}
+                              <Progress
+                                value={languageData.find((l) => l.name === language)?.value}
+                                className="h-1.5"
+                                style={
+                                  {
+                                    backgroundColor: "rgba(255,255,255,0.1)",
+                                    "--progress-background": languageData.find((l) => l.name === language)?.color,
+                                  } as React.CSSProperties
+                                }
+                              />
+                            </motion.div>
+                          ))}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
-            
+              </Card>
+            </div>
+            <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+              {/* AI-Generated Summary */}
+              <CardHeader>
+                <CardTitle className="flex items-center text-neondark-text">
+                  <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                    <Zap className="h-3 w-3 mr-1" />
+                    AI
+                  </Badge>
+                  AI-Generated Tech Insights
+                </CardTitle>
+                <CardDescription className="text-neondark-muted">
+                  Continuously updated insights from across the tech ecosystem
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-0">
+                <div className="relative h-32 overflow-hidden">
+                  <div className="absolute inset-0 flex items-center">
+                    <motion.div
+                      className="flex gap-4"
+                      animate={{ x: [0, -2000] }}
+                      transition={{
+                        repeat: Number.POSITIVE_INFINITY,
+                        duration: 30,
+                        ease: "linear",
+                      }}
+                    >
+                      {[...aiSummaries, ...aiSummaries].map((summary, i) => (
+                        <motion.div
+                          key={i}
+                          className="flex-shrink-0 w-80 h-24 rounded-lg bg-gradient-to-r from-cyan-950/50 to-cyan-900/30 border border-cyan-400/30 p-4 text-neondark-text"
+                          whileHover={{ y: -5, scale: 1.02 }}
+                        >
+                          <p className="text-sm">{summary}</p>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </div>
+                </div>
+              </CardContent>
 
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {redditTrends.length > 0 ? (
-                  <motion.div
-                    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300">
-                        Reddit
-                      </Badge>
-                      <span className="text-xs text-gray-400">Top Post</span>
-                    </div>
-                    <h3 className="font-medium mb-2">{redditTrends[0].title}</h3>
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>{redditTrends[0].subreddit}</span>
-                      <div className="flex items-center gap-1">
-                        <ThumbsUp className="h-3 w-3" />
-                        <span>{redditTrends[0].upvotes.toLocaleString()}</span>
+                  {redditTrends.length > 0 ? (
+                    <motion.div
+                      className="bg-neondark-bg rounded-xl p-4 border border-neondark-border"
+                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-red-950 text-red-400 hover:bg-red-900 hover:text-red-300">Reddit</Badge>
+                        <span className="text-xs text-neondark-muted">Top Post</span>
                       </div>
-                    </div>
-                  </motion.div>
+                      <h3 className="font-medium mb-2 text-neondark-text">{redditTrends[0].title}</h3>
+                      <div className="flex justify-between text-sm text-neondark-muted">
+                        <span>{redditTrends[0].subreddit}</span>
+                        <div className="flex items-center gap-1">
+                          <ThumbsUp className="h-3 w-3 text-cyan-400" />
+                          <span>{redditTrends[0].upvotes.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </motion.div>
                   ) : (
-                    <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
+                    <div className="bg-neondark-bg rounded-xl p-4 border border-neondark-border text-sm text-neondark-muted">
                       Loading Reddit post...
                     </div>
                   )}
                   {githubRepos.length > 0 ? (
-  <motion.div
-    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-  >
-    <div className="flex items-center gap-2 mb-2">
-      <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 hover:text-blue-300">
-        GitHub
-      </Badge>
-      <span className="text-xs text-gray-400">Trending Repo</span>
-    </div>
-    <h3 className="font-medium mb-2">{githubRepos[0].name}</h3>
-    <div className="flex justify-between text-sm text-gray-400">
-      <span>{githubRepos[0].language}</span>
-      <div className="flex items-center gap-1">
-        <Star className="h-3 w-3" />
-        <span>{githubRepos[0].stars.toLocaleString()}</span>
-      </div>
-    </div>
-  </motion.div>
-) : (
-  <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 text-sm text-gray-400">
-    Loading GitHub repo...
-  </div>
-)}
-
+                    <motion.div
+                      className="bg-neondark-bg rounded-xl p-4 border border-neondark-border"
+                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className="bg-blue-950 text-blue-400 hover:bg-blue-900 hover:text-blue-300">
+                          GitHub
+                        </Badge>
+                        <span className="text-xs text-neondark-muted">Trending Repo</span>
+                      </div>
+                      <h3 className="font-medium mb-2 text-neondark-text">{githubRepos[0].name}</h3>
+                      <div className="flex justify-between text-sm text-neondark-muted">
+                        <span>{githubRepos[0].language}</span>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 text-cyan-400" />
+                          <span>{githubRepos[0].stars.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="bg-neondark-bg rounded-xl p-4 border border-neondark-border text-sm text-neondark-muted">
+                      Loading GitHub repo...
+                    </div>
+                  )}
 
                   <motion.div
-                    className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
+                    className="bg-neondark-bg rounded-xl p-4 border border-neondark-border"
                     whileHover={{ y: -5, transition: { duration: 0.2 } }}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge className="bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 hover:text-yellow-300">
+                      <Badge className="bg-yellow-950 text-yellow-400 hover:bg-yellow-900 hover:text-yellow-300">
                         Meme
                       </Badge>
-                      <span className="text-xs text-gray-400">Most Viral</span>
+                      <span className="text-xs text-neondark-muted">Most Viral</span>
                     </div>
-                    <h3 className="font-medium mb-2">{memes[0].title}</h3>
-                    <div className="flex justify-between text-sm text-gray-400">
+                    <h3 className="font-medium mb-2 text-neondark-text">{memes[0].title}</h3>
+                    <div className="flex justify-between text-sm text-neondark-muted">
                       <span>{memes[0].source}</span>
                       <div className="flex items-center gap-1">
-                        <ThumbsUp className="h-3 w-3" />
+                        <ThumbsUp className="h-3 w-3 text-cyan-400" />
                         <span>{memes[0].upvotes.toLocaleString()}</span>
                       </div>
                     </div>
@@ -1047,286 +1012,301 @@ useEffect(() => {
               </CardContent>
             </Card>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* News Sources Distribution Chart Card */}
-            <Card className="bg-gray-800/30 border-gray-800">
-      <CardHeader className="flex justify-between items-center px-4 pt-4 pb-2">
-        <CardTitle className="flex items-center text-lg">
-          <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
-            <Newspaper className="h-3 w-3 mr-1" />
-            News Sources
-          </Badge>
-          News Sources Distribution
-        </CardTitle>
-        <Select onValueChange={(value) => setSelectedChartType(value as any)} defaultValue="pie">
-          <SelectTrigger className="w-32 text-sm h-8">
-            <SelectValue placeholder="Chart Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="pie">Pie Chart</SelectItem>
-            <SelectItem value="bar">Bar Chart</SelectItem>
-            <SelectItem value="line">Line Chart</SelectItem>
-            <SelectItem value="area">Area Chart</SelectItem>
-          </SelectContent>
-        </Select>
-      </CardHeader>
+              {/* News Sources Distribution Chart Card */}
+              <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader className="flex justify-between items-center px-4 pt-4 pb-2">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                      <Newspaper className="h-3 w-3 mr-1" />
+                      News Sources
+                    </Badge>
+                    News Sources Distribution
+                  </CardTitle>
+                  <Select onValueChange={(value) => setSelectedChartType(value as any)} defaultValue="pie">
+                    <SelectTrigger className="w-32 text-sm h-8 bg-neondark-bg border-neondark-border text-neondark-text">
+                      <SelectValue placeholder="Chart Type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neondark-bg border-neondark-border">
+                      <SelectItem value="pie" className="text-neondark-text hover:bg-cyan-950">
+                        Pie Chart
+                      </SelectItem>
+                      <SelectItem value="bar" className="text-neondark-text hover:bg-cyan-950">
+                        Bar Chart
+                      </SelectItem>
+                      <SelectItem value="line" className="text-neondark-text hover:bg-cyan-950">
+                        Line Chart
+                      </SelectItem>
+                      <SelectItem value="area" className="text-neondark-text hover:bg-cyan-950">
+                        Area Chart
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardHeader>
 
-      <CardContent className="pb-6 px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                <CardContent className="pb-6 px-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+                    {/* Left Side Labels */}
+                    <div className="hidden md:block space-y-2">
+                      {topSources.slice(0, 3).map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm">
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: colors[i % colors.length] }}
+                          />
+                          <span className="text-neondark-text">{item.name}</span>
+                          <span className="text-xs text-neondark-muted ml-auto">{item.count}</span>
+                        </div>
+                      ))}
+                    </div>
 
-          {/* Left Side Labels */}
-          <div className="hidden md:block space-y-2">
-            {topSources.slice(0, 3).map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: colors[i % colors.length] }}
-                />
-                <span className="text-gray-300">{item.name}</span>
-                <span className="text-xs text-gray-400 ml-auto">{item.count}</span>
-              </div>
-            ))}
-          </div>
+                    {/* Center Chart */}
+                    <div className="h-[240px] w-full">
+                      {(() => {
+                        if (selectedChartType === "pie") {
+                          return (
+                            <PieChart width={400} height={240}>
+                              <Pie
+                                data={topSources}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={2}
+                                dataKey="count"
+                              >
+                                {topSources.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip content={<ChartTooltipContent />} />
+                            </PieChart>
+                          )
+                        } else if (selectedChartType === "bar") {
+                          return (
+                            <BarChart width={400} height={240} data={topSources} barSize={32}>
+                              <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <Tooltip content={<ChartTooltipContent />} />
+                              <Bar dataKey="count" fill="url(#barGradient)">
+                                {topSources.map((_, index) => (
+                                  <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
+                                ))}
+                              </Bar>
+                              <defs>
+                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#00FFFF" stopOpacity={0.8} />
+                                  <stop offset="100%" stopColor="#00BFBF" stopOpacity={1} />
+                                </linearGradient>
+                              </defs>
+                            </BarChart>
+                          )
+                        } else if (selectedChartType === "line") {
+                          return (
+                            <LineChart width={400} height={240} data={topSources}>
+                              <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <Tooltip content={<ChartTooltipContent />} />
+                              <Line
+                                type="monotone"
+                                dataKey="count"
+                                stroke="#00FFFF"
+                                strokeWidth={2}
+                                dot={{ r: 4 }}
+                                activeDot={{ r: 6 }}
+                              />
+                            </LineChart>
+                          )
+                        } else if (selectedChartType === "area") {
+                          return (
+                            <AreaChart width={400} height={240} data={topSources}>
+                              <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
+                              <Tooltip content={<ChartTooltipContent />} />
+                              <Area type="monotone" dataKey="count" stroke="#00FFFF" fill="#00FFFF" fillOpacity={0.3} />
+                            </AreaChart>
+                          )
+                        }
+                        return null
+                      })()}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              {/* Tech News Feed */}
+              <Card className="md:col-span-1 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                      <Newspaper className="h-3 w-3 mr-1" />
+                      Tech News
+                    </Badge>
+                    Latest Headlines
+                  </CardTitle>
+                </CardHeader>
 
-        {/* Center Chart */}
-<div className="h-[240px] w-full">
-  {(() => {
-    if (selectedChartType === "pie") {
-      return (
-        <PieChart width={400} height={240}>
-          <Pie
-            data={topSources}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            paddingAngle={2}
-            dataKey="count"
-          >
-            {topSources.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-            ))}
-          </Pie>
-          <Tooltip content={<ChartTooltipContent />} />
-        </PieChart>
-      );
-    } else if (selectedChartType === "bar") {
-      return (
-        <BarChart width={400} height={240} data={topSources} barSize={32}>
-          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <Tooltip content={<ChartTooltipContent />} />
-          <Bar dataKey="count" fill="url(#barGradient)">
-            {topSources.map((_, index) => (
-              <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />
-            ))}
-          </Bar>
-          <defs>
-            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.8} />
-              <stop offset="100%" stopColor="#7c3aed" stopOpacity={1} />
-            </linearGradient>
-          </defs>
-        </BarChart>
-      );
-    } else if (selectedChartType === "line") {
-      return (
-        <LineChart width={400} height={240} data={topSources}>
-          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <Tooltip content={<ChartTooltipContent />} />
-          <Line
-            type="monotone"
-            dataKey="count"
-            stroke="#a78bfa"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-        </LineChart>
-      );
-    } else if (selectedChartType === "area") {
-      return (
-        <AreaChart width={400} height={240} data={topSources}>
-          <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-          <Tooltip content={<ChartTooltipContent />} />
-          <Area
-            type="monotone"
-            dataKey="count"
-            stroke="#a78bfa"
-            fill="#7c3aed"
-            fillOpacity={0.3}
-          />
-        </AreaChart>
-      );
-    }
-    return null;
-  })()}
-</div>
-</div>
-      </CardContent>
-    </Card>
-      {/* Tech News Feed */}
-      <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-  <CardHeader className="pb-2">
-    <CardTitle className="flex items-center text-lg">
-      <Badge className="mr-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 hover:text-purple-300">
-        <Newspaper className="h-3 w-3 mr-1" />
-        Tech News
-      </Badge>
-      Latest Headlines
-    </CardTitle>
-  </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {techNewsItems.slice(0, 4).map((news, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        className="flex gap-3 pb-3 border-b border-neondark-border last:border-0"
+                      >
+                        <div className="shrink-0">
+                          <div className="w-10 h-10 rounded-md bg-neondark-bg overflow-hidden flex items-center justify-center">
+                            {news.urlToImage ? (
+                              <img
+                                src={news.urlToImage || "/placeholder.svg"}
+                                alt={news.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  ;(e.target as HTMLImageElement).style.display = "none"
+                                }}
+                              />
+                            ) : (
+                              <Newspaper className="h-6 w-6 text-neondark-muted" />
+                            )}
+                          </div>
+                        </div>
 
-  <CardContent>
-    <div className="space-y-4">
-      {techNewsItems.slice(0, 4).map((news, index) => (
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
-        >
-          <div className="shrink-0">
-            <div className="w-10 h-10 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center">
-              {news.urlToImage ? (
-                <img
-                  src={news.urlToImage}
-                  alt={news.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              ) : (
-                <Newspaper className="h-6 w-6 text-gray-400" />
-              )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-sm mb-1 line-clamp-2 text-neondark-text">{news.title}</h3>
+                          <div className="flex justify-between text-xs text-neondark-muted">
+                            <span>{news.source?.name || "Unknown Source"}</span>
+                            <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+
+                <CardFooter>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                  >
+                    View All <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="md:col-span-2 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="flex items-center text-base text-neondark-text">
+                    <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                      <Zap className="h-3 w-3 mr-1" />
+                      New
+                    </Badge>
+                    Recent Launches & Gadgets
+                  </CardTitle>
+                </CardHeader>
 
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm mb-1 line-clamp-2">{news.title}</h3>
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>{news.source?.name || "Unknown Source"}</span>
-              <span>{new Date(news.publishedAt).toLocaleDateString()}</span>
+                <CardContent className="px-4 pb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[...productHunt, ...gadgets].slice(0, 8).map((item, index) => (
+                      <motion.div
+                        key={item.id || index}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.05, duration: 0.2 }}
+                        className="flex gap-3 p-3 bg-neondark-bg rounded-lg border border-neondark-border"
+                      >
+                        <div className="shrink-0">
+                          <div className="w-12 h-12 rounded bg-cyan-950 overflow-hidden">
+                            <img
+                              src={item.thumbnailUrl || item.urlToImage || "/placeholder.svg"}
+                              alt={item.name || item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <h3 className="text-sm font-medium leading-snug text-neondark-text">
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-cyan-400"
+                              >
+                                {item.name || item.title}
+                              </a>
+                            </h3>
+                            <Badge
+                              variant="outline"
+                              className="bg-cyan-950/50 text-xs border-cyan-400/30 text-cyan-400"
+                            >
+                              {item.source?.name || "ProductHunt"}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-neondark-muted mt-1 line-clamp-2">
+                            {item.tagline || item.description}
+                          </p>
+                          {item.votesCount && (
+                            <div className="flex items-center text-cyan-400 text-xs mt-1">
+                              <Star className="h-3 w-3 mr-1" />
+                              <span>{item.votesCount} votes</span>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardContent className="p-4 space-y-3">
+                  {(showAllRepos ? githubRepos : githubRepos.slice(0, 6)).map((repo, index) => (
+                    <motion.div
+                      key={repo.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.2 }}
+                      className="border-b border-neondark-border pb-2 last:border-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Github className="h-4 w-4 text-cyan-400" />
+                        <h3 className="text-sm font-medium text-neondark-text">{repo.name}</h3>
+                      </div>
+                      <p className="text-xs text-neondark-muted mb-1 line-clamp-2">{repo.description}</p>
+                      <div className="flex justify-between text-xs text-neondark-muted">
+                        <span className="flex items-center gap-1">
+                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }} />
+                          {repo.language}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Star className="h-3 w-3 text-cyan-400" />
+                          {repo.stars.toLocaleString()}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </CardContent>
+
+                <CardFooter className="p-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                    onClick={() => setShowAllRepos((prev) => !prev)}
+                  >
+                    {showAllRepos ? "Show Less" : "View All"} <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
             </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </CardContent>
-
-  <CardFooter>
-    <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-      View All <ChevronRight className="h-4 w-4 ml-1" />
-    </Button>
-  </CardFooter>
-</Card>
-</div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
-  <CardHeader className="pb-2 pt-4 px-4">
-    <CardTitle className="flex items-center text-base">
-      <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
-        <Zap className="h-3 w-3 mr-1" />
-        New
-      </Badge>
-      Recent Launches & Gadgets
-    </CardTitle>
-  </CardHeader>
-
-  <CardContent className="px-4 pb-4">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {[...productHunt, ...gadgets].slice(0, 8).map((item, index) => (
-        <motion.div
-          key={item.id || index}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.05, duration: 0.2 }}
-          className="flex gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700"
-        >
-          <div className="shrink-0">
-            <div className="w-12 h-12 rounded bg-gray-700 overflow-hidden">
-              <img
-                src={item.thumbnailUrl || item.urlToImage || "/placeholder.svg"}
-                alt={item.name || item.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <h3 className="text-sm font-medium leading-snug">
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                  {item.name || item.title}
-                </a>
-              </h3>
-              <Badge variant="outline" className="bg-gray-700/50 text-xs">
-                {item.source?.name || "ProductHunt"}
-              </Badge>
-            </div>
-            <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.tagline || item.description}</p>
-            {item.votesCount && (
-              <div className="flex items-center text-yellow-400 text-xs mt-1">
-                <Star className="h-3 w-3 mr-1" />
-                <span>{item.votesCount} votes</span>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </CardContent>
-</Card>
-<Card className="bg-gray-800/30 border-gray-800">
-  <CardContent className="p-4 space-y-3">
-    {(showAllRepos ? githubRepos : githubRepos.slice(0, 6)).map((repo, index) => (
-      <motion.div
-        key={repo.id}
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: index * 0.05, duration: 0.2 }}
-        className="border-b border-gray-700 pb-2 last:border-0"
-      >
-        <div className="flex items-center gap-2">
-          <Github className="h-4 w-4 text-gray-400" />
-          <h3 className="text-sm font-medium">{repo.name}</h3>
-        </div>
-        <p className="text-xs text-gray-400 mb-1 line-clamp-2">{repo.description}</p>
-        <div className="flex justify-between text-xs text-gray-400">
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }} />
-            {repo.language}
-          </span>
-          <span className="flex items-center gap-1">
-            <Star className="h-3 w-3 text-yellow-400" />
-            {repo.stars.toLocaleString()}
-          </span>
-        </div>
-      </motion.div>
-    ))}
-  </CardContent>
-
-  <CardFooter className="p-2">
-    <Button
-      variant="ghost"
-      size="sm"
-      className="w-full text-gray-400 hover:text-gray-100"
-      onClick={() => setShowAllRepos((prev) => !prev)}
-    >
-      {showAllRepos ? "Show Less" : "View All"} <ChevronRight className="h-4 w-4 ml-1" />
-    </Button>
-  </CardFooter>
-</Card>
-</div>
             {/* Main Dashboard Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Reddit Trends */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
+              <Card className="md:col-span-1 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-red-950 text-red-400 hover:bg-red-900 hover:text-red-300">
                       <MessageSquare className="h-3 w-3 mr-1" />
                       Reddit
                     </Badge>
@@ -1335,52 +1315,56 @@ useEffect(() => {
                 </CardHeader>
                 <CardContent className="pb-2">
                   <div className="space-y-4">
-                  {(showAllReddit ? redditTrends : redditTrends.slice(0, 5)).map((post, index) => (
+                    {(showAllReddit ? redditTrends : redditTrends.slice(0, 5)).map((post, index) => (
                       <motion.div
                         key={post.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="flex gap-3 pb-3 border-b border-gray-700 last:border-0"
+                        className="flex gap-3 pb-3 border-b border-neondark-border last:border-0"
                       >
                         <div className="shrink-0">
-                          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-cyan-950 flex items-center justify-center text-cyan-400">
                             {index + 1}
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-sm mb-1 truncate">{post.title}</h3>
-                          <div className="flex justify-between text-xs text-gray-400">
+                          <h3 className="font-medium text-sm mb-1 truncate text-neondark-text">{post.title}</h3>
+                          <div className="flex justify-between text-xs text-neondark-muted">
                             <span>{post.subreddit}</span>
                             <div className="flex items-center gap-2">
                               <div className="flex items-center">
-                                <ThumbsUp className="h-3 w-3 mr-1" />
+                                <ThumbsUp className="h-3 w-3 mr-1 text-cyan-400" />
                                 <span>{post.upvotes.toLocaleString()}</span>
                               </div>
                               <div className="flex items-center">
-                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <MessageSquare className="h-3 w-3 mr-1 text-cyan-400" />
                                 <span>{post.comments}</span>
                               </div>
                             </div>
                           </div>
-                          <div className="mt-1 text-xs text-green-400">{post.trend}</div>
+                          <div className="mt-1 text-xs text-cyan-400">{post.trend}</div>
                         </div>
                       </motion.div>
                     ))}
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                  >
                     View All <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </CardFooter>
               </Card>
 
               {/* Stack Overflow Questions */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
+              <Card className="md:col-span-1 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center text-lg">
-                    <Badge className="mr-2 bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 hover:text-orange-300">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-orange-950 text-orange-400 hover:bg-orange-900 hover:text-orange-300">
                       <HelpCircle className="h-3 w-3 mr-1" />
                       Stack Overflow
                     </Badge>
@@ -1395,39 +1379,45 @@ useEffect(() => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.3 }}
-                        className="pb-3 border-b border-gray-700 last:border-0"
+                        className="pb-3 border-b border-neondark-border last:border-0"
                       >
                         <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-sm mb-2">{question.title}</h3>
+                          <h3 className="font-medium text-sm mb-2 text-neondark-text">{question.title}</h3>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 rounded-full"
+                            className="h-6 w-6 p-0 rounded-full text-cyan-400 hover:bg-cyan-950/50"
                             onClick={() => setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}
                           >
                             <ChevronDown
-                              className={`h-4 w-4 transition-transform ${expandedQuestion === question.id ? "rotate-180" : ""}`}
+                              className={`h-4 w-4 transition-transform ${
+                                expandedQuestion === question.id ? "rotate-180" : ""
+                              }`}
                             />
                           </Button>
                         </div>
                         <div className="flex flex-wrap gap-1 mb-2">
                           {question.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="bg-gray-700/50 text-xs">
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="bg-cyan-950/30 text-xs border-cyan-400/30 text-cyan-400"
+                            >
                               {tag}
                             </Badge>
                           ))}
                         </div>
-                        <div className="flex justify-between text-xs text-gray-400">
+                        <div className="flex justify-between text-xs text-neondark-muted">
                           <div className="flex items-center">
-                            <ThumbsUp className="h-3 w-3 mr-1" />
+                            <ThumbsUp className="h-3 w-3 mr-1 text-cyan-400" />
                             <span>{question.votes} votes</span>
                           </div>
                           <div className="flex items-center">
-                            <MessageSquare className="h-3 w-3 mr-1" />
+                            <MessageSquare className="h-3 w-3 mr-1 text-cyan-400" />
                             <span>{question.answers} answers</span>
                           </div>
                           <div className="flex items-center">
-                            <Eye className="h-3 w-3 mr-1" />
+                            <Eye className="h-3 w-3 mr-1 text-cyan-400" />
                             <span>{question.views.toLocaleString()} views</span>
                           </div>
                         </div>
@@ -1438,13 +1428,13 @@ useEffect(() => {
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              className="mt-3 text-sm bg-gray-700/30 p-3 rounded-md"
+                              className="mt-3 text-sm bg-cyan-950/30 p-3 rounded-md"
                             >
-                              <p className="text-gray-300 mb-2">
+                              <p className="text-neondark-text mb-2">
                                 This question discusses best practices and optimization techniques related to{" "}
                                 {question.tags.join(", ")}.
                               </p>
-                              <Button variant="link" className="h-auto p-0 text-blue-400">
+                              <Button variant="link" className="h-auto p-0 text-cyan-400">
                                 View on Stack Overflow <ArrowRight className="h-3 w-3 ml-1" />
                               </Button>
                             </motion.div>
@@ -1455,160 +1445,166 @@ useEffect(() => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                  >
                     View All Questions <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </CardFooter>
               </Card>
-  {/* Top Stories Section */}
-  <Card className="bg-gray-800/30 border-gray-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center text-lg">
-                  <Badge className="mr-2 bg-green-500/20 text-green-400 hover:bg-green-500/30 hover:text-green-300">
-                    <Newspaper className="h-3 w-3 mr-1" />
-                    Featured
-                  </Badge>
-                  Top Stories
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                {hackerNewsStories.slice(0, 4).map((story, index) => (
-  <motion.div
-    key={story.id}
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1, duration: 0.3 }}
-    className="flex gap-4 pb-4 border-b border-gray-700 last:border-0"
-  >
-    <div className="shrink-0">
-      <div className="w-16 h-16 rounded-md bg-gray-700 overflow-hidden flex items-center justify-center text-xs text-gray-400">
-        <Newspaper className="h-6 w-6" />
-      </div>
-    </div>
-    <div className="flex-1">
-      <div className="flex justify-between items-start mb-1">
-        <a
-          href={story.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-medium text-blue-300 hover:underline"
-        >
-          {story.title}
-        </a>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 rounded-full"
-          onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
-        >
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${expandedStory === story.id ? "rotate-180" : ""}`}
-          />
-        </Button>
-      </div>
-      <div className="flex justify-between text-xs text-gray-400 mb-1">
-        <span>by {story.author}</span>
-        <span>{story.score} points • {story.comments} comments</span>
-      </div>
-      <AnimatePresence>
-        {expandedStory === story.id && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-sm text-gray-300 mt-2 overflow-hidden"
-          >
-            <p>This story was posted on Hacker News by <strong>{story.author}</strong>.</p>
-            <div className="mt-2">
-              <Button
-                variant="link"
-                className="h-auto p-0 text-blue-400"
-                asChild
-              >
-                <a href={story.url} target="_blank" rel="noopener noreferrer">
-                  Read full story <ArrowRight className="h-3 w-3 ml-1" />
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </motion.div>
-))}
+              {/* Top Stories Section */}
+              <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-green-950 text-green-400 hover:bg-green-900 hover:text-green-300">
+                      <Newspaper className="h-3 w-3 mr-1" />
+                      Featured
+                    </Badge>
+                    Top Stories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {hackerNewsStories.slice(0, 4).map((story, index) => (
+                      <motion.div
+                        key={story.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        className="flex gap-4 pb-4 border-b border-neondark-border last:border-0"
+                      >
+                        <div className="shrink-0">
+                          <div className="w-16 h-16 rounded-md bg-cyan-950 overflow-hidden flex items-center justify-center text-xs text-cyan-400">
+                            <Newspaper className="h-6 w-6" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start mb-1">
+                            <a
+                              href={story.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-cyan-400 hover:underline"
+                            >
+                              {story.title}
+                            </a>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 rounded-full text-cyan-400 hover:bg-cyan-950/50"
+                              onClick={() => setExpandedStory(expandedStory === story.id ? null : story.id)}
+                            >
+                              <ChevronDown
+                                className={`h-4 w-4 transition-transform ${
+                                  expandedStory === story.id ? "rotate-180" : ""
+                                }`}
+                              />
+                            </Button>
+                          </div>
+                          <div className="flex justify-between text-xs text-neondark-muted mb-1">
+                            <span>by {story.author}</span>
+                            <span>
+                              {story.score} points • {story.comments} comments
+                            </span>
+                          </div>
+                          <AnimatePresence>
+                            {expandedStory === story.id && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="text-sm text-neondark-text mt-2 overflow-hidden"
+                              >
+                                <p>
+                                  This story was posted on Hacker News by <strong>{story.author}</strong>.
+                                </p>
+                                <div className="mt-2">
+                                  <Button variant="link" className="h-auto p-0 text-cyan-400" asChild>
+                                    <a href={story.url} target="_blank" rel="noopener noreferrer">
+                                      Read full story <ArrowRight className="h-3 w-3 ml-1" />
+                                    </a>
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                  >
+                    View All Stories <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
 
-                
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-                  View All Stories <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardFooter>
-            </Card>
-
-       
-          
-
-       
-           
               {/* Social Media Buzz */}
-              <Card className="md:col-span-1 bg-gray-800/30 border-gray-800">
-  <CardHeader className="pb-2">
-    <CardTitle className="flex items-center text-lg">
-      <Badge className="mr-2 bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 hover:text-cyan-300">
-        <Twitter className="h-3 w-3 mr-1" />
-        Social Media
-      </Badge>
-      Trending Posts
-    </CardTitle>
-  </CardHeader>
+              <Card className="md:col-span-1 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center text-lg text-neondark-text">
+                    <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+                      <Twitter className="h-3 w-3 mr-1" />
+                      Social Media
+                    </Badge>
+                    Trending Posts
+                  </CardTitle>
+                </CardHeader>
 
-  <CardContent>
-    <div className="space-y-4">
-      {socialPosts.slice(0, 4).map((post, index) => (
-        <motion.div
-          key={post.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          className="bg-gray-800/50 rounded-xl p-4 border border-gray-700"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400">@{post.author}</span>
-            <Badge variant="outline" className="bg-gray-700/50 text-xs">
-              {post.platform}
-            </Badge>
-          </div>
-          <p className="text-sm text-gray-200 mb-2 line-clamp-3">{post.content}</p>
-          <a
-            href={post.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-blue-400 hover:underline"
-          >
-            View on {post.platform.charAt(0).toUpperCase() + post.platform.slice(1)}
-          </a>
-        </motion.div>
-      ))}
-    </div>
-  </CardContent>
+                <CardContent>
+                  <div className="space-y-4">
+                    {socialPosts.slice(0, 4).map((post, index) => (
+                      <motion.div
+                        key={post.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
+                        className="bg-neondark-bg rounded-xl p-4 border border-neondark-border"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-neondark-muted">@{post.author}</span>
+                          <Badge variant="outline" className="bg-cyan-950/30 text-xs border-cyan-400/30 text-cyan-400">
+                            {post.platform}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-neondark-text mb-2 line-clamp-3">{post.content}</p>
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-cyan-400 hover:underline"
+                        >
+                          View on {post.platform.charAt(0).toUpperCase() + post.platform.slice(1)}
+                        </a>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
 
-  <CardFooter>
-    <Button variant="ghost" size="sm" className="w-full text-gray-400 hover:text-gray-100">
-      View All <ChevronRight className="h-4 w-4 ml-1" />
-    </Button>
-  </CardFooter>
-</Card>
-
+                <CardFooter>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-neondark-muted hover:text-cyan-400 hover:bg-cyan-950/30"
+                  >
+                    View All <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardFooter>
+              </Card>
 
               {/* Meme Trends */}
-              <Card className="md:col-span-2 bg-gray-800/30 border-gray-800">
+              <Card className="md:col-span-2 bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Badge className="mr-2 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 hover:text-yellow-300">
+                  <CardTitle className="flex items-center text-neondark-text">
+                    <Badge className="mr-2 bg-yellow-950 text-yellow-400 hover:bg-yellow-900 hover:text-yellow-300">
                       <Hash className="h-3 w-3 mr-1" />
                       Memes
                     </Badge>
@@ -1635,12 +1631,12 @@ useEffect(() => {
                                   alt={meme.title}
                                   className="w-full h-full object-contain"
                                 />
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-3">
-                                  <h3 className="font-medium">{meme.title}</h3>
-                                  <div className="flex justify-between text-xs text-gray-300 mt-1">
+                                <div className="absolute bottom-0 left-0 right-0 bg-neondark-bg/80 p-3 border-t border-cyan-400/30">
+                                  <h3 className="font-medium text-neondark-text">{meme.title}</h3>
+                                  <div className="flex justify-between text-xs text-neondark-muted mt-1">
                                     <span>{meme.source}</span>
                                     <div className="flex items-center">
-                                      <ThumbsUp className="h-3 w-3 mr-1" />
+                                      <ThumbsUp className="h-3 w-3 mr-1 text-cyan-400" />
                                       <span>{meme.upvotes.toLocaleString()}</span>
                                     </div>
                                   </div>
@@ -1658,7 +1654,7 @@ useEffect(() => {
                         variant="ghost"
                         size="sm"
                         className={`w-2 h-2 rounded-full p-0 mx-1 ${
-                          index === currentMeme ? "bg-primary" : "bg-gray-600"
+                          index === currentMeme ? "bg-cyan-400" : "bg-neondark-muted"
                         }`}
                         onClick={() => setCurrentMeme(index)}
                       />
@@ -1667,21 +1663,15 @@ useEffect(() => {
                 </CardContent>
               </Card>
             </div>
-          
-
-          
-       </div>
-      </main>
-    
-    
-    </motion.section>
+          </div>
+        </main>
+      </motion.section>
     </div>
-    
   )
 }
 
 // Missing components
-const LogOut = (props :any) => {
+const LogOut = (props: any) => {
   return (
     <svg
       {...props}
@@ -1725,7 +1715,7 @@ const GitFork = (props: React.SVGProps<SVGSVGElement>) => {
   )
 }
 
-const Eye = (props :any) => {
+const Eye = (props: any) => {
   return (
     <svg
       {...props}
@@ -1744,4 +1734,3 @@ const Eye = (props :any) => {
     </svg>
   )
 }
-
