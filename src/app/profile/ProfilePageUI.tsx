@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { X, Edit2, PlusCircle, Trash2 } from "lucide-react"
+import { X, Edit2, PlusCircle } from "lucide-react"
 
 // Example shape. Adjust to your actual DB model.
 interface PreferenceData {
@@ -54,6 +54,10 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
 
   const { name, email, image, preferences, history } = user
 
+  // 1) We'll separate the "saved" items from general activity
+  const savedItems = (history || []).filter((item) => item.action === "save")
+  const otherActivity = (history || []).filter((item) => item.action !== "save")
+
   return (
     <div className="max-w-screen-lg mx-auto py-8 px-4">
       {/* Profile Header */}
@@ -88,9 +92,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             {/* Interests */}
             {preferences?.interests?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">
-                  Interests
-                </h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">Interests</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.interests.map((interest) => (
                     <Badge
@@ -108,9 +110,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             {/* Sources */}
             {preferences?.sources?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">
-                  Preferred Sources
-                </h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Sources</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.sources.map((source) => (
                     <Badge
@@ -128,9 +128,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             {/* Content Types */}
             {preferences?.contentTypes?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">
-                  Preferred Content Types
-                </h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Content Types</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.contentTypes.map((type) => (
                     <Badge
@@ -159,32 +157,40 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
         {/* Activity Tab */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="activity" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 bg-neondark-bg">
+            <TabsList className="grid w-full grid-cols-2 bg-neondark-bg">
               <TabsTrigger
                 value="activity"
                 className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
               >
                 Recent Activity
               </TabsTrigger>
+              <TabsTrigger
+                value="saved"
+                className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+              >
+                Saved Items
+              </TabsTrigger>
             </TabsList>
 
+            {/* 1) ACTIVITY TAB */}
             <TabsContent value="activity">
               <Card className="border-neondark-border bg-neondark-card shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-neondark-text">History</CardTitle>
+                  <CardTitle className="text-neondark-text">Recent Activity</CardTitle>
                   <CardDescription>Your latest actions on this platform</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[350px] pr-4">
-                    {!history?.length ? (
+                    {!otherActivity?.length ? (
                       <div className="text-sm text-neondark-muted">
-                        You have no recent activity.
+                        No recent actions.
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        {history.map((item) => (
+                        {otherActivity.map((item) => (
                           <div key={item.id} className="flex items-start space-x-4">
                             <div className="mt-1 bg-cyan-950 p-2 rounded-full">
+                              {/* Adjust icon if you want different icons for each action */}
                               <PlusCircle className="h-5 w-5 text-cyan-400" />
                             </div>
                             <div className="space-y-1">
@@ -193,6 +199,48 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                                 {item.content?.title && (
                                   <>
                                     &nbsp;on&nbsp;
+                                    <span className="text-cyan-400">{item.content.title}</span>
+                                  </>
+                                )}
+                              </p>
+                              <p className="text-xs text-neondark-muted">
+                                {new Date(item.createdAt).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* 2) SAVED ITEMS TAB */}
+            <TabsContent value="saved">
+              <Card className="border-neondark-border bg-neondark-card shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-neondark-text">Saved Items</CardTitle>
+                  <CardDescription>Bookmarks you want to revisit</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[350px] pr-4">
+                    {!savedItems?.length ? (
+                      <div className="text-sm text-neondark-muted">
+                        No saved items found.
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {savedItems.map((item) => (
+                          <div key={item.id} className="flex items-start space-x-4">
+                            <div className="mt-1 bg-cyan-950 p-2 rounded-full">
+                              <PlusCircle className="h-5 w-5 text-cyan-400" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-neondark-text">
+                                Saved {item.content?.title && (
+                                  <>
+                                    &nbsp; - &nbsp;
                                     <span className="text-cyan-400">{item.content.title}</span>
                                   </>
                                 )}
@@ -381,4 +429,3 @@ function TagInput({
     </div>
   )
 }
-

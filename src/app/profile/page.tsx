@@ -1,4 +1,4 @@
-// app/profile/page.tsx
+"use client";
 import { getServerSession } from "next-auth"
 
 import ProfilePageUI from "./ProfilePageUI"

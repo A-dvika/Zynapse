@@ -21,16 +21,12 @@ import {
   Sparkles,
   ExternalLink,
   MessageSquare,
-  Star,
-  GitFork,
-  Eye,
   Activity,
   TrendingUp,
   BarChart,
   Calendar,
   Filter,
   Settings,
-  ChevronRight,
   Zap,
   Lightbulb,
   Compass,
@@ -38,6 +34,10 @@ import {
   Layers,
   PieChart,
   LineChart,
+  Heart,
+  Bookmark,
+  Share,
+  X,
 } from "lucide-react"
 import { BackgroundBeams } from "@/components/ui/beams"
 import {
@@ -111,15 +111,7 @@ interface TrendingTopic {
 }
 
 // Optional sample colors for charts
-const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#8884D8",
-  "#82ca9d",
-  "#ffc658",
-]
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82ca9d", "#ffc658"]
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -136,7 +128,7 @@ export default function DashboardPage() {
   const [contentMetrics, setContentMetrics] = useState<ContentMetrics | null>(null)
 
   // 3) Data from Pinecone / for-you
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]) // "all" 
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]) // "all"
   const [githubContent, setGithubContent] = useState<Recommendation[]>([])
   const [newsContent, setNewsContent] = useState<Recommendation[]>([])
   const [stackoverflowContent, setStackOverflowContent] = useState<Recommendation[]>([])
@@ -203,7 +195,7 @@ export default function DashboardPage() {
         }
 
         // 6) Hacker News (source=hackernews)
-        //    If you store them with "type=news" in Pinecone, you can add &type=news. 
+        //    If you store them with "type=news" in Pinecone, you can add &type=news.
         const hnRes = await fetch("/api/for-you?source=hackernews")
         if (hnRes.ok) {
           setHackerNewsContent(await hnRes.json())
@@ -240,7 +232,6 @@ export default function DashboardPage() {
         if (discoverRes.ok) {
           setDiscoverMoreItems(await discoverRes.json())
         }
-
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
       } finally {
@@ -416,6 +407,25 @@ export default function DashboardPage() {
   const topCatCount = topCat?.count || 0
   const growthRate = contentMetrics?.growthRate ?? 0
 
+  // ----- User Action Tracking -----
+  const handleUserAction = async (action: string, itemId: string) => {
+    try {
+      const response = await fetch("/api/track-action", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action, itemId }),
+      })
+
+      if (!response.ok) {
+        console.error("Failed to track user action:", response.status)
+      }
+    } catch (error) {
+      console.error("Error tracking user action:", error)
+    }
+  }
+
   // ----- RENDER PAGE -----
   return (
     <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
@@ -436,17 +446,12 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text">
                 Your Personalized Dashboard
               </h1>
-              <p className="text-neondark-muted mt-2">
-                Content tailored to your interests and preferences
-              </p>
+              <p className="text-neondark-muted mt-2">Content tailored to your interests and preferences</p>
             </div>
 
             <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
               {preferences?.interests.map((interest) => (
-                <Badge
-                  key={interest}
-                  className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30"
-                >
+                <Badge key={interest} className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
                   {interest}
                 </Badge>
               ))}
@@ -465,11 +470,7 @@ export default function DashboardPage() {
                 <Lightbulb className="h-6 w-6 mr-2 text-cyan-400" />
                 Your Choices & Recommendations
               </h2>
-              <Button
-                variant="outline"
-                className="text-sm"
-                onClick={() => router.push("/profile")}
-              >
+              <Button variant="outline" className="text-sm" onClick={() => router.push("/profile")}>
                 <Settings className="h-4 w-4 mr-2" />
                 Adjust Preferences
               </Button>
@@ -503,7 +504,7 @@ export default function DashboardPage() {
                           {recommendation.imageUrl && (
                             <div className="w-full md:w-1/4 h-32 md:h-auto rounded-md overflow-hidden">
                               <img
-                                src={recommendation.imageUrl}
+                                src={recommendation.imageUrl || "/placeholder.svg"}
                                 alt={recommendation.title}
                                 className="w-full h-full object-cover"
                               />
@@ -511,39 +512,25 @@ export default function DashboardPage() {
                           )}
                           <div className="flex-1">
                             <div className="flex justify-between items-start mb-2">
-                              <Badge
-                                className={getRelevanceBadgeColor(
-                                  recommendation.relevanceScore
-                                )}
-                              >
+                              <Badge className={getRelevanceBadgeColor(recommendation.relevanceScore)}>
                                 {recommendation.relevanceScore}% Match
                               </Badge>
                               <Badge variant="outline" className="flex items-center">
                                 {getContentTypeIcon(recommendation.type)}
-                                <span className="ml-1 capitalize">
-                                  {recommendation.type}
-                                </span>
+                                <span className="ml-1 capitalize">{recommendation.type}</span>
                               </Badge>
                             </div>
-                            <h3 className="text-lg font-medium mb-1">
-                              {recommendation.title}
-                            </h3>
-                            <p className="text-neondark-muted text-sm mb-3">
-                              {recommendation.description}
-                            </p>
+                            <h3 className="text-lg font-medium mb-1">{recommendation.title}</h3>
+                            <p className="text-neondark-muted text-sm mb-3">{recommendation.description}</p>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center text-sm text-neondark-muted">
                                 <div className="flex items-center mr-3">
                                   {getSourceIcon(recommendation.source)}
-                                  <span className="ml-1">
-                                    {recommendation.source}
-                                  </span>
+                                  <span className="ml-1">{recommendation.source}</span>
                                 </div>
                                 <div className="flex items-center">
                                   <Calendar className="h-3 w-3 mr-1" />
-                                  <span>
-                                    {formatDate(recommendation.publishedAt)}
-                                  </span>
+                                  <span>{formatDate(recommendation.publishedAt)}</span>
                                 </div>
                               </div>
                               <a
@@ -599,14 +586,10 @@ export default function DashboardPage() {
                         >
                           <div className="flex justify-between items-start mb-1">
                             <h3 className="font-medium">{topic.name}</h3>
-                            <Badge className={getGrowthBadgeColor(topic.growth)}>
-                              +{topic.growth}%
-                            </Badge>
+                            <Badge className={getGrowthBadgeColor(topic.growth)}>+{topic.growth}%</Badge>
                           </div>
                           <div className="flex justify-between items-center text-sm text-neondark-muted">
-                            <span>
-                              {topic.count?.toLocaleString?.() || 0} mentions
-                            </span>
+                            <span>{topic.count?.toLocaleString?.() || 0} mentions</span>
                             <Badge variant="outline" className="text-xs">
                               {topic.category}
                             </Badge>
@@ -621,9 +604,7 @@ export default function DashboardPage() {
                         className="w-full mt-3"
                         onClick={() => setShowAllTrending(!showAllTrending)}
                       >
-                        {showAllTrending
-                          ? "Show Less"
-                          : `Show ${trendingTopics.length - 5} More Topics`}
+                        {showAllTrending ? "Show Less" : `Show ${trendingTopics.length - 5} More Topics`}
                       </Button>
                     )}
                   </ScrollArea>
@@ -633,11 +614,7 @@ export default function DashboardPage() {
           </motion.section>
 
           {/* TABS */}
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6">
               <TabsTrigger value="overview" className="flex items-center">
                 <Newspaper className="h-4 w-4 mr-2" />
@@ -673,8 +650,6 @@ export default function DashboardPage() {
                 <Sparkles className="h-4 w-4 mr-2" />
                 ProductHunt
               </TabsTrigger>
-
-             
             </TabsList>
 
             {/* OVERVIEW TAB */}
@@ -692,9 +667,7 @@ export default function DashboardPage() {
                     <p className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                       {totalItems.toLocaleString()}
                     </p>
-                    <p className="text-neondark-muted text-sm mt-1">
-                      Across all your sources
-                    </p>
+                    <p className="text-neondark-muted text-sm mt-1">Across all your sources</p>
                   </CardContent>
                 </Card>
 
@@ -709,9 +682,7 @@ export default function DashboardPage() {
                     <p className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
                       {avgEngagement.toLocaleString()}
                     </p>
-                    <p className="text-neondark-muted text-sm mt-1">
-                      Interactions per item
-                    </p>
+                    <p className="text-neondark-muted text-sm mt-1">Interactions per item</p>
                   </CardContent>
                 </Card>
 
@@ -726,9 +697,7 @@ export default function DashboardPage() {
                     <p className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent">
                       {topCatName}
                     </p>
-                    <p className="text-neondark-muted text-sm mt-1">
-                      {topCatCount.toLocaleString()} items
-                    </p>
+                    <p className="text-neondark-muted text-sm mt-1">{topCatCount.toLocaleString()} items</p>
                   </CardContent>
                 </Card>
 
@@ -743,9 +712,7 @@ export default function DashboardPage() {
                     <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                       {growthRate}%
                     </p>
-                    <p className="text-neondark-muted text-sm mt-1">
-                      Month over month
-                    </p>
+                    <p className="text-neondark-muted text-sm mt-1">Month over month</p>
                   </CardContent>
                 </Card>
               </div>
@@ -762,43 +729,27 @@ export default function DashboardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                  
-                      <div className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <RechartsPieChart>
-                            <Pie
-                              data={analyticsData?.languageStats || []}
-                              dataKey="repoCount"
-                              nameKey="language"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={100}
-                              label={({ language, repoCount }) =>
-                                `${language}: ${repoCount}`
-                              }
-                            >
-                              {(analyticsData?.languageStats || []).map(
-                                (entry, index) => (
-                                  <Cell
-                                    key={`cell-${index}`}
-                                    fill={
-                                      COLORS[index % COLORS.length]
-                                    }
-                                  />
-                                )
-                              )}
-                            </Pie>
-                            <Tooltip
-                              formatter={(value, name) => [
-                                `${value} repositories`,
-                                name,
-                              ]}
-                            />
-                            <Legend />
-                          </RechartsPieChart>
-                        </ResponsiveContainer>
-                      </div>
-                
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={analyticsData?.languageStats || []}
+                            dataKey="repoCount"
+                            nameKey="language"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            label={({ language, repoCount }) => `${language}: ${repoCount}`}
+                          >
+                            {(analyticsData?.languageStats || []).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value, name) => [`${value} repositories`, name]} />
+                          <Legend />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -813,50 +764,29 @@ export default function DashboardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                
-                      <div className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={analyticsData?.activityData || []}
-                          >
-                            <defs>
-                              <linearGradient
-                                id="colorActivity"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                              >
-                                <stop
-                                  offset="5%"
-                                  stopColor="#8884d8"
-                                  stopOpacity={0.8}
-                                />
-                                <stop
-                                  offset="95%"
-                                  stopColor="#8884d8"
-                                  stopOpacity={0.1}
-                                />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              opacity={0.2}
-                            />
-                            <XAxis dataKey="date" />
-                            <YAxis />
-                            <Tooltip />
-                            <Area
-                              type="monotone"
-                              dataKey="count"
-                              stroke="#8884d8"
-                              fillOpacity={1}
-                              fill="url(#colorActivity)"
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-               
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={analyticsData?.activityData || []}>
+                          <defs>
+                            <linearGradient id="colorActivity" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                              <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip />
+                          <Area
+                            type="monotone"
+                            dataKey="count"
+                            stroke="#8884d8"
+                            fillOpacity={1}
+                            fill="url(#colorActivity)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -872,39 +802,20 @@ export default function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-              
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsBarChart
-                          data={analyticsData?.weeklyActivity || []}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            opacity={0.2}
-                          />
-                          <XAxis dataKey="day" />
-                          <YAxis />
-                          <Tooltip />
-                          <Legend />
-                          <Bar
-                            dataKey="commits"
-                            fill="#8884d8"
-                            name="Commits"
-                          />
-                          <Bar
-                            dataKey="issues"
-                            fill="#82ca9d"
-                            name="Issues"
-                          />
-                          <Bar
-                            dataKey="prs"
-                            fill="#ffc658"
-                            name="Pull Requests"
-                          />
-                        </RechartsBarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsBarChart data={analyticsData?.weeklyActivity || []}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="commits" fill="#8884d8" name="Commits" />
+                        <Bar dataKey="issues" fill="#82ca9d" name="Issues" />
+                        <Bar dataKey="prs" fill="#ffc658" name="Pull Requests" />
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -927,47 +838,57 @@ export default function DashboardPage() {
                               <Github className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
-                          <CardTitle className="text-xl mt-2">
-                            {item.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">
-                              {item.description}
-                            </p>
+                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
                           )}
                           <div className="flex justify-between items-center mb-4">
-                            <Badge
-                              className={getRelevanceBadgeColor(
-                                item.relevanceScore
-                              )}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <Badge variant="outline" className="flex items-center">
                               {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">
-                                {item.type}
-                              </span>
+                              <span className="ml-1 capitalize">{item.type}</span>
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                              {item.source}
-                            </Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              View <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleUserAction("like", item.id)}
+                                className="text-neondark-muted hover:text-red-400 transition-colors"
+                                aria-label="Like"
+                              >
+                                <Heart className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleUserAction("save", item.id)}
+                                className="text-neondark-muted hover:text-cyan-400 transition-colors"
+                                aria-label="Save"
+                              >
+                                <Bookmark className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleUserAction("share", item.id)}
+                                className="text-neondark-muted hover:text-blue-400 transition-colors"
+                                aria-label="Share"
+                              >
+                                <Share className="h-4 w-4" />
+                              </button>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center ml-2"
+                                onClick={() => handleUserAction("view", item.id)}
+                              >
+                                View <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -975,9 +896,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No GitHub content found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No GitHub content found based on your preferences.</p>
                   </div>
                 )}
               </div>
@@ -998,7 +917,7 @@ export default function DashboardPage() {
                         {item.imageUrl && (
                           <div className="w-full h-40 overflow-hidden">
                             <img
-                              src={item.imageUrl}
+                              src={item.imageUrl || "/placeholder.svg"}
                               alt={item.title}
                               className="w-full h-full object-cover"
                             />
@@ -1010,20 +929,14 @@ export default function DashboardPage() {
                               <Newspaper className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
                           <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-neondark-muted mb-4 line-clamp-3">
-                            {item.description}
-                          </p>
+                          <p className="text-neondark-muted mb-4 line-clamp-3">{item.description}</p>
                           <div className="flex justify-between items-center">
-                            <Badge
-                              className={getRelevanceBadgeColor(item.relevanceScore)}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <a
@@ -1041,9 +954,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No news items found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No news items found based on your preferences.</p>
                   </div>
                 )}
               </div>
@@ -1067,24 +978,16 @@ export default function DashboardPage() {
                               <Code className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
-                          <CardTitle className="text-xl mt-2">
-                            {item.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">
-                              {item.description}
-                            </p>
+                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
                           )}
                           <div className="flex justify-between items-center mb-4">
-                            <Badge
-                              className={getRelevanceBadgeColor(item.relevanceScore)}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <Badge variant="outline" className="flex items-center">
@@ -1093,9 +996,7 @@ export default function DashboardPage() {
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                              {item.source}
-                            </Badge>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
                             <a
                               href={item.url}
                               target="_blank"
@@ -1111,9 +1012,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No StackOverflow questions found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No StackOverflow questions found based on your preferences.</p>
                   </div>
                 )}
               </div>
@@ -1137,24 +1036,16 @@ export default function DashboardPage() {
                               <Newspaper className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
-                          <CardTitle className="text-xl mt-2">
-                            {item.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
                           {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">
-                              {item.description}
-                            </p>
+                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
                           )}
                           <div className="flex justify-between items-center mb-4">
-                            <Badge
-                              className={getRelevanceBadgeColor(item.relevanceScore)}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <Badge variant="outline" className="flex items-center">
@@ -1163,9 +1054,7 @@ export default function DashboardPage() {
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                              {item.source}
-                            </Badge>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
                             <a
                               href={item.url}
                               target="_blank"
@@ -1181,9 +1070,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No HackerNews items found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No HackerNews items found based on your preferences.</p>
                   </div>
                 )}
               </div>
@@ -1207,22 +1094,14 @@ export default function DashboardPage() {
                               <Globe className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
-                          <CardTitle className="text-xl mt-2">
-                            {item.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">
-                            {item.description}
-                          </p>
+                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
                           <div className="flex justify-between items-center mb-4">
-                            <Badge
-                              className={getRelevanceBadgeColor(item.relevanceScore)}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <Badge variant="outline" className="flex items-center">
@@ -1231,9 +1110,7 @@ export default function DashboardPage() {
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                              {item.source}
-                            </Badge>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
                             <a
                               href={item.url}
                               target="_blank"
@@ -1249,9 +1126,7 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No Social posts found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No Social posts found based on your preferences.</p>
                   </div>
                 )}
               </div>
@@ -1275,22 +1150,14 @@ export default function DashboardPage() {
                               <Sparkles className="h-3 w-3 mr-1" />
                               {item.source}
                             </Badge>
-                            <span className="text-xs text-neondark-muted">
-                              {formatDate(item.publishedAt)}
-                            </span>
+                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
                           </div>
-                          <CardTitle className="text-xl mt-2">
-                            {item.title}
-                          </CardTitle>
+                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">
-                            {item.description}
-                          </p>
+                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
                           <div className="flex justify-between items-center mb-4">
-                            <Badge
-                              className={getRelevanceBadgeColor(item.relevanceScore)}
-                            >
+                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                               {item.relevanceScore}% Match
                             </Badge>
                             <Badge variant="outline" className="flex items-center">
@@ -1299,9 +1166,7 @@ export default function DashboardPage() {
                             </Badge>
                           </div>
                           <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                              {item.source}
-                            </Badge>
+                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
                             <a
                               href={item.url}
                               target="_blank"
@@ -1317,14 +1182,11 @@ export default function DashboardPage() {
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">
-                      No Product Hunt items found based on your preferences.
-                    </p>
+                    <p className="text-neondark-muted">No Product Hunt items found based on your preferences.</p>
                   </div>
                 )}
               </div>
             </TabsContent>
-
           </Tabs>
 
           {/* DISCOVER MORE SECTION */}
@@ -1354,9 +1216,7 @@ export default function DashboardPage() {
                       Mid-tier Content
                     </Badge>
                   </CardTitle>
-                  <CardDescription>
-                    Out-of-the-box items with lower relevance
-                  </CardDescription>
+                  <CardDescription>Out-of-the-box items with lower relevance</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -1372,32 +1232,24 @@ export default function DashboardPage() {
                           {item.imageUrl && (
                             <div className="w-full md:w-1/4 h-32 md:h-auto rounded-md overflow-hidden">
                               <img
-                                src={item.imageUrl}
+                                src={item.imageUrl || "/placeholder.svg"}
                                 alt={item.title}
                                 className="w-full h-full object-cover"
                               />
                             </div>
                           )}
-                          <div className="flex-1">
+                          <div className="flex-1" onClick={() => handleUserAction("view", item.id)}>
                             <div className="flex justify-between items-start mb-2">
-                              <Badge
-                                className={getRelevanceBadgeColor(item.relevanceScore)}
-                              >
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                                 {item.relevanceScore}% Match
                               </Badge>
                               <Badge variant="outline" className="flex items-center">
                                 {getContentTypeIcon(item.type)}
-                                <span className="ml-1 capitalize">
-                                  {item.type}
-                                </span>
+                                <span className="ml-1 capitalize">{item.type}</span>
                               </Badge>
                             </div>
-                            <h3 className="text-lg font-medium mb-1">
-                              {item.title}
-                            </h3>
-                            <p className="text-neondark-muted text-sm mb-3">
-                              {item.description}
-                            </p>
+                            <h3 className="text-lg font-medium mb-1">{item.title}</h3>
+                            <p className="text-neondark-muted text-sm mb-3">{item.description}</p>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center text-sm text-neondark-muted">
                                 <div className="flex items-center mr-3">
@@ -1409,14 +1261,57 @@ export default function DashboardPage() {
                                   <span>{formatDate(item.publishedAt)}</span>
                                 </div>
                               </div>
-                              <a
-                                href={item.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-pink-400 hover:text-pink-300 text-sm flex items-center"
-                              >
-                                Explore <ExternalLink className="ml-1 h-3 w-3" />
-                              </a>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleUserAction("like", item.id)
+                                  }}
+                                  className="text-neondark-muted hover:text-red-400 transition-colors"
+                                  aria-label="Like"
+                                >
+                                  <Heart className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleUserAction("save", item.id)
+                                  }}
+                                  className="text-neondark-muted hover:text-cyan-400 transition-colors"
+                                  aria-label="Save"
+                                >
+                                  <Bookmark className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleUserAction("share", item.id)
+                                  }}
+                                  className="text-neondark-muted hover:text-blue-400 transition-colors"
+                                  aria-label="Share"
+                                >
+                                  <Share className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleUserAction("dismiss", item.id)
+                                  }}
+                                  className="text-neondark-muted hover:text-gray-400 transition-colors"
+                                  aria-label="Dismiss"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                                <a
+                                  href={item.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-pink-400 hover:text-pink-300 text-sm flex items-center ml-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  Explore <ExternalLink className="ml-1 h-3 w-3" />
+                                </a>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -1429,9 +1324,7 @@ export default function DashboardPage() {
                         className="w-full mt-2"
                         onClick={() => setShowAllDiscover(!showAllDiscover)}
                       >
-                        {showAllDiscover
-                          ? "Show Less"
-                          : `Show ${discoverMoreItems.length - 3} More Discover Items`}
+                        {showAllDiscover ? "Show Less" : `Show ${discoverMoreItems.length - 3} More Discover Items`}
                       </Button>
                     )}
                   </div>
