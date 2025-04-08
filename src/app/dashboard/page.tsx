@@ -55,7 +55,6 @@ import {
   Bar,
   Legend,
 } from "recharts"
-import SaveChartButton from "@/components/SaveChartButton"
 
 // ------- Types ------
 interface UserPreferences {
@@ -763,7 +762,7 @@ export default function DashboardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <SaveChartButton fileName="language-distribution">
+                  
                       <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <RechartsPieChart>
@@ -799,7 +798,7 @@ export default function DashboardPage() {
                           </RechartsPieChart>
                         </ResponsiveContainer>
                       </div>
-                    </SaveChartButton>
+                
                   </CardContent>
                 </Card>
 
@@ -814,7 +813,7 @@ export default function DashboardPage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <SaveChartButton fileName="activity-over-time">
+                
                       <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart
@@ -857,7 +856,7 @@ export default function DashboardPage() {
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
-                    </SaveChartButton>
+               
                   </CardContent>
                 </Card>
               </div>
@@ -873,7 +872,7 @@ export default function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <SaveChartButton fileName="weekly-activity">
+              
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsBarChart
@@ -905,7 +904,7 @@ export default function DashboardPage() {
                         </RechartsBarChart>
                       </ResponsiveContainer>
                     </div>
-                  </SaveChartButton>
+                  
                 </CardContent>
               </Card>
             </TabsContent>
