@@ -18,6 +18,7 @@ const Navbar = () => {
 
   
   const links = [
+    { name: "Dashboard", href: "/dashboard" },
     { name: "Overview", href: "/overview" },
     { name: "GitHub", href: "/github" },
     { name: "Launches", href: "/producthunt" },
@@ -25,7 +26,6 @@ const Navbar = () => {
     { name: "Hacker News", href: "/hackernews" },
     { name: "Social Feed", href: "/socials" },
   ];
-  
   return (
     <>
       {/* 
