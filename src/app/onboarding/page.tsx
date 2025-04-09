@@ -213,7 +213,7 @@ export default function OnboardingPage() {
 
       if (response.ok) {
         setTimeout(() => {
-          router.push("/dashboard");
+        router.push("/dashboard");
         }, 2000);
       }
     } catch (error) {
@@ -601,65 +601,65 @@ export default function OnboardingPage() {
                 <TabsTrigger value="list">List View</TabsTrigger>
               </TabsList>
               <TabsContent value="grid">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getCurrentItems().map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
-                      className="relative"
-                    >
-                      <Card
-                        className={`h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border cursor-pointer transition-all ${
-                          (step === "interests" && selectedInterests.includes(item.id)) ||
-                          (step === "sources" && selectedSources.includes(item.id)) ||
-                          (step === "contentTypes" && selectedContentTypes.includes(item.id))
-                            ? "border-cyan-500/50 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          if (step === "interests") {
-                            setSelectedInterests((prev) =>
-                              prev.includes(item.id)
-                                ? prev.filter((id) => id !== item.id)
-                                : [...prev, item.id]
-                            );
-                          } else if (step === "sources") {
-                            setSelectedSources((prev) =>
-                              prev.includes(item.id)
-                                ? prev.filter((id) => id !== item.id)
-                                : [...prev, item.id]
-                            );
-                          } else if (step === "contentTypes") {
-                            setSelectedContentTypes((prev) =>
-                              prev.includes(item.id)
-                                ? prev.filter((id) => id !== item.id)
-                                : [...prev, item.id]
-                            );
-                          }
-                        }}
-                      >
-                        <CardHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {getCurrentItems().map((item) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="relative"
+                >
+                  <Card
+                    className={`h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border cursor-pointer transition-all ${
+                      (step === "interests" && selectedInterests.includes(item.id)) ||
+                      (step === "sources" && selectedSources.includes(item.id)) ||
+                      (step === "contentTypes" && selectedContentTypes.includes(item.id))
+                        ? "border-cyan-500/50 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (step === "interests") {
+                        setSelectedInterests((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
+                            : [...prev, item.id]
+                        );
+                      } else if (step === "sources") {
+                        setSelectedSources((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
+                            : [...prev, item.id]
+                        );
+                      } else if (step === "contentTypes") {
+                        setSelectedContentTypes((prev) =>
+                          prev.includes(item.id)
+                            ? prev.filter((id) => id !== item.id)
+                            : [...prev, item.id]
+                        );
+                      }
+                    }}
+                  >
+                    <CardHeader>
                           <div className="flex items-center">
                             <div className="mr-3 p-2 rounded-full bg-cyan-500/20 text-cyan-400">
                               {item.icon}
                             </div>
                             <div>
-                              <Badge className="w-fit bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
-                                {item.category}
-                              </Badge>
-                              <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                      <Badge className="w-fit bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
+                        {item.category}
+                      </Badge>
+                      <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
                             </div>
                           </div>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-neondark-muted">{item.description}</p>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-neondark-muted">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
               </TabsContent>
               <TabsContent value="list">
                 <div className="space-y-4">
