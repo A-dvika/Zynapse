@@ -12,29 +12,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+export async function POST(
+  req: Request
 ) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const { image, public_id } = await req.json();
 
-  try {
-    // Expect the client to send { image: string, public_id?: string }
-    const { image, public_id } = req.body;
+  // Cloudinary accepts a data URL directly.
+  const uploadResponse = await cloudinary.uploader.upload(image, {
+    folder: "github-charts",
+    public_id: public_id || undefined,
+  });
 
-    // Cloudinary accepts a data URL directly.
-    const uploadResponse = await cloudinary.uploader.upload(image, {
-      folder: "github-charts",
-      public_id: public_id || undefined,
-    });
-
-    return res.status(200).json({ secure_url: uploadResponse.secure_url });
-  } catch (error: any) {
-    console.error("Cloudinary upload error:", error);
-    return res
-      .status(500)
-      .json({ error: error.message || "Something went wrong" });
-  }
+  return new Response(JSON.stringify({ secure_url: uploadResponse.secure_url }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
+  

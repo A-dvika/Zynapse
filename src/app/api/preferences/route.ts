@@ -46,11 +46,9 @@ export async function POST(request: Request) {
     const prefs = await prisma.userPreferences.create({
       data: {
         userId: session.user.id,
-        interests,
+        interests: githubLanguages ? [...interests, ...githubLanguages] : interests,
         sources,
         contentTypes,
-        // Add GitHub languages to interests if provided
-        interests: githubLanguages ? [...interests, ...githubLanguages] : interests,
       },
     });
     return NextResponse.json(prefs, { status: 200 });

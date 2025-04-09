@@ -26,6 +26,15 @@ export default async function ProfilePage() {
     return <div>User not found</div>;
   }
 
-  // Pass data to the client component
-  return <ProfilePageUI user={{ ...user, preferences: user.preferences ?? undefined }} />;
+  // Normalize the user data: if user.email is null, set a default (e.g., empty string)
+  const normalizedUser = {
+    ...user,
+    email: user.email ?? "",
+    name: user.name ?? "Unknown",
+    // Optionally, preferences can be transformed as needed.
+    preferences: user.preferences ?? undefined,
+    image: user.image ?? undefined, // Normalize image to string | undefined
+  };
+
+  return <ProfilePageUI user={normalizedUser} />;
 }

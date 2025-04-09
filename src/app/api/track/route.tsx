@@ -29,8 +29,9 @@ export async function POST(req: Request) {
         await prisma.content.create({
           data: {
             id: contentId,
-            // Add any required fields for the Content model here
-            // e.g., title: "GitHub Analytics Dashboard" (if applicable)
+            type: "defaultType", // Replace with an appropriate default or dynamic value
+            title: "Default Title", // Replace with an appropriate default or dynamic value
+            url: "https://default.url", // Replace with an appropriate default or dynamic value
           },
         });
       }

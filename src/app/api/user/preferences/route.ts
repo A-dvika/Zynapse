@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { DefaultSession } from "next-auth";
+
+// Extend the DefaultSession interface to include the 'id' property.
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+    } & DefaultSession["user"];
+  }
+}
 
 
 
@@ -81,7 +91,7 @@ export async function GET(request: Request) {
 
     // 7. Query Pinecone using the embedding.
     const pineconeResult = await index2.query({
-      vector: userEmbedding,
+      vector: userEmbedding || [],
       topK,
       includeMetadata: true,
       filter: Object.keys(pineconeFilter).length ? pineconeFilter : undefined,
@@ -93,8 +103,8 @@ export async function GET(request: Request) {
       .map((match) => {
         const meta = match.metadata || {};
         const tags = meta.tags || [];
-        const overlapCount = tags.filter((tag: string) => interests.includes(tag)).length;
-        const relevanceScore = Math.round((match.score + overlapCount * 0.01) * 100);
+        const overlapCount = Array.isArray(tags) ? tags.filter((tag: string) => interests.includes(tag)).length : 0;
+        const relevanceScore = Math.round(((match.score ?? 0) + overlapCount * 0.01) * 100);
         return { ...meta, relevanceScore };
       })
       .filter((item) => !isDiscover || item.relevanceScore < 40)

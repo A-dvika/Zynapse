@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { generateEmbedding } from "../../../../lib/embedding";
 import { index2 } from "../../../../lib/pinecone";
 import prisma from "../../../../lib/db";
@@ -10,7 +10,7 @@ import { generateSummary } from "../../../../lib/ai";
 export async function GET(request: Request) {
   try {
     // 1. Get user session
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as Session & { user: { id: string } };
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -84,8 +84,8 @@ export async function GET(request: Request) {
     let resultsWithReRank = pineconeResult.matches.map((match) => {
       const meta = match.metadata || {};
       const itemTags = meta.tags || [];
-      const overlapCount = itemTags.filter((tag: string) => interests.includes(tag)).length;
-      const adjustedScore = match.score + overlapCount * 0.01;
+      const overlapCount = Array.isArray(itemTags) ? itemTags.filter((tag: string) => interests.includes(tag)).length : 0;
+      const adjustedScore = (match.score ?? 0) + overlapCount * 0.01;
       return {
         ...meta,
         relevanceScore: Math.round(adjustedScore * 100),
