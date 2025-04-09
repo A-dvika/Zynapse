@@ -18,7 +18,6 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X, Edit2, PlusCircle } from "lucide-react"
-import { BackgroundBeams } from "@/components/ui/beams"
 
 // Example shape. Adjust to your actual DB model.
 interface PreferenceData {
@@ -48,6 +47,8 @@ interface UserData {
 export default function ProfilePageUI({ user }: { user: UserData }) {
   // For the edit preferences modal
   const [isOpen, setIsOpen] = useState(false)
+  // Use explicit state for the Tabs so the saved tab works properly
+  const [activeTab, setActiveTab] = useState("activity")
 
   if (!user) {
     return <div>No user data found.</div>
@@ -55,17 +56,13 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
 
   const { name, email, image, preferences, history } = user
 
-  // 1) We'll separate the "saved" items from general activity
-  const savedItems = (history || []).filter((item) => item.action === "save")
-  const otherActivity = (history || []).filter((item) => item.action !== "save")
+  // Separate "save" actions from other user actions
+  const savedItems = (history || []).filter(item => item.action === "save")
+  const otherActivity = (history || []).filter(item => item.action !== "save")
 
   return (
-    <div className="max-w-screen-lg min-h-screen bg-neondark-bg text-foreground relative overflow-hidden mx-auto py-8 px-4">
+    <div className="max-w-screen-lg mx-auto py-8 px-4">
       {/* Profile Header */}
-      <BackgroundBeams />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
       <div className="flex flex-col items-center justify-center">
         <Avatar className="h-28 w-28 border-4 border-cyan-400">
           <AvatarImage src={image || "/placeholder.svg"} alt={name} />
@@ -91,19 +88,23 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             <Separator className="bg-neondark-border mb-4" />
 
             {!preferences && (
-              <div className="text-neondark-muted text-sm">No preferences set yet.</div>
+              <div className="text-neondark-muted text-sm">
+                No preferences set yet.
+              </div>
             )}
 
             {/* Interests */}
             {preferences?.interests?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">Interests</h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">
+                  Interests
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.interests.map((interest) => (
                     <Badge
                       key={interest}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400 rounded-none"
+                      className="border-cyan-400 text-cyan-400"
                     >
                       {interest}
                     </Badge>
@@ -115,13 +116,15 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             {/* Sources */}
             {preferences?.sources?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Sources</h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">
+                  Preferred Sources
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.sources.map((source) => (
                     <Badge
                       key={source}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400 rounded-none"
+                      className="border-cyan-400 text-cyan-400"
                     >
                       {source}
                     </Badge>
@@ -133,13 +136,15 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
             {/* Content Types */}
             {preferences?.contentTypes?.length ? (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Content Types</h3>
+                <h3 className="text-sm font-medium text-neondark-text mb-2">
+                  Preferred Content Types
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.contentTypes.map((type) => (
                     <Badge
                       key={type}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400 rounded-none"
+                      className="border-cyan-400 text-cyan-400"
                     >
                       {type}
                     </Badge>
@@ -161,7 +166,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
 
         {/* Activity Tab */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="activity" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-neondark-bg">
               <TabsTrigger
                 value="activity"
@@ -177,7 +182,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
               </TabsTrigger>
             </TabsList>
 
-            {/* 1) ACTIVITY TAB */}
+            {/* 1) Activity Tab */}
             <TabsContent value="activity">
               <Card className="border-neondark-border bg-neondark-card shadow-lg">
                 <CardHeader>
@@ -187,15 +192,12 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <CardContent>
                   <ScrollArea className="h-[350px] pr-4">
                     {!otherActivity?.length ? (
-                      <div className="text-sm text-neondark-muted">
-                        No recent actions.
-                      </div>
+                      <div className="text-sm text-neondark-muted">No recent actions.</div>
                     ) : (
                       <div className="space-y-6">
                         {otherActivity.map((item) => (
                           <div key={item.id} className="flex items-start space-x-4">
                             <div className="mt-1 bg-cyan-950 p-2 rounded-full">
-                              {/* Adjust icon if you want different icons for each action */}
                               <PlusCircle className="h-5 w-5 text-cyan-400" />
                             </div>
                             <div className="space-y-1">
@@ -221,7 +223,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
               </Card>
             </TabsContent>
 
-            {/* 2) SAVED ITEMS TAB */}
+            {/* 2) Saved Items Tab */}
             <TabsContent value="saved">
               <Card className="border-neondark-border bg-neondark-card shadow-lg">
                 <CardHeader>
@@ -231,9 +233,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <CardContent>
                   <ScrollArea className="h-[350px] pr-4">
                     {!savedItems?.length ? (
-                      <div className="text-sm text-neondark-muted">
-                        No saved items found.
-                      </div>
+                      <div className="text-sm text-neondark-muted">No saved items found.</div>
                     ) : (
                       <div className="space-y-6">
                         {savedItems.map((item) => (
@@ -243,10 +243,10 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-medium text-neondark-text">
-                                Saved {item.content?.title && (
+                                Saved{" "}
+                                {item.content?.title && (
                                   <>
-                                    &nbsp; - &nbsp;
-                                    <span className="text-cyan-400">{item.content.title}</span>
+                                    - <span className="text-cyan-400">{item.content.title}</span>
                                   </>
                                 )}
                               </p>
@@ -273,8 +273,11 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
 }
 
 // -------------------------------------------------------------------
-//  Edit Preferences Modal
+// Edit Preferences Modal
+// (Designed similar to your subscribe modal UI)
 // -------------------------------------------------------------------
+import { Tag, Database, Film } from "lucide-react"
+
 function PreferencesModal({
   open,
   onClose,
@@ -284,33 +287,57 @@ function PreferencesModal({
   onClose: () => void
   user: UserData
 }) {
-  const [interests, setInterests] = useState<string[]>(user.preferences?.interests || [])
-  const [sources, setSources] = useState<string[]>(user.preferences?.sources || [])
-  const [contentTypes, setContentTypes] = useState<string[]>(
-    user.preferences?.contentTypes || []
+  // We'll hold comma-separated string inputs for each field
+  const [interestsInput, setInterestsInput] = useState(
+    user.preferences?.interests ? user.preferences.interests.join(", ") : ""
   )
+  const [sourcesInput, setSourcesInput] = useState(
+    user.preferences?.sources ? user.preferences.sources.join(", ") : ""
+  )
+  const [contentTypesInput, setContentTypesInput] = useState(
+    user.preferences?.contentTypes ? user.preferences.contentTypes.join(", ") : ""
+  )
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If you want to handle saving to DB, you'd do it here
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Helper function: parse a comma separated string into an array of values.
+  const parseInput = (input: string) =>
+    input.split(",").map(s => s.trim()).filter(s => s.length > 0)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setError("")
+    setIsSubmitting(true)
+
+    const interests = parseInput(interestsInput)
+    const sources = parseInput(sourcesInput)
+    const contentTypes = parseInput(contentTypesInput)
+
     try {
-      // Example. Replace with your actual update endpoint:
-      await fetch("/api/user/preferences", {
+      // Call your API route to update preferences.
+      const res = await fetch("/api/user/preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ interests, sources, contentTypes }),
       })
 
-      // You might want to refetch user data or pass the new prefs back up
-      // For simplicity, just close the modal
-      onClose()
+      const data = await res.json()
+      if (res.ok) {
+        setSuccess(true)
+      } else {
+        setError(data.error || "Failed to update preferences.")
+      }
     } catch (err) {
       console.error(err)
+      setError("An error occurred. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-neondark-card border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-neondark-text flex items-center">
@@ -321,116 +348,101 @@ function PreferencesModal({
 
         <Separator className="bg-neondark-border" />
 
-        <form onSubmit={handleSubmit} className="space-y-6 py-4">
-          {/* Interests */}
-          <div>
-            <Label className="text-neondark-text mb-1 block">Interests</Label>
-            <TagInput tags={interests} setTags={setInterests} placeholder="Type and press Enter" />
-          </div>
-
-          {/* Sources */}
-          <div>
-            <Label className="text-neondark-text mb-1 block">Preferred Sources</Label>
-            <TagInput tags={sources} setTags={setSources} placeholder="Reddit, GitHub..." />
-          </div>
-
-          {/* Content Types */}
-          <div>
-            <Label className="text-neondark-text mb-1 block">Content Types</Label>
-            <TagInput tags={contentTypes} setTags={setContentTypes} placeholder="Articles, Videos..." />
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="border-neondark-border text-neondark-muted hover:bg-neondark-bg"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-cyan-400 text-black hover:bg-cyan-500">
-              Save Changes
+        {success ? (
+          <div className="py-8 text-center space-y-4">
+            <div className="w-16 h-16 bg-cyan-950 rounded-full flex items-center justify-center mx-auto">
+              <Edit2 className="h-8 w-8 text-cyan-400" />
+            </div>
+            <h3 className="text-xl font-bold text-cyan-400">Preferences Updated!</h3>
+            <p className="text-neondark-muted">
+              Your preferences have been saved successfully.
+            </p>
+            <Button onClick={onClose} className="bg-cyan-400 text-black hover:bg-cyan-500 mt-2">
+              Close
             </Button>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 py-2">
+            {/* Interests */}
+            <div className="space-y-2">
+              <Label htmlFor="interests" className="text-neondark-text">
+                Interests
+              </Label>
+              <div className="relative">
+                <Tag className="absolute left-3 top-3 h-4 w-4 text-cyan-400" />
+                <Input
+                  type="text"
+                  id="interests"
+                  value={interestsInput}
+                  onChange={(e) => setInterestsInput(e.target.value)}
+                  placeholder="e.g. JavaScript, Rust, Design"
+                  className="pl-10 bg-neondark-bg border-neondark-border focus:border-cyan-400 focus:ring-cyan-400 text-neondark-text"
+                />
+              </div>
+            </div>
+
+            {/* Preferred Sources */}
+            <div className="space-y-2">
+              <Label htmlFor="sources" className="text-neondark-text">
+                Preferred Sources
+              </Label>
+              <div className="relative">
+                <Database className="absolute left-3 top-3 h-4 w-4 text-cyan-400" />
+                <Input
+                  type="text"
+                  id="sources"
+                  value={sourcesInput}
+                  onChange={(e) => setSourcesInput(e.target.value)}
+                  placeholder="e.g. Reddit, GitHub"
+                  className="pl-10 bg-neondark-bg border-neondark-border focus:border-cyan-400 focus:ring-cyan-400 text-neondark-text"
+                />
+              </div>
+            </div>
+
+            {/* Content Types */}
+            <div className="space-y-2">
+              <Label htmlFor="contentTypes" className="text-neondark-text">
+                Content Types
+              </Label>
+              <div className="relative">
+                <Film className="absolute left-3 top-3 h-4 w-4 text-cyan-400" />
+                <Input
+                  type="text"
+                  id="contentTypes"
+                  value={contentTypesInput}
+                  onChange={(e) => setContentTypesInput(e.target.value)}
+                  placeholder="e.g. Articles, Videos, Podcasts"
+                  className="pl-10 bg-neondark-bg border-neondark-border focus:border-cyan-400 focus:ring-cyan-400 text-neondark-text"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-950 border border-red-500 rounded-md text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="flex justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="border-neondark-border text-neondark-muted hover:bg-neondark-bg mr-2"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-cyan-400 text-black hover:bg-cyan-500"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
-  )
-}
-
-// -------------------------------------------------------------------
-//  Generic TagInput component to handle array of tags
-// -------------------------------------------------------------------
-function TagInput({
-  tags,
-  setTags,
-  placeholder,
-}: {
-  tags: string[]
-  setTags: React.Dispatch<React.SetStateAction<string[]>>
-  placeholder?: string
-}) {
-  const [value, setValue] = useState("")
-
-  const addTag = (tag: string) => {
-    const trimmed = tag.trim()
-    if (trimmed && !tags.includes(trimmed)) {
-      setTags([...tags, trimmed])
-    }
-  }
-
-  const removeTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag))
-  }
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 flex-wrap">
-        {tags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="outline"
-            className="border-cyan-400 text-cyan-400 flex items-center gap-1"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(tag)}
-              className="ml-1 h-3 w-3 rounded-full bg-cyan-950 flex items-center justify-center hover:bg-cyan-900"
-            >
-              <X className="h-2 w-2" />
-            </button>
-          </Badge>
-        ))}
-      </div>
-      <Input
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault()
-            addTag(value)
-            setValue("")
-          }
-        }}
-        placeholder={placeholder || "Type something..."}
-        className="bg-neondark-bg border-neondark-border focus:border-cyan-400 focus:ring-cyan-400 text-neondark-text"
-      />
-      {value.length > 0 && (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            addTag(value)
-            setValue("")
-          }}
-          className="border-cyan-400 text-cyan-400 hover:bg-cyan-950 flex items-center"
-        >
-          <PlusCircle className="mr-1 h-4 w-4" />
-          Add Tag
-        </Button>
-      )}
-    </div>
   )
 }

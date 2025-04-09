@@ -16,26 +16,19 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
-  // Base links always shown
-  const publicLinks = [
+  const links = [
     { name: "Overview", href: "/overview" },
-    { name: "GitHub", href: "/github" },
+    { name: "Github", href: "/github" },
     { name: "ProductHunt", href: "/producthunt" },
     { name: "Stack Overflow", href: "/stack-overflow" },
     { name: "HackerNews", href: "/hackernews" },
     { name: "Socials", href: "/socials" },
-    { name: "For-Her", href: "/for-her" },
   ];
-
-  // Conditionally include Dashboard
-  const links = isAuthenticated
-    ? [{ name: "Dashboard", href: "/dashboard" }, ...publicLinks]
-    : publicLinks;
 
   return (
     <>
-      <nav className="w-full sticky top-0 bg-card dark:bg-neondark-card backdrop-blur-md shadow-sm text-foreground dark:text-neondark-text px-4 py-4">
-        <section className="flex w-full justify-between items-center">
+      <nav className="z-50 max-w-[90%] m-auto sticky top-0 bg-white dark:bg-black/30 backdrop-blur-md rounded-b-xl shadow-sm">
+        <section className="flex w-full justify-between items-center p-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-semibold text-xl">
             <svg
@@ -48,7 +41,7 @@ const Navbar = () => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-6 w-6 text-cyan-400"
+              className="h-6 w-6 text-blue-500"
             >
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
               <polyline points="17 6 23 6 23 12" />
@@ -56,29 +49,25 @@ const Navbar = () => {
             Zynapse
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation Links and Auth Buttons */}
           <div className="hidden lg:flex gap-6 items-center">
-            {links.map((link) => {
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={`text-base font-medium px-3 py-2 rounded-lg transition-colors 
-                    ${active
-                    ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-
+            {links.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`text-base font-medium px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  pathname === link.href
+                    ? "bg-white dark:bg-gray-900 text-blue-600"
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
             {/* Subscribe Button */}
             <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
               Subscribe
             </Button>
-
             {/* Auth Buttons */}
             {!isAuthenticated ? (
               <>
@@ -105,33 +94,30 @@ const Navbar = () => {
           {/* Dark Mode Toggle */}
           <ModeToggle />
 
-          {/* Mobile Menu Toggle */}
+          {/* Hamburger Icon for Mobile */}
           <button className="lg:hidden ml-4" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </section>
 
-        {/* Mobile Menu */}
+        {/* Mobile Hamburger Menu */}
         {menuOpen && (
-          <div className="lg:hidden flex flex-col gap-4 p-4 bg-card dark:bg-neondark-card rounded-xl shadow-md mx-2 mt-2 z-40">
-            {links.map((link) => {
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`text-base font-medium px-3 py-2 rounded-lg transition-colors 
-                    ${active
-                    ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-
-            {/* Subscribe Button (Mobile) */}
+          <div className="lg:hidden flex flex-col gap-4 p-4 bg-white dark:bg-black/80 rounded-xl shadow-md mx-4 mt-2 z-40">
+            {links.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className={`text-base font-medium px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  pathname === link.href
+                    ? "bg-white dark:bg-gray-900 text-blue-600"
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            {/* Subscribe Button for Mobile */}
             <Button
               variant="outline"
               className="w-full px-4 py-2"
@@ -142,8 +128,7 @@ const Navbar = () => {
             >
               Subscribe
             </Button>
-
-            {/* Auth Buttons (Mobile) */}
+            {/* Mobile Auth Buttons */}
             {!isAuthenticated ? (
               <>
                 <Link href="/login" onClick={() => setMenuOpen(false)}>
@@ -167,8 +152,7 @@ const Navbar = () => {
           </div>
         )}
       </nav>
-
-      <SubscribeModal open={!!subscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} />
+      <SubscribeModal open={subscribeModalOpen} onClose={() => setSubscribeModalOpen(false)} />
     </>
   );
 };
