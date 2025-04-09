@@ -11,7 +11,7 @@ export default function LandingPage() {
       {/* Header */}
   <BackgroundBeams />
       {/* Hero Section */}
-      <section className="pt-32 pb-20 relative overflow-hidden">
+      <section className="pt-16 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
         <div className="container mx-auto px-4 relative z-10">

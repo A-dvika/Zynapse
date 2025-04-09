@@ -114,7 +114,7 @@ export default function FloatingChatbot() {
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white shadow">
               <div className="flex items-center space-x-2">
                 <Sparkles className="h-5 w-5" />
-                <h2 className="font-bold text-lg">Neon Assistant</h2>
+                <h2 className="font-bold text-lg">Sparkly Assistant</h2>
               </div>
               <button
                 onClick={() => setOpen(false)}
@@ -130,7 +130,7 @@ export default function FloatingChatbot() {
                 <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
                   <Sparkles className="h-12 w-12 mb-4 text-cyan-400" />
                   <h3 className="text-lg font-medium mb-2">
-                    Welcome to Neon Assistant!
+                    Welcome to Sparkly Assistant!
                   </h3>
                   <p>Ask me anything and I&apos;ll try to help you out.</p>
                 </div>
