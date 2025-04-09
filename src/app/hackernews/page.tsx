@@ -159,7 +159,7 @@ export default function HackerNewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neondark-bg text-foreground">
+    <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>

@@ -60,7 +60,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
   const otherActivity = (history || []).filter((item) => item.action !== "save")
 
   return (
-    <div className="max-w-screen-lg mx-auto py-8 px-4">
+    <div className="max-w-screen-lg min-h-screen bg-neondark-bg text-foreground relative overflow-hidden mx-auto py-8 px-4">
       {/* Profile Header */}
       <BackgroundBeams />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
