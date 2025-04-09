@@ -1,13 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -64,13 +60,9 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
       <div className="flex flex-col items-center justify-center">
         <Avatar className="h-28 w-28 border-4 border-cyan-400">
           <AvatarImage src={image || "/placeholder.svg"} alt={name} />
-          <AvatarFallback className="text-2xl bg-cyan-950 text-cyan-400">
-            {name?.[0] ?? "U"}
-          </AvatarFallback>
+          <AvatarFallback className="text-2xl bg-cyan-950 text-cyan-400">{name?.[0] ?? "U"}</AvatarFallback>
         </Avatar>
-        <CardTitle className="mt-4 text-2xl font-bold text-neondark-text">
-          {name}
-        </CardTitle>
+        <CardTitle className="mt-4 text-2xl font-bold text-neondark-text">{name}</CardTitle>
         <CardDescription className="text-neondark-muted">{email}</CardDescription>
       </div>
 
@@ -85,9 +77,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
           <CardContent>
             <Separator className="bg-neondark-border mb-4" />
 
-            {!preferences && (
-              <div className="text-neondark-muted text-sm">No preferences set yet.</div>
-            )}
+            {!preferences && <div className="text-neondark-muted text-sm">No preferences set yet.</div>}
 
             {/* Interests */}
             {preferences?.interests?.length ? (
@@ -95,11 +85,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <h3 className="text-sm font-medium text-neondark-text mb-2">Interests</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.interests.map((interest) => (
-                    <Badge
-                      key={interest}
-                      variant="outline"
-                      className="border-cyan-400 text-cyan-400"
-                    >
+                    <Badge key={interest} variant="outline" className="border-cyan-400 text-cyan-400">
                       {interest}
                     </Badge>
                   ))}
@@ -113,11 +99,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Sources</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.sources.map((source) => (
-                    <Badge
-                      key={source}
-                      variant="outline"
-                      className="border-cyan-400 text-cyan-400"
-                    >
+                    <Badge key={source} variant="outline" className="border-cyan-400 text-cyan-400">
                       {source}
                     </Badge>
                   ))}
@@ -131,11 +113,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <h3 className="text-sm font-medium text-neondark-text mb-2">Preferred Content Types</h3>
                 <div className="flex flex-wrap gap-2">
                   {preferences.contentTypes.map((type) => (
-                    <Badge
-                      key={type}
-                      variant="outline"
-                      className="border-cyan-400 text-cyan-400"
-                    >
+                    <Badge key={type} variant="outline" className="border-cyan-400 text-cyan-400">
                       {type}
                     </Badge>
                   ))}
@@ -158,16 +136,10 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
         <div className="lg:col-span-2">
           <Tabs defaultValue="activity" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-neondark-bg">
-              <TabsTrigger
-                value="activity"
-                className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
-              >
+              <TabsTrigger value="activity" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
                 Recent Activity
               </TabsTrigger>
-              <TabsTrigger
-                value="saved"
-                className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
-              >
+              <TabsTrigger value="saved" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
                 Saved Items
               </TabsTrigger>
             </TabsList>
@@ -182,9 +154,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <CardContent>
                   <ScrollArea className="h-[350px] pr-4">
                     {!otherActivity?.length ? (
-                      <div className="text-sm text-neondark-muted">
-                        No recent actions.
-                      </div>
+                      <div className="text-sm text-neondark-muted">No recent actions.</div>
                     ) : (
                       <div className="space-y-6">
                         {otherActivity.map((item) => (
@@ -203,9 +173,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                                   </>
                                 )}
                               </p>
-                              <p className="text-xs text-neondark-muted">
-                                {new Date(item.createdAt).toLocaleString()}
-                              </p>
+                              <p className="text-xs text-neondark-muted">{new Date(item.createdAt).toLocaleString()}</p>
                             </div>
                           </div>
                         ))}
@@ -226,9 +194,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                 <CardContent>
                   <ScrollArea className="h-[350px] pr-4">
                     {!savedItems?.length ? (
-                      <div className="text-sm text-neondark-muted">
-                        No saved items found.
-                      </div>
+                      <div className="text-sm text-neondark-muted">No saved items found.</div>
                     ) : (
                       <div className="space-y-6">
                         {savedItems.map((item) => (
@@ -238,16 +204,15 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-medium text-neondark-text">
-                                Saved {item.content?.title && (
+                                Saved{" "}
+                                {item.content?.title && (
                                   <>
                                     &nbsp; - &nbsp;
                                     <span className="text-cyan-400">{item.content.title}</span>
                                   </>
                                 )}
                               </p>
-                              <p className="text-xs text-neondark-muted">
-                                {new Date(item.createdAt).toLocaleString()}
-                              </p>
+                              <p className="text-xs text-neondark-muted">{new Date(item.createdAt).toLocaleString()}</p>
                             </div>
                           </div>
                         ))}
@@ -281,9 +246,7 @@ function PreferencesModal({
 }) {
   const [interests, setInterests] = useState<string[]>(user.preferences?.interests || [])
   const [sources, setSources] = useState<string[]>(user.preferences?.sources || [])
-  const [contentTypes, setContentTypes] = useState<string[]>(
-    user.preferences?.contentTypes || []
-  )
+  const [contentTypes, setContentTypes] = useState<string[]>(user.preferences?.contentTypes || [])
 
   // If you want to handle saving to DB, you'd do it here
   const handleSubmit = async (e: React.FormEvent) => {
@@ -306,7 +269,7 @@ function PreferencesModal({
 
   return (
     <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
-      <DialogContent className="bg-neondark-card border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-xl">
+      <DialogContent className="bg-black border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-neondark-text flex items-center">
             <Edit2 className="mr-2 h-5 w-5 text-cyan-400" />
@@ -383,11 +346,7 @@ function TagInput({
     <div className="space-y-2">
       <div className="flex items-center gap-2 flex-wrap">
         {tags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="outline"
-            className="border-cyan-400 text-cyan-400 flex items-center gap-1"
-          >
+          <Badge key={tag} variant="outline" className="border-cyan-400 text-cyan-400 flex items-center gap-1">
             {tag}
             <button
               type="button"
