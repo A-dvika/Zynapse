@@ -460,7 +460,7 @@ export default function OpportunitiesPage() {
 
       {/* Add Opportunity Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-xl">
+        <DialogContent className="bg-bblack backdrop-blur-sm border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-neondark-text flex items-center">
               <PlusCircle className="mr-2 h-5 w-5 text-cyan-400" />

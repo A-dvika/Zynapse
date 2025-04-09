@@ -103,7 +103,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                     <Badge
                       key={interest}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400"
+                      className="border-cyan-400 text-cyan-400 rounded-none"
                     >
                       {interest}
                     </Badge>
@@ -121,7 +121,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                     <Badge
                       key={source}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400"
+                      className="border-cyan-400 text-cyan-400 rounded-none"
                     >
                       {source}
                     </Badge>
@@ -139,7 +139,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
                     <Badge
                       key={type}
                       variant="outline"
-                      className="border-cyan-400 text-cyan-400"
+                      className="border-cyan-400 text-cyan-400 rounded-none"
                     >
                       {type}
                     </Badge>

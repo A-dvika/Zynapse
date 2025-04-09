@@ -92,7 +92,7 @@ export default function SubscribeModal({ open, onClose }: SubscribeModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-neondark-card border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-md">
+      <DialogContent className="bg-black border-neondark-border border-2 shadow-lg shadow-cyan-400/20 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-neondark-text flex items-center">
             <Mail className="mr-2 h-5 w-5 text-cyan-400" />
