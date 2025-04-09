@@ -10,12 +10,20 @@ import { useSession } from "next-auth/react";
 import SubscribeModal from "./SubscribeModal";
 
 const Navbar = () => {
+  // Always call hooks at the top.
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const isAuthenticated = status === "authenticated";
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
+  // Conditionally render a loading state
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  const isAuthenticated = status === "authenticated";
+
+  // Common navigation links shown for all users
   const links = [
     { name: "Overview", href: "/overview" },
     { name: "Github", href: "/github" },
@@ -23,6 +31,7 @@ const Navbar = () => {
     { name: "Stack Overflow", href: "/stack-overflow" },
     { name: "HackerNews", href: "/hackernews" },
     { name: "Socials", href: "/socials" },
+    { name: "Profile", href: "/profile" },
   ];
 
   return (
@@ -49,7 +58,7 @@ const Navbar = () => {
             Zynapse
           </Link>
 
-          {/* Desktop Navigation Links and Auth Buttons */}
+          {/* Desktop Navigation Links */}
           <div className="hidden lg:flex gap-6 items-center">
             {links.map((link) => (
               <Link
@@ -64,6 +73,19 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {/* Add Dashboard link for authenticated users */}
+            {isAuthenticated && (
+              <Link
+                href="/dashboard"
+                className={`text-base font-medium px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  pathname === "/dashboard"
+                    ? "bg-white dark:bg-gray-900 text-blue-600"
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
             {/* Subscribe Button */}
             <Button variant="outline" onClick={() => setSubscribeModalOpen(true)}>
               Subscribe
@@ -117,6 +139,20 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {/* Add Dashboard link for mobile when authenticated */}
+            {isAuthenticated && (
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className={`text-base font-medium px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  pathname === "/dashboard"
+                    ? "bg-white dark:bg-gray-900 text-blue-600"
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
             {/* Subscribe Button for Mobile */}
             <Button
               variant="outline"
