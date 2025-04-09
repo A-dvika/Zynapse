@@ -16,17 +16,21 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [subscribeModalOpen, setSubscribeModalOpen] = React.useState(false);
 
-  // Updated links array including "Dashboard"
-  const links = [
-    { name: "Dashboard", href: "/dashboard" },
+  // Base links always shown
+  const publicLinks = [
     { name: "Overview", href: "/overview" },
     { name: "GitHub", href: "/github" },
     { name: "ProductHunt", href: "/producthunt" },
     { name: "Stack Overflow", href: "/stack-overflow" },
     { name: "HackerNews", href: "/hackernews" },
     { name: "Socials", href: "/socials" },
-    {name: "For-Her" , href: "/for-her"},
+    { name: "For-Her", href: "/for-her" },
   ];
+
+  // Conditionally include Dashboard
+  const links = isAuthenticated
+    ? [{ name: "Dashboard", href: "/dashboard" }, ...publicLinks]
+    : publicLinks;
 
   return (
     <>
@@ -61,10 +65,9 @@ const Navbar = () => {
                   key={link.name}
                   href={link.href}
                   className={`text-base font-medium px-3 py-2 rounded-lg transition-colors 
-                    ${active 
-                      ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`
-                  }
+                    ${active
+                    ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`}
                 >
                   {link.name}
                 </Link>
@@ -119,10 +122,9 @@ const Navbar = () => {
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className={`text-base font-medium px-3 py-2 rounded-lg transition-colors 
-                    ${active 
-                      ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`
-                  }
+                    ${active
+                    ? "bg-cyan-100 dark:bg-cyan-800 text-cyan-700 dark:text-cyan-200"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-cyan-50 dark:hover:bg-cyan-700"}`}
                 >
                   {link.name}
                 </Link>
@@ -141,7 +143,7 @@ const Navbar = () => {
               Subscribe
             </Button>
 
-            {/* Mobile Auth Buttons */}
+            {/* Auth Buttons (Mobile) */}
             {!isAuthenticated ? (
               <>
                 <Link href="/login" onClick={() => setMenuOpen(false)}>

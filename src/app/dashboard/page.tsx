@@ -445,14 +445,14 @@ export default function DashboardPage() {
           >
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text">
-                Your Personalized Dashboard
+                Personalised Zynapse 
               </h1>
               <p className="text-neondark-muted mt-2">Content tailored to your interests and preferences</p>
             </div>
 
             <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
               {preferences?.interests.map((interest) => (
-                <Badge key={interest} className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
+                <Badge key={interest} className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-none">
                   {interest}
                 </Badge>
               ))}
@@ -616,8 +616,8 @@ export default function DashboardPage() {
 
           {/* TABS */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6">
-              <TabsTrigger value="overview" className="flex items-center">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6 mx-auto">
+          <TabsTrigger value="overview" className="flex items-center">
                 <Newspaper className="h-4 w-4 mr-2" />
                 Overview
               </TabsTrigger>
