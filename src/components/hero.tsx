@@ -12,8 +12,6 @@ export function ThreeDCardDemo() {
       
       
 
-      
-
         <CardItem translateZ="100" className="w-full mt-6">
           <Image
             src="/assests/image.png" // ✅ Make sure image is in /public/assets

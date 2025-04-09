@@ -3,12 +3,13 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { BarChart3, Cpu, Globe, LineChart, Lock, Zap, ChevronRight, ArrowRight, Github, MessageSquare, Database, BarChart4, Newspaper, Twitter } from "lucide-react"
 import { ThreeDCardDemo } from "@/components/hero"
+import { BackgroundBeams } from "@/components/ui/beams"
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-neondark-bg text-foreground">
+    <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
       {/* Header */}
-  
+  <BackgroundBeams />
       {/* Hero Section */}
       <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
@@ -36,14 +37,7 @@ export default function LandingPage() {
                 </Button>
               </div>
               <div className="flex items-center gap-4 pt-6">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full border-2 border-neondark-bg bg-gray-200 dark:bg-gray-800"
-                    ></div>
-                  ))}
-                </div>
+             
                 <p className="text-sm text-neondark-muted">
                   <span className="text-neondark-text font-medium">2,500+</span> developers trust Zynapse
                 </p>
