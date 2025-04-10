@@ -1,16 +1,12 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { BackgroundBeams } from "@/components/ui/beams"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -23,7 +19,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, PlusCircle, CheckCircle, XCircle, Loader2, ExternalLink, AlertCircle } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { GoogleGenerativeAI } from "@google/generative-ai"
 
 interface Opportunity {
   id: string
@@ -35,10 +30,11 @@ interface Opportunity {
   url: string
   verified: boolean
   createdAt: Date
+  logo: string // Add this new field
 }
 
 interface Notification {
-  type: 'success' | 'error' | 'info'
+  type: "success" | "error" | "info"
   message: string
 }
 
@@ -62,6 +58,7 @@ export default function OpportunitiesPage() {
     eligibility: "",
     deadline: new Date(),
     url: "",
+    logo: "", // Add this new field
   })
   const [date, setDate] = useState<Date>(new Date())
   const [error, setError] = useState<string | null>(null)
@@ -74,8 +71,8 @@ export default function OpportunitiesPage() {
     const fetchOpportunities = async () => {
       try {
         // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
         // Hardcoded opportunities
         const hardcodedOpportunities: Opportunity[] = [
           {
@@ -83,11 +80,13 @@ export default function OpportunitiesPage() {
             name: "Google Women Techmakers Scholarship",
             organization: "Google",
             description: "Scholarship program for women in computer science and related fields.",
-            eligibility: "Women pursuing degrees in computer science, computer engineering, or related technical fields.",
+            eligibility:
+              "Women pursuing degrees in computer science, computer engineering, or related technical fields.",
             deadline: new Date("2024-12-15"),
             url: "https://www.womentechmakers.com/scholars",
             verified: true,
             createdAt: new Date("2023-01-15"),
+            logo: "/images/google-logo.png",
           },
           {
             id: "2",
@@ -99,6 +98,7 @@ export default function OpportunitiesPage() {
             url: "https://www.microsoft.com/en-us/research/academic-program/fellowships/",
             verified: true,
             createdAt: new Date("2023-02-20"),
+            logo: "/images/microsoft-logo.png",
           },
           {
             id: "3",
@@ -110,6 +110,7 @@ export default function OpportunitiesPage() {
             url: "https://ghc.anitab.org/",
             verified: true,
             createdAt: new Date("2023-03-10"),
+            logo: "/images/anitab-logo.png",
           },
           {
             id: "4",
@@ -121,6 +122,7 @@ export default function OpportunitiesPage() {
             url: "https://aws.amazon.com/education/awseducate/",
             verified: true,
             createdAt: new Date("2023-04-05"),
+            logo: "/images/aws-logo.png",
           },
           {
             id: "5",
@@ -132,6 +134,7 @@ export default function OpportunitiesPage() {
             url: "https://www.womenwhocode.com/mentorship",
             verified: true,
             createdAt: new Date("2023-05-12"),
+            logo: "/images/wwc-logo.png",
           },
           {
             id: "6",
@@ -143,6 +146,7 @@ export default function OpportunitiesPage() {
             url: "https://www.intel.com/content/www/us/en/artificial-intelligence/women-in-ai.html",
             verified: true,
             createdAt: new Date("2023-06-18"),
+            logo: "/images/intel-logo.png",
           },
           {
             id: "7",
@@ -154,6 +158,7 @@ export default function OpportunitiesPage() {
             url: "https://www.adobe.com/diversity/digital-academy.html",
             verified: true,
             createdAt: new Date("2023-07-22"),
+            logo: "/images/adobe-logo.png",
           },
           {
             id: "8",
@@ -165,6 +170,7 @@ export default function OpportunitiesPage() {
             url: "https://research.ibm.com/quantum-computing",
             verified: true,
             createdAt: new Date("2023-08-30"),
+            logo: "/images/ibm-logo.png",
           },
           {
             id: "9",
@@ -176,6 +182,7 @@ export default function OpportunitiesPage() {
             url: "https://www.salesforce.org/education/scholarships/",
             verified: true,
             createdAt: new Date("2023-09-14"),
+            logo: "/images/salesforce-logo.png",
           },
           {
             id: "10",
@@ -187,9 +194,10 @@ export default function OpportunitiesPage() {
             url: "https://education.github.com/pack",
             verified: true,
             createdAt: new Date("2023-10-05"),
+            logo: "/images/github-logo.png",
           },
         ]
-        
+
         setOpportunities(hardcodedOpportunities)
         setIsLoading(false)
       } catch (error) {
@@ -198,7 +206,7 @@ export default function OpportunitiesPage() {
         setIsLoading(false)
       }
     }
-    
+
     fetchOpportunities()
   }, [])
 
@@ -208,20 +216,20 @@ export default function OpportunitiesPage() {
       const timer = setTimeout(() => {
         setNotification(null)
       }, 5000)
-      
+
       return () => clearTimeout(timer)
     }
   }, [notification])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       setDate(date)
-      setFormData(prev => ({ ...prev, deadline: date }))
+      setFormData((prev) => ({ ...prev, deadline: date }))
     }
   }
 
@@ -241,32 +249,26 @@ export default function OpportunitiesPage() {
       eligibility: "",
       deadline: new Date(),
       url: "",
+      logo: "",
     })
     setDate(new Date())
     setError(null)
   }
 
-
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted", formData);
-  
+    e.preventDefault()
+    console.log("Form submitted", formData)
+
     // Basic validation
-    if (
-      !formData.name ||
-      !formData.organization ||
-      !formData.description ||
-      !formData.eligibility ||
-      !formData.url
-    ) {
-      setError("Please fill in all required fields");
-      return;
+    if (!formData.name || !formData.organization || !formData.description || !formData.eligibility || !formData.url) {
+      setError("Please fill in all required fields")
+      return
     }
-  
-    setIsSubmitting(true);
-    setIsVerifying(true);
-    setError(null);
-  
+
+    setIsSubmitting(true)
+    setIsVerifying(true)
+    setError(null)
+
     try {
       // 🔁 Call the backend API route instead of directly importing verifyWithGemini
       const res = await fetch("/api/verify", {
@@ -276,14 +278,13 @@ export default function OpportunitiesPage() {
         },
         body: JSON.stringify(formData),
       })
-      
-  
-      const verificationResult = await res.json();
-  
+
+      const verificationResult = await res.json()
+
       if (!res.ok) {
-        throw new Error(verificationResult.error || "Verification failed");
+        throw new Error(verificationResult.error || "Verification failed")
       }
-  
+
       if (verificationResult.isValid) {
         const newOpportunity: Opportunity = {
           id: Date.now().toString(),
@@ -295,36 +296,36 @@ export default function OpportunitiesPage() {
           url: formData.url,
           verified: true,
           createdAt: new Date(),
-        };
-  
-        setOpportunities((prev) => [newOpportunity, ...prev]);
-  
+          logo: formData.logo || `/images/default-logo.png`, // Add this with a default fallback
+        }
+
+        setOpportunities((prev) => [newOpportunity, ...prev])
+
         setNotification({
           type: "success",
           message: "Opportunity added successfully!",
-        });
-  
-        handleCloseModal();
+        })
+
+        handleCloseModal()
       } else {
-        setError(`This opportunity could not be verified: ${verificationResult.reason}`);
+        setError(`This opportunity could not be verified: ${verificationResult.reason}`)
         setNotification({
           type: "error",
           message: "Verification failed. Please check your information.",
-        });
+        })
       }
     } catch (error) {
-      console.error("Error submitting opportunity:", error);
-      setError("An error occurred while submitting the opportunity. Please try again.");
+      console.error("Error submitting opportunity:", error)
+      setError("An error occurred while submitting the opportunity. Please try again.")
       setNotification({
         type: "error",
         message: "An error occurred. Please try again.",
-      });
+      })
     } finally {
-      setIsSubmitting(false);
-      setIsVerifying(false);
+      setIsSubmitting(false)
+      setIsVerifying(false)
     }
-  };
-  
+  }
 
   return (
     <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
@@ -340,17 +341,17 @@ export default function OpportunitiesPage() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
           className={`fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
-            notification.type === 'success' 
-              ? 'bg-green-950/80 border border-green-500 text-green-400' 
-              : notification.type === 'error'
-                ? 'bg-red-950/80 border border-red-500 text-red-400'
-                : 'bg-cyan-950/80 border border-cyan-500 text-cyan-400'
+            notification.type === "success"
+              ? "bg-green-950/80 border border-green-500 text-green-400"
+              : notification.type === "error"
+                ? "bg-red-950/80 border border-red-500 text-red-400"
+                : "bg-cyan-950/80 border border-cyan-500 text-cyan-400"
           }`}
         >
           <div className="flex items-center">
-            {notification.type === 'success' ? (
+            {notification.type === "success" ? (
               <CheckCircle className="h-5 w-5 mr-2" />
-            ) : notification.type === 'error' ? (
+            ) : notification.type === "error" ? (
               <XCircle className="h-5 w-5 mr-2" />
             ) : (
               <AlertCircle className="h-5 w-5 mr-2" />
@@ -372,15 +373,13 @@ export default function OpportunitiesPage() {
               Tech Opportunities for Women
             </h1>
             <p className="text-neondark-muted max-w-2xl mx-auto">
-              Discover scholarships, fellowships, mentorship programs, and other opportunities designed to support women in technology.
+              Discover scholarships, fellowships, mentorship programs, and other opportunities designed to support women
+              in technology.
             </p>
           </motion.div>
 
           <div className="flex justify-end mb-6">
-            <Button
-              onClick={handleOpenModal}
-              className="bg-cyan-400 text-black hover:bg-cyan-500"
-            >
+            <Button onClick={handleOpenModal} className="bg-cyan-400 text-black hover:bg-cyan-500">
               <PlusCircle className="mr-2 h-4 w-4" />
               Add More
             </Button>
@@ -394,8 +393,8 @@ export default function OpportunitiesPage() {
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <XCircle className="h-12 w-12 text-red-500 mb-4" />
               <p className="text-neondark-muted">{error}</p>
-              <Button 
-                onClick={() => window.location.reload()} 
+              <Button
+                onClick={() => window.location.reload()}
                 className="mt-4 bg-cyan-400 text-black hover:bg-cyan-500"
               >
                 Try Again
@@ -413,9 +412,22 @@ export default function OpportunitiesPage() {
                   <Card className="border-neondark-border bg-neondark-card/80 backdrop-blur-sm shadow-lg h-full">
                     <CardHeader>
                       <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-neondark-text">{opportunity.name}</CardTitle>
-                          <CardDescription className="text-cyan-400">{opportunity.organization}</CardDescription>
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 mr-3 rounded-md overflow-hidden bg-white p-1 flex items-center justify-center">
+                            <img
+                              src={opportunity.logo || "/placeholder.svg"}
+                              alt={`${opportunity.organization} logo`}
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                // Fallback if image fails to load
+                                e.currentTarget.src = "/images/default-logo.png"
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <CardTitle className="text-neondark-text">{opportunity.name}</CardTitle>
+                            <CardDescription className="text-cyan-400">{opportunity.organization}</CardDescription>
+                          </div>
                         </div>
                         {opportunity.verified && (
                           <Badge className="bg-cyan-950 text-cyan-400 border-cyan-400">
@@ -434,9 +446,7 @@ export default function OpportunitiesPage() {
                         </div>
                         <div>
                           <span className="text-sm font-medium text-neondark-text">Deadline:</span>
-                          <p className="text-sm text-neondark-muted">
-                            {format(opportunity.deadline, "MMMM d, yyyy")}
-                          </p>
+                          <p className="text-sm text-neondark-muted">{format(opportunity.deadline, "MMMM d, yyyy")}</p>
                         </div>
                       </div>
                       <div className="mt-4">
@@ -470,16 +480,14 @@ export default function OpportunitiesPage() {
 
           <Separator className="bg-neondark-border" />
 
-          {error && (
-            <div className="bg-red-950/50 border border-red-500 text-red-400 p-3 rounded-md mb-4">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-950/50 border border-red-500 text-red-400 p-3 rounded-md mb-4">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-neondark-text">Opportunity Name</Label>
+                <Label htmlFor="name" className="text-neondark-text">
+                  Opportunity Name
+                </Label>
                 <Input
                   id="name"
                   name="name"
@@ -490,7 +498,9 @@ export default function OpportunitiesPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="organization" className="text-neondark-text">Organization</Label>
+                <Label htmlFor="organization" className="text-neondark-text">
+                  Organization
+                </Label>
                 <Input
                   id="organization"
                   name="organization"
@@ -503,7 +513,9 @@ export default function OpportunitiesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-neondark-text">Description</Label>
+              <Label htmlFor="description" className="text-neondark-text">
+                Description
+              </Label>
               <Textarea
                 id="description"
                 name="description"
@@ -515,7 +527,9 @@ export default function OpportunitiesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="eligibility" className="text-neondark-text">Eligibility</Label>
+              <Label htmlFor="eligibility" className="text-neondark-text">
+                Eligibility
+              </Label>
               <Textarea
                 id="eligibility"
                 name="eligibility"
@@ -528,14 +542,16 @@ export default function OpportunitiesPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="deadline" className="text-neondark-text">Deadline</Label>
+                <Label htmlFor="deadline" className="text-neondark-text">
+                  Deadline
+                </Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal bg-neondark-bg border-neondark-border text-neondark-text",
-                        !date && "text-neondark-muted"
+                        !date && "text-neondark-muted",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4 text-cyan-400" />
@@ -554,7 +570,9 @@ export default function OpportunitiesPage() {
                 </Popover>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="url" className="text-neondark-text">URL</Label>
+                <Label htmlFor="url" className="text-neondark-text">
+                  URL
+                </Label>
                 <Input
                   id="url"
                   name="url"
@@ -567,6 +585,22 @@ export default function OpportunitiesPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="logo" className="text-neondark-text">
+                Organization Logo URL
+              </Label>
+              <Input
+                id="logo"
+                name="logo"
+                type="url"
+                value={formData.logo}
+                onChange={handleInputChange}
+                className="bg-neondark-bg border-neondark-border focus:border-cyan-400 focus:ring-cyan-400 text-neondark-text"
+                placeholder="https://example.com/logo.png"
+              />
+              <p className="text-xs text-neondark-muted">Optional: URL to the organization's logo</p>
+            </div>
+
             <DialogFooter className="pt-4">
               <Button
                 type="button"
@@ -577,11 +611,7 @@ export default function OpportunitiesPage() {
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
-                className="bg-cyan-400 text-black hover:bg-cyan-500"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="bg-cyan-400 text-black hover:bg-cyan-500" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -597,4 +627,4 @@ export default function OpportunitiesPage() {
       </Dialog>
     </div>
   )
-} 
+}
