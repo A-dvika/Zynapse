@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +34,7 @@ import {
   Newspaper,
   Search,
   TrendingUp,
+  BrainCircuit, // <-- Lucide icon for "Analyze"
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -43,122 +43,163 @@ import { format } from "date-fns"
 import { BackgroundBeams } from "@/components/ui/beams"
 import html2canvas from "html2canvas"
 
-// ----------------------------------------
-// Inline GadgetNews component
-// ----------------------------------------
-function GadgetNews() {
-  const [news, setNews] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// SHADCN/UI Dialog components for the AI insight modal
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
-  useEffect(() => {
-    async function fetchGadgetNews() {
-      try {
-        setLoading(true)
-        const res = await fetch("/api/gadgets")
-        if (!res.ok) throw new Error("Failed to fetch gadget news")
-        const articles = await res.json()
-        setNews(articles.slice(0, 5)) // Take only the first 5 articles
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred")
-        console.error("Error fetching gadget news:", err)
-      } finally {
-        setLoading(false)
+/* ---------------------------------------------------------------------
+   Insight Modal State + analyzeProduct() Function
+------------------------------------------------------------------------*/
+export default function ProductHuntPage() {
+  // NEW: insightModal stores whether we show the modal, loading state, and the AI text
+  const [insightModal, setInsightModal] = useState<{
+    open: boolean
+    loading: boolean
+    content: string
+    product: any
+  }>({
+    open: false,
+    loading: false,
+    content: "",
+    product: null,
+  })
+
+  async function analyzeProduct(product: any) {
+    setInsightModal({ open: true, loading: true, content: "", product })
+    try {
+      const res = await fetch("/api/producthunt/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: product.name, tagline: product.tagline }),
+      })
+
+      const json = await res.json()
+      setInsightModal({ open: true, loading: false, content: json.insight, product })
+    } catch (err) {
+      setInsightModal({ open: true, loading: false, content: "Error fetching analysis.", product })
+    }
+  }
+
+  // ----------------------------------------
+  // Inline GadgetNews component
+  // ----------------------------------------
+  function GadgetNews() {
+    const [news, setNews] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+      async function fetchGadgetNews() {
+        try {
+          setLoading(true)
+          const res = await fetch("/api/gadgets")
+          if (!res.ok) throw new Error("Failed to fetch gadget news")
+          const articles = await res.json()
+          setNews(articles.slice(0, 5)) // Take only the first 5 articles
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "An error occurred")
+          console.error("Error fetching gadget news:", err)
+        } finally {
+          setLoading(false)
+        }
       }
+      fetchGadgetNews()
+    }, [])
+
+    if (loading) {
+      return (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-3 items-start">
+              <Skeleton className="h-16 w-16 rounded-md" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )
     }
 
-    fetchGadgetNews()
-  }, [])
+    if (error) {
+      return (
+        <div className="text-center py-4 text-neondark-muted">
+          <p>Failed to load gadget news</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      )
+    }
 
-  if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex gap-3 items-start">
-            <Skeleton className="h-16 w-16 rounded-md" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/4" />
+        {news.map((article, index) => (
+          <motion.div
+            key={index}
+            className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: index * 0.05 }}
+            whileHover={{ scale: 1.01 }}
+          >
+            <div className="flex gap-3">
+              {article.urlToImage && (
+                <div className="flex-shrink-0">
+                  <img
+                    src={article.urlToImage || "/placeholder.svg"}
+                    alt={article.title}
+                    className="h-16 w-16 object-cover rounded-md"
+                    onError={(e) => {
+                      // Replace broken images with a placeholder
+                      ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=64&width=64"
+                    }}
+                  />
+                </div>
+              )}
+              <div>
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
+                >
+                  {article.title}
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </a>
+                <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{article.description}</p>
+                <div className="flex items-center mt-1 text-xs text-neondark-muted">
+                  <span>{article.source?.name || "Unknown source"}</span>
+                  <span className="mx-1">•</span>
+                  <span>{formatNewsDate(article.publishedAt)}</span>
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     )
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-4 text-neondark-muted">
-        <p>Failed to load gadget news</p>
-        <p className="text-sm">{error}</p>
-      </div>
-    )
+  function formatNewsDate(dateString: string) {
+    if (!dateString) return "Unknown date"
+    try {
+      const date = new Date(dateString)
+      return format(date, "MMM d, yyyy")
+    } catch (e) {
+      return "Invalid date"
+    }
   }
 
-  return (
-    <div className="space-y-3">
-      {news.map((article, index) => (
-        <motion.div
-          key={index}
-          className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, delay: index * 0.05 }}
-          whileHover={{ scale: 1.01 }}
-        >
-          <div className="flex gap-3">
-            {article.urlToImage && (
-              <div className="flex-shrink-0">
-                <img
-                  src={article.urlToImage || "/placeholder.svg"}
-                  alt={article.title}
-                  className="h-16 w-16 object-cover rounded-md"
-                  onError={(e) => {
-                    // Replace broken images with a placeholder
-                    ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=64&width=64"
-                  }}
-                />
-              </div>
-            )}
-            <div>
-              <a
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
-              >
-                {article.title}
-                <ExternalLink className="ml-1 h-3 w-3" />
-              </a>
-              <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{article.description}</p>
-              <div className="flex items-center mt-1 text-xs text-neondark-muted">
-                <span>{article.source?.name || "Unknown source"}</span>
-                <span className="mx-1">•</span>
-                <span>{formatNewsDate(article.publishedAt)}</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  )
-}
-
-function formatNewsDate(dateString: string) {
-  if (!dateString) return "Unknown date"
-  try {
-    const date = new Date(dateString)
-    return format(date, "MMM d, yyyy")
-  } catch (e) {
-    return "Invalid date"
-  }
-}
-
-// ----------------------------------------
-// Main ProductHuntPage
-// ----------------------------------------
-export default function ProductHuntPage() {
+  // ----------------------------------------
+  // Main State for Product Hunt
+  // ----------------------------------------
   const [data, setData] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
@@ -188,15 +229,12 @@ export default function ProductHuntPage() {
   }
 
   // 2. AUTOMATE chart capture when data is loaded
-  //    - We set defaultValue="trends" so the chart is rendered on page load
   useEffect(() => {
     if (!data) return
-
     // Wait a bit so Recharts finishes rendering
     const timer = setTimeout(() => {
       captureAndUploadChart()
     }, 2000)
-
     return () => clearTimeout(timer)
   }, [data])
 
@@ -335,7 +373,7 @@ export default function ProductHuntPage() {
   const totalComments = processedData.reduce((acc: number, product: any) => acc + (product.commentsCount || 0), 0)
   const uniqueTopics = [...new Set(allTopics)].length
 
-  // Colors for charts - using cyan theme
+  // Colors for charts
   const colors = [
     "#00FFFF", // Cyan
     "#00DFDF",
@@ -363,6 +401,7 @@ export default function ProductHuntPage() {
         transition={{ duration: 0.6 }}
         className="p-6 space-y-8 max-w-7xl mx-auto relative z-10"
       >
+        {/* Header & Search */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">
@@ -431,7 +470,6 @@ export default function ProductHuntPage() {
           />
         </div>
 
-        {/* CHANGED defaultValue to "trends" so the chart is loaded on page mount */}
         <Tabs defaultValue="trends" className="space-y-6">
           <TabsList className="grid w-full md:w-auto grid-cols-3 bg-neondark-card/50 border border-neondark-border">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -439,9 +477,9 @@ export default function ProductHuntPage() {
             <TabsTrigger value="trends">Trends</TabsTrigger>
           </TabsList>
 
-          {/* ---------------------------------- */}
-          {/* OVERVIEW TAB */}
-          {/* ---------------------------------- */}
+          {/* ----------------------------------
+              OVERVIEW TAB
+          ---------------------------------- */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trending Products */}
@@ -508,13 +546,19 @@ export default function ProductHuntPage() {
                                   <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{product.tagline}</p>
                                 </div>
                               </div>
-                              <Badge
-                                variant="secondary"
-                                className="ml-2 flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
-                              >
-                                <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
-                                {product.votesCount}
-                              </Badge>
+                              <div className="flex flex-col gap-1 items-end">
+                                <Badge
+                                  variant="secondary"
+                                  className="ml-2 flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                                >
+                                  <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
+                                  {product.votesCount}
+                                </Badge>
+                                {/* The new Analyze button */}
+                                <Button variant="ghost" size="sm" onClick={() => analyzeProduct(product)}>
+                                  <BrainCircuit className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                             {product.topics && product.topics.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2 ml-[52px]">
@@ -605,6 +649,10 @@ export default function ProductHuntPage() {
                                 <span className="text-xs text-neondark-muted mt-1">
                                   {formatDate(product.createdAt)}
                                 </span>
+                                {/* The Analyze button */}
+                                <Button variant="ghost" size="sm" onClick={() => analyzeProduct(product)} className="mt-1">
+                                  <BrainCircuit className="h-4 w-4" />
+                                </Button>
                               </div>
                             </div>
                           </motion.li>
@@ -639,9 +687,9 @@ export default function ProductHuntPage() {
             </Card>
           </TabsContent>
 
-          {/* ---------------------------------- */}
-          {/* ALL PRODUCTS TAB */}
-          {/* ---------------------------------- */}
+          {/* ----------------------------------
+              ALL PRODUCTS TAB
+          ---------------------------------- */}
           <TabsContent value="products" className="space-y-6">
             <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader>
@@ -703,7 +751,10 @@ export default function ProductHuntPage() {
                                   <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
                                   {product.votesCount}
                                 </Badge>
-                                <Badge variant="outline" className="flex items-center gap-1 border-neondark-border">
+                                <Badge
+                                  variant="outline"
+                                  className="flex items-center gap-1 border-neondark-border"
+                                >
                                   <MessageSquare className="h-3 w-3" />
                                   {product.commentsCount || 0}
                                 </Badge>
@@ -733,10 +784,19 @@ export default function ProductHuntPage() {
                                       {product.maker.name?.charAt(0) || "M"}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span className="text-xs text-neondark-muted">{product.maker.name || "Maker"}</span>
+                                  <span className="text-xs text-neondark-muted">
+                                    {product.maker.name || "Maker"}
+                                  </span>
                                 </div>
                               )}
                               <span className="text-xs text-neondark-muted">{formatDate(product.createdAt)}</span>
+                            </div>
+                            {/* The Analyze with AI button for each product */}
+                            <div className="mt-2 flex items-center justify-between">
+                              <Button variant="ghost" size="sm" onClick={() => analyzeProduct(product)}>
+                                <BrainCircuit className="h-4 w-4 mr-1" />
+                                Analyze
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -748,9 +808,9 @@ export default function ProductHuntPage() {
             </Card>
           </TabsContent>
 
-          {/* ---------------------------------- */}
-          {/* TRENDS TAB (DEFAULT) */}
-          {/* ---------------------------------- */}
+          {/* ----------------------------------
+              TRENDS TAB (DEFAULT)
+          ---------------------------------- */}
           <div
             id="chart-screenshot-clone"
             style={{
@@ -783,7 +843,6 @@ export default function ProductHuntPage() {
                   <CardTitle>Upvote Distribution</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {/* 4. Wrap chart in a div with ref */}
                   <div ref={upvoteChartRef} className="w-full h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
@@ -960,24 +1019,49 @@ export default function ProductHuntPage() {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Inspirational Quote */}
-        <motion.div
-          className="text-center mt-10 text-lg italic text-neondark-muted"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          "Great products solve real problems with elegant solutions."
-        </motion.div>
       </motion.section>
+
+      {/* ----------------------------------------
+          AI Insight Modal
+      ---------------------------------------- */}
+    
+
+    <Dialog
+      open={insightModal.open}
+      onOpenChange={(open) => setInsightModal((prev) => ({ ...prev, open }))}
+    >
+      <DialogContent className="bg-black p-4 rounded-lg border border-cyan-400 max-w-xl shadow-lg shadow-cyan-400/20">
+        <DialogHeader>
+          <DialogTitle className="text-cyan-400 font-bold">AI Insight</DialogTitle>
+          <DialogDescription className="text-xs text-cyan-600">
+            A concise analysis generated by our AI
+          </DialogDescription>
+        </DialogHeader>
+        <div className="mt-2 min-h-[80px] text-sm text-cyan-50">
+          {insightModal.loading ? (
+            <div className="text-cyan-300">Loading AI analysis...</div>
+          ) : (
+            insightModal.content
+          )}
+        </div>
+        <DialogFooter>
+          <Button 
+            variant="outline" 
+            className="text-cyan-400 border-cyan-700 hover:bg-cyan-950 hover:border-cyan-400 transition-all duration-300"
+            onClick={() => setInsightModal({ ...insightModal, open: false })}
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </div>
   )
 }
 
-// ----------------------------------------
-// Stats Card Component
-// ----------------------------------------
+/* ----------------------------------------
+   Stats Card Component
+---------------------------------------- */
 function StatsCard({
   title,
   value,
@@ -1010,9 +1094,9 @@ function StatsCard({
   )
 }
 
-// ----------------------------------------
-// Helper: formatDate
-// ----------------------------------------
+/* ----------------------------------------
+   Helper: formatDate
+---------------------------------------- */
 function formatDate(dateString: string) {
   if (!dateString) return "Unknown date"
   try {
@@ -1023,9 +1107,9 @@ function formatDate(dateString: string) {
   }
 }
 
-// ----------------------------------------
-// Helper: Upvote distribution
-// ----------------------------------------
+/* ----------------------------------------
+   Helper: Upvote distribution
+---------------------------------------- */
 function generateUpvoteDistributionData(products: any[]) {
   const ranges = [
     { min: 0, max: 10, label: "0-10" },
@@ -1044,9 +1128,9 @@ function generateUpvoteDistributionData(products: any[]) {
   return distribution
 }
 
-// ----------------------------------------
-// Helper: Launch Day Data
-// ----------------------------------------
+/* ----------------------------------------
+   Helper: Launch Day Data
+---------------------------------------- */
 function generateLaunchDayData(products: any[]) {
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
   const dayStats = days.map((day) => ({

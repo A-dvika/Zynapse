@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -30,16 +28,30 @@ import {
   Clock,
   ExternalLink,
   Filter,
-  LineChartIcon,
+  LineChart as LineChartIcon,
   MessageSquare,
   Search,
   TrendingUp,
   User,
   Calendar,
+  BrainCircuit, // <-- AI "Analyze" icon from lucide-react
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
+// Import Shadcn UI Dialog components for the AI insight modal
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+
 export default function HackerNewsPage() {
+  // ---------------------------
+  // 1) STATE FOR MAIN DASHBOARD
+  // ---------------------------
   const [data, setData] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [chartType, setChartType] = useState<"bar" | "line">("bar")
@@ -49,6 +61,60 @@ export default function HackerNewsPage() {
     techNews: false,
   })
 
+  // ---------------------------
+  // 2) STATE & FUNCTION FOR AI INSIGHT MODAL
+  // ---------------------------
+  const [insightModal, setInsightModal] = useState<{
+    open: boolean
+    loading: boolean
+    content: string
+    story: any | null
+  }>({
+    open: false,
+    loading: false,
+    content: "",
+    story: null,
+  })
+
+  async function analyzeStory(story: any) {
+    // Use the correct field name from your data
+    if (!story.title || !story.author) {
+      console.error("Missing title or author", story)
+      return
+    }
+    
+    // Open the modal immediately and show a loading state
+    setInsightModal({ open: true, loading: true, content: "", story })
+  
+    try {
+      const res = await fetch("/api/hackernews/analyse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: story.title,
+          author: story.author, // Correct field
+          url: story.url || "",
+          points: story.score || 0,
+          comments: story.comments || 0,
+        }),
+      })
+  
+      const data = await res.json()
+      console.log("Insight:", data.insight || data.error)
+      // Update modal state with the returned insight and turn off loading
+      setInsightModal({ open: true, loading: false, content: data.insight || data.error, story })
+    } catch (err) {
+      console.error("Analysis request failed", err)
+      // Close the loading state and display an error message
+      setInsightModal({ open: true, loading: false, content: "Error calling AI analysis endpoint.", story })
+    }
+  }
+  
+ 
+
+  // ---------------------------
+  // 3) FETCH MAIN DATA
+  // ---------------------------
   useEffect(() => {
     const fetchHackerNewsData = async () => {
       const res = await fetch("/api/hackernews")
@@ -65,6 +131,9 @@ export default function HackerNewsPage() {
     }))
   }
 
+  // ---------------------------
+  // 4) FILTER & HELPER LOGIC
+  // ---------------------------
   // Filter stories based on search term
   const filteredStories = data
     ? data.hackerNewsStories.filter(
@@ -82,7 +151,7 @@ export default function HackerNewsPage() {
       )
     : []
 
-  // Generate engagement data for visualization
+  // Generate engagement data for the bar chart
   const generateEngagementData = () => {
     return data
       ? data.hackerNewsStories.map((story: any) => ({
@@ -93,7 +162,7 @@ export default function HackerNewsPage() {
       : []
   }
 
-  // Generate time-based data for visualization
+  // Generate time-based data for the line chart
   const generateTimeData = () => {
     const days = timeRange === "day" ? 1 : timeRange === "week" ? 7 : 30
     const timeData = []
@@ -107,7 +176,7 @@ export default function HackerNewsPage() {
         day: "numeric",
       })
 
-      // Simulate activity metrics based on time range
+      // Simulate activity metrics
       const storyCount = Math.floor(Math.random() * 15) + 5
       const commentCount = Math.floor(Math.random() * 50) + 20
 
@@ -127,7 +196,9 @@ export default function HackerNewsPage() {
     ? data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.descendants || 0), 0)
     : 0
   const avgScore = data
-    ? Math.round(data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.score || 0), 0) / totalStories)
+    ? Math.round(
+        data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.score || 0), 0) / totalStories,
+      )
     : 0
   const totalTechNews = data ? data.techNewsItems.length : 0
 
@@ -143,7 +214,7 @@ export default function HackerNewsPage() {
     "#ec4899", // Pink
   ]
 
-  // Generate source distribution data
+  // Generate source distribution data (for the Pie chart)
   const getSourceDistribution = () => {
     if (!data) return []
     const sources: { [key: string]: number } = {}
@@ -194,7 +265,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "day" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "day" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "day"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("day")}
               >
                 Day
@@ -202,7 +277,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "week" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "week" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "week"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("week")}
               >
                 Week
@@ -210,7 +289,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "month" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "month" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "month"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("month")}
               >
                 Month
@@ -270,6 +353,9 @@ export default function HackerNewsPage() {
             </TabsTrigger>
           </TabsList>
 
+          {/* --------------------------------------
+              OVERVIEW TAB
+          -------------------------------------- */}
           <TabsContent value="overview" className="space-y-6">
             {data ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -285,11 +371,7 @@ export default function HackerNewsPage() {
                       onClick={() => toggleExpand("topStories")}
                       className="h-8 w-8 p-0 hover:bg-cyan-950"
                     >
-                      {expandedCards.topStories ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
+                      {expandedCards.topStories ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
                   </CardHeader>
                   <CardContent>
@@ -328,10 +410,19 @@ export default function HackerNewsPage() {
                                 <Clock className="h-3.5 w-3.5 mr-1 text-green-500" />
                                 {formatTime(story.time)}
                               </div>
-                              <div className="flex items-center">
+                              <div className="flex items-center mr-2">
                                 <MessageSquare className="h-3.5 w-3.5 mr-1 text-purple-500" />
                                 {story.descendants || 0} comments
                               </div>
+                              {/* ANALYZE BUTTON */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1"
+                                onClick={() => analyzeStory(story)}
+                              >
+                                <BrainCircuit className="h-4 w-4" />
+                              </Button>
                             </div>
                           </motion.li>
                         ))}
@@ -359,7 +450,9 @@ export default function HackerNewsPage() {
                       <Button
                         variant={chartType === "bar" ? "default" : "outline"}
                         size="icon"
-                        className={`h-8 w-8 ${chartType === "bar" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
+                        className={`h-8 w-8 ${
+                          chartType === "bar" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"
+                        }`}
                         onClick={() => setChartType("bar")}
                       >
                         <BarChart3 className="h-4 w-4" />
@@ -367,7 +460,9 @@ export default function HackerNewsPage() {
                       <Button
                         variant={chartType === "line" ? "default" : "outline"}
                         size="icon"
-                        className={`h-8 w-8 ${chartType === "line" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
+                        className={`h-8 w-8 ${
+                          chartType === "line" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"
+                        }`}
                         onClick={() => setChartType("line")}
                       >
                         <LineChartIcon className="h-4 w-4" />
@@ -514,6 +609,9 @@ export default function HackerNewsPage() {
             </Card>
           </TabsContent>
 
+          {/* --------------------------------------
+              TOP STORIES TAB
+          -------------------------------------- */}
           <TabsContent value="stories" className="space-y-6">
             <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
@@ -557,9 +655,19 @@ export default function HackerNewsPage() {
                               </div>
                             </div>
                           </div>
-                          <Badge className="bg-orange-950 text-orange-300 border-orange-800">
-                            {story.score} points
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-orange-950 text-orange-300 border-orange-800">{story.score} points</Badge>
+                            {/* ANALYZE BUTTON */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center gap-1"
+                              onClick={() => analyzeStory(story)}
+                            >
+                              <BrainCircuit className="h-4 w-4" />
+                              Analyze
+                            </Button>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
@@ -571,6 +679,9 @@ export default function HackerNewsPage() {
             </Card>
           </TabsContent>
 
+          {/* --------------------------------------
+              TECH NEWS TAB
+          -------------------------------------- */}
           <TabsContent value="technews" className="space-y-6">
             <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
@@ -654,11 +765,38 @@ export default function HackerNewsPage() {
           "Talk is cheap. Show me the code." — Linus Torvalds
         </motion.div>
       </motion.section>
+
+      {/* ----------------------------------------
+          AI Insight Modal
+      ---------------------------------------- */}
+      <Dialog
+        open={insightModal.open}
+        onOpenChange={(open) => setInsightModal((prev) => ({ ...prev, open }))}
+      >
+        <DialogContent className="bg-gray-800/90 p-4 rounded-lg border border-gray-700 max-w-xl">
+          <DialogHeader>
+            <DialogTitle>AI Insight</DialogTitle>
+            <DialogDescription className="text-xs text-gray-400">
+              Generated by Gemini (based on Google fallback + story metadata)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 min-h-[80px] text-sm">
+            {insightModal.loading ? "Analyzing story..." : insightModal.content}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInsightModal((prev) => ({ ...prev, open: false }))}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-// Stats Card Component
+/* ----------------------------------------
+   Stats Card Component
+---------------------------------------- */
 function StatsCard({
   title,
   value,
@@ -691,10 +829,11 @@ function StatsCard({
   )
 }
 
-// Helper function to format Unix timestamp
+/* ----------------------------------------
+   Helper: formatTime (Unix timestamp)
+---------------------------------------- */
 function formatTime(unixTimestamp: number) {
   if (!unixTimestamp) return "Unknown"
-
   const date = new Date(unixTimestamp * 1000)
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
@@ -705,10 +844,11 @@ function formatTime(unixTimestamp: number) {
   return `${Math.floor(diffInSeconds / 86400)}d ago`
 }
 
-// Helper function to format ISO date
+/* ----------------------------------------
+   Helper: formatDate (ISO date)
+---------------------------------------- */
 function formatDate(dateString: string) {
   if (!dateString) return "Unknown"
-
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
