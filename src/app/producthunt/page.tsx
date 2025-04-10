@@ -39,7 +39,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
-import { format, subDays } from "date-fns"
+import { format } from "date-fns"
 import { BackgroundBeams } from "@/components/ui/beams"
 import html2canvas from "html2canvas"
 
@@ -89,7 +89,7 @@ function GadgetNews() {
 
   if (error) {
     return (
-      <div className="text-center py-4 text-muted-foreground">
+      <div className="text-center py-4 text-neondark-muted">
         <p>Failed to load gadget news</p>
         <p className="text-sm">{error}</p>
       </div>
@@ -97,11 +97,11 @@ function GadgetNews() {
   }
 
   return (
-    <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
+    <div className="space-y-3">
       {news.map((article, index) => (
         <motion.div
           key={index}
-          className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+          className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -116,7 +116,7 @@ function GadgetNews() {
                   className="h-16 w-16 object-cover rounded-md"
                   onError={(e) => {
                     // Replace broken images with a placeholder
-                    (e.target as HTMLImageElement).src = "/placeholder.svg?height=64&width=64"
+                    ;(e.target as HTMLImageElement).src = "/placeholder.svg?height=64&width=64"
                   }}
                 />
               </div>
@@ -126,13 +126,13 @@ function GadgetNews() {
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-primary hover:underline flex items-center"
+                className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
               >
                 {article.title}
                 <ExternalLink className="ml-1 h-3 w-3" />
               </a>
-              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{article.description}</p>
-              <div className="flex items-center mt-1 text-xs text-muted-foreground">
+              <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{article.description}</p>
+              <div className="flex items-center mt-1 text-xs text-neondark-muted">
                 <span>{article.source?.name || "Unknown source"}</span>
                 <span className="mx-1">•</span>
                 <span>{formatNewsDate(article.publishedAt)}</span>
@@ -236,48 +236,55 @@ export default function ProductHuntPage() {
   if (!data) {
     // Loading skeleton
     return (
-      <div className="p-6 space-y-6 max-w-7xl mx-auto">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-60" />
-          <Skeleton className="h-4 w-40" />
-        </div>
+      <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
+        <BackgroundBeams />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-md" />
-          ))}
-        </div>
+        <div className="p-6 space-y-6 max-w-7xl mx-auto relative z-10">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-60" />
+            <Skeleton className="h-4 w-40" />
+          </div>
 
-        <div className="space-y-4">
-          <div className="flex gap-2">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-8 w-24 rounded-md" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-md" />
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="h-6 w-40" />
-                {[...Array(5)].map((_, j) => (
-                  <Skeleton key={j} className="h-20 w-full rounded-md" />
-                ))}
-              </div>
-            ))}
-          </div>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-24 rounded-md" />
+              ))}
+            </div>
 
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-60" />
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <Skeleton className="h-16 w-16 rounded-md" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/4" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-6 w-40" />
+                  {[...Array(5)].map((_, j) => (
+                    <Skeleton key={j} className="h-20 w-full rounded-md" />
+                  ))}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              <Skeleton className="h-6 w-60" />
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <Skeleton className="h-16 w-16 rounded-md" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/4" />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -300,7 +307,7 @@ export default function ProductHuntPage() {
   const trendingProducts = [...filteredProducts].sort((a, b) => b.votesCount - a.votesCount)
   // Sort by date (recent)
   const recentProducts = [...filteredProducts].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   )
 
   // Extract categories/topics
@@ -328,27 +335,28 @@ export default function ProductHuntPage() {
   const totalComments = processedData.reduce((acc: number, product: any) => acc + (product.commentsCount || 0), 0)
   const uniqueTopics = [...new Set(allTopics)].length
 
-  // Colors
+  // Colors for charts - using cyan theme
   const colors = [
-    "#da552f",
-    "#10b981",
-    "#3b82f6",
-    "#8b5cf6",
-    "#facc15",
-    "#ef4444",
-    "#06b6d4",
-    "#ec4899",
-    "#6366f1",
-    "#84cc16",
+    "#00FFFF", // Cyan
+    "#00DFDF",
+    "#00BFBF",
+    "#009F9F",
+    "#007F7F",
+    "#8884d8", // Purple
+    "#82ca9d", // Green
+    "#ffc658", // Yellow
+    "#ff8042", // Orange
+    "#ff5252", // Red
   ]
 
   return (
     <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
       {/* Background gradients */}
+      <BackgroundBeams />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
-      
+
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -357,29 +365,29 @@ export default function ProductHuntPage() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Product Hunt Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">Track trending products, launches, and upvotes</p>
+            <p className="text-neondark-muted mt-1">Track trending products, launches, and upvotes</p>
           </motion.div>
 
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neondark-muted" />
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 w-[200px] md:w-[260px]"
+                className="pl-8 h-9 w-[200px] md:w-[260px] bg-neondark-card/50 border-neondark-border"
               />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-9 w-9">
+                <Button variant="outline" size="icon" className="h-9 w-9 border-neondark-border bg-neondark-card/50">
                   <Filter className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-neondark-card border-neondark-border">
                 <DropdownMenuItem onClick={() => setCategoryFilter(null)}>All Categories</DropdownMenuItem>
                 {topicData.map((topic) => (
                   <DropdownMenuItem key={topic.topic} onClick={() => setCategoryFilter(topic.topic)}>
@@ -397,35 +405,35 @@ export default function ProductHuntPage() {
             title="Total Products"
             value={totalProducts}
             icon={<Globe className="h-4 w-4" />}
-            color="bg-orange-500"
+            color="bg-cyan-500"
             index={0}
           />
           <StatsCard
             title="Total Upvotes"
             value={totalVotes}
             icon={<ArrowUpCircle className="h-4 w-4" />}
-            color="bg-green-500"
+            color="bg-cyan-600"
             index={1}
           />
           <StatsCard
             title="Total Comments"
             value={totalComments}
             icon={<MessageSquare className="h-4 w-4" />}
-            color="bg-blue-500"
+            color="bg-cyan-700"
             index={2}
           />
           <StatsCard
             title="Categories"
             value={uniqueTopics}
             icon={<TrendingUp className="h-4 w-4" />}
-            color="bg-purple-500"
+            color="bg-cyan-800"
             index={3}
           />
         </div>
 
         {/* CHANGED defaultValue to "trends" so the chart is loaded on page mount */}
         <Tabs defaultValue="trends" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 bg-neondark-card/50 border border-neondark-border">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="trends">Trends</TabsTrigger>
@@ -437,16 +445,16 @@ export default function ProductHuntPage() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trending Products */}
-              <Card className="bg-gray-800/30 border-gray-800">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <Flame className="h-5 w-5 text-orange-500" /> Trending Products
+                      <Flame className="h-5 w-5 text-cyan-400" /> Trending Products
                     </CardTitle>
                     {categoryFilter && (
                       <CardDescription className="flex items-center mt-1">
                         Filtered by:
-                        <Badge variant="outline" className="ml-2">
+                        <Badge variant="outline" className="ml-2 border-neondark-border">
                           {categoryFilter}
                           <Button
                             variant="ghost"
@@ -466,14 +474,14 @@ export default function ProductHuntPage() {
                 </CardHeader>
                 <CardContent>
                   {trendingProducts.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">No products match your search criteria</div>
+                    <div className="text-center py-8 text-neondark-muted">No products match your search criteria</div>
                   ) : (
                     <ul className="space-y-3">
                       {(expandedCards.trending ? trendingProducts : trendingProducts.slice(0, 5)).map(
                         (product: any, index: number) => (
                           <motion.li
                             key={product.id}
-                            className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                            className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -483,7 +491,7 @@ export default function ProductHuntPage() {
                               <div className="flex items-start gap-3">
                                 <Avatar className="h-10 w-10 rounded-md">
                                   <AvatarImage src={product.thumbnail || ""} alt={product.name} />
-                                  <AvatarFallback className="rounded-md bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+                                  <AvatarFallback className="rounded-md bg-cyan-900/50 text-cyan-300">
                                     {product.name?.charAt(0) || "P"}
                                   </AvatarFallback>
                                 </Avatar>
@@ -492,16 +500,19 @@ export default function ProductHuntPage() {
                                     href={product.url || `https://www.producthunt.com/posts/${product.slug}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="font-medium text-primary hover:underline flex items-center"
+                                    className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
                                   >
                                     {product.name}
                                     <ExternalLink className="ml-1 h-3 w-3" />
                                   </a>
-                                  <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{product.tagline}</p>
+                                  <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{product.tagline}</p>
                                 </div>
                               </div>
-                              <Badge variant="secondary" className="ml-2 flex items-center gap-1">
-                                <ArrowUpCircle className="h-3 w-3 text-orange-500" />
+                              <Badge
+                                variant="secondary"
+                                className="ml-2 flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                              >
+                                <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
                                 {product.votesCount}
                               </Badge>
                             </div>
@@ -511,7 +522,7 @@ export default function ProductHuntPage() {
                                   <Badge
                                     key={topic}
                                     variant="outline"
-                                    className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                    className="text-xs bg-cyan-900/20 text-cyan-400 hover:bg-cyan-900/40 cursor-pointer border-cyan-800/50"
                                     onClick={() => setCategoryFilter(topic)}
                                   >
                                     {topic}
@@ -525,7 +536,12 @@ export default function ProductHuntPage() {
                     </ul>
                   )}
                   {!expandedCards.trending && trendingProducts.length > 5 && (
-                    <Button variant="ghost" size="sm" onClick={() => toggleExpand("trending")} className="w-full mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpand("trending")}
+                      className="w-full mt-3 hover:bg-cyan-900/20 hover:text-cyan-400"
+                    >
                       View all {trendingProducts.length} products
                     </Button>
                   )}
@@ -533,10 +549,10 @@ export default function ProductHuntPage() {
               </Card>
 
               {/* Recent Products */}
-              <Card className="bg-gray-800/30 border-gray-800">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-green-500" /> Recent Launches
+                    <Calendar className="h-5 w-5 text-cyan-400" /> Recent Launches
                   </CardTitle>
                   <Button variant="ghost" size="sm" onClick={() => toggleExpand("recent")} className="h-8 w-8 p-0">
                     {expandedCards.recent ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -544,14 +560,14 @@ export default function ProductHuntPage() {
                 </CardHeader>
                 <CardContent>
                   {recentProducts.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">No products match your search criteria</div>
+                    <div className="text-center py-8 text-neondark-muted">No products match your search criteria</div>
                   ) : (
                     <ul className="space-y-3">
                       {(expandedCards.recent ? recentProducts : recentProducts.slice(0, 5)).map(
                         (product: any, index: number) => (
                           <motion.li
                             key={product.id}
-                            className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                            className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -561,7 +577,7 @@ export default function ProductHuntPage() {
                               <div className="flex items-start gap-3">
                                 <Avatar className="h-10 w-10 rounded-md">
                                   <AvatarImage src={product.thumbnail || ""} alt={product.name} />
-                                  <AvatarFallback className="rounded-md bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+                                  <AvatarFallback className="rounded-md bg-cyan-900/50 text-cyan-300">
                                     {product.name?.charAt(0) || "P"}
                                   </AvatarFallback>
                                 </Avatar>
@@ -570,20 +586,23 @@ export default function ProductHuntPage() {
                                     href={product.url || `https://www.producthunt.com/posts/${product.slug}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="font-medium text-primary hover:underline flex items-center"
+                                    className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
                                   >
                                     {product.name}
                                     <ExternalLink className="ml-1 h-3 w-3" />
                                   </a>
-                                  <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{product.tagline}</p>
+                                  <p className="text-sm text-neondark-muted mt-0.5 line-clamp-2">{product.tagline}</p>
                                 </div>
                               </div>
                               <div className="flex flex-col items-end">
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <ArrowUpCircle className="h-3 w-3 text-orange-500" />
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                                >
+                                  <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
                                   {product.votesCount}
                                 </Badge>
-                                <span className="text-xs text-muted-foreground mt-1">
+                                <span className="text-xs text-neondark-muted mt-1">
                                   {formatDate(product.createdAt)}
                                 </span>
                               </div>
@@ -594,7 +613,12 @@ export default function ProductHuntPage() {
                     </ul>
                   )}
                   {!expandedCards.recent && recentProducts.length > 5 && (
-                    <Button variant="ghost" size="sm" onClick={() => toggleExpand("recent")} className="w-full mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpand("recent")}
+                      className="w-full mt-3 hover:bg-cyan-900/20 hover:text-cyan-400"
+                    >
                       View all {recentProducts.length} products
                     </Button>
                   )}
@@ -603,10 +627,10 @@ export default function ProductHuntPage() {
             </div>
 
             {/* Gadget News */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <Newspaper className="h-5 w-5 text-purple-500" /> Latest Gadget News
+                  <Newspaper className="h-5 w-5 text-cyan-400" /> Latest Gadget News
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -619,13 +643,13 @@ export default function ProductHuntPage() {
           {/* ALL PRODUCTS TAB */}
           {/* ---------------------------------- */}
           <TabsContent value="products" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader>
                 <CardTitle>All Products</CardTitle>
                 {categoryFilter && (
                   <CardDescription className="flex items-center mt-1">
                     Filtered by:
-                    <Badge variant="outline" className="ml-2">
+                    <Badge variant="outline" className="ml-2 border-neondark-border">
                       {categoryFilter}
                       <Button
                         variant="ghost"
@@ -641,13 +665,13 @@ export default function ProductHuntPage() {
               </CardHeader>
               <CardContent>
                 {filteredProducts.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">No products match your search criteria</div>
+                  <div className="text-center py-8 text-neondark-muted">No products match your search criteria</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredProducts.map((product: any, index: number) => (
                       <motion.div
                         key={product.id}
-                        className="p-4 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                        className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -656,7 +680,7 @@ export default function ProductHuntPage() {
                         <div className="flex items-start gap-3">
                           <Avatar className="h-12 w-12 rounded-md">
                             <AvatarImage src={product.thumbnail || ""} alt={product.name} />
-                            <AvatarFallback className="rounded-md bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+                            <AvatarFallback className="rounded-md bg-cyan-900/50 text-cyan-300">
                               {product.name?.charAt(0) || "P"}
                             </AvatarFallback>
                           </Avatar>
@@ -666,30 +690,33 @@ export default function ProductHuntPage() {
                                 href={product.url || `https://www.producthunt.com/posts/${product.slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-primary hover:underline flex items-center"
+                                className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
                               >
                                 {product.name}
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
                               <div className="flex items-center gap-2">
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <ArrowUpCircle className="h-3 w-3 text-orange-500" />
+                                <Badge
+                                  variant="secondary"
+                                  className="flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                                >
+                                  <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
                                   {product.votesCount}
                                 </Badge>
-                                <Badge variant="outline" className="flex items-center gap-1">
+                                <Badge variant="outline" className="flex items-center gap-1 border-neondark-border">
                                   <MessageSquare className="h-3 w-3" />
                                   {product.commentsCount || 0}
                                 </Badge>
                               </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">{product.tagline}</p>
+                            <p className="text-sm text-neondark-muted mt-1">{product.tagline}</p>
                             {product.topics && product.topics.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
                                 {product.topics.map((topic: string) => (
                                   <Badge
                                     key={topic}
                                     variant="outline"
-                                    className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                    className="text-xs bg-cyan-900/20 text-cyan-400 hover:bg-cyan-900/40 cursor-pointer border-cyan-800/50"
                                     onClick={() => setCategoryFilter(topic)}
                                   >
                                     {topic}
@@ -702,14 +729,14 @@ export default function ProductHuntPage() {
                                 <div className="flex items-center">
                                   <Avatar className="h-5 w-5 mr-1">
                                     <AvatarImage src={product.maker.imageUrl || ""} />
-                                    <AvatarFallback>
+                                    <AvatarFallback className="bg-cyan-900/50 text-cyan-300">
                                       {product.maker.name?.charAt(0) || "M"}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span className="text-xs text-muted-foreground">{product.maker.name || "Maker"}</span>
+                                  <span className="text-xs text-neondark-muted">{product.maker.name || "Maker"}</span>
                                 </div>
                               )}
-                              <span className="text-xs text-muted-foreground">{formatDate(product.createdAt)}</span>
+                              <span className="text-xs text-neondark-muted">{formatDate(product.createdAt)}</span>
                             </div>
                           </div>
                         </div>
@@ -725,33 +752,33 @@ export default function ProductHuntPage() {
           {/* TRENDS TAB (DEFAULT) */}
           {/* ---------------------------------- */}
           <div
-  id="chart-screenshot-clone"
-  style={{
-    width: 600,
-    height: 300,
-    position: "absolute",
-    top: -9999,
-    left: -9999,
-    backgroundColor: "#000", // safe fallback
-    color: "#fff",
-    padding: "16px",
-  }}
->
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart data={generateUpvoteDistributionData(processedData)}>
-      <CartesianGrid stroke="#444" />
-      <XAxis dataKey="range" stroke="#fff" />
-      <YAxis stroke="#fff" />
-      <RechartsTooltip />
-      <Bar dataKey="count" fill="#da552f" />
-    </BarChart>
-  </ResponsiveContainer>
-</div>
+            id="chart-screenshot-clone"
+            style={{
+              width: 600,
+              height: 300,
+              position: "absolute",
+              top: -9999,
+              left: -9999,
+              backgroundColor: "var(--neondark-bg)",
+              color: "#fff",
+              padding: "16px",
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={generateUpvoteDistributionData(processedData)}>
+                <CartesianGrid stroke="#444" />
+                <XAxis dataKey="range" stroke="#fff" />
+                <YAxis stroke="#fff" />
+                <RechartsTooltip />
+                <Bar dataKey="count" fill="#00FFFF" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
           <TabsContent value="trends" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* UPVOTE DISTRIBUTION CHART */}
-              <Card className="bg-gray-800/30 border-gray-800">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader>
                   <CardTitle>Upvote Distribution</CardTitle>
                 </CardHeader>
@@ -767,7 +794,7 @@ export default function ProductHuntPage() {
                         <XAxis dataKey="range" />
                         <YAxis />
                         <RechartsTooltip formatter={(value) => [`${value} products`]} />
-                        <Bar dataKey="count" fill="#da552f" radius={[4, 4, 0, 0]}>
+                        <Bar dataKey="count" fill="#00FFFF" radius={[4, 4, 0, 0]}>
                           {generateUpvoteDistributionData(processedData).map((entry: any, index: number) => (
                             <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                           ))}
@@ -778,7 +805,7 @@ export default function ProductHuntPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800/30 border-gray-800">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader>
                   <CardTitle>Most Upvoted Products</CardTitle>
                 </CardHeader>
@@ -787,7 +814,7 @@ export default function ProductHuntPage() {
                     {trendingProducts.slice(0, 10).map((product: any, index: number) => (
                       <motion.div
                         key={product.id}
-                        className="p-3 rounded-lg border bg-card shadow-sm hover:shadow-md transition-shadow"
+                        className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -795,7 +822,7 @@ export default function ProductHuntPage() {
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex items-start gap-3">
-                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-orange-100 text-orange-800 font-bold dark:bg-orange-900 dark:text-orange-300">
+                            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-cyan-900/50 text-cyan-300 font-bold">
                               {index + 1}
                             </div>
                             <div>
@@ -803,16 +830,19 @@ export default function ProductHuntPage() {
                                 href={product.url || `https://www.producthunt.com/posts/${product.slug}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-primary hover:underline flex items-center"
+                                className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
                               >
                                 {product.name}
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
-                              <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{product.tagline}</p>
+                              <p className="text-sm text-neondark-muted mt-0.5 line-clamp-1">{product.tagline}</p>
                             </div>
                           </div>
-                          <Badge variant="secondary" className="ml-2 flex items-center gap-1">
-                            <ArrowUpCircle className="h-3 w-3 text-orange-500" />
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                          >
+                            <ArrowUpCircle className="h-3 w-3 text-cyan-400" />
                             {product.votesCount}
                           </Badge>
                         </div>
@@ -824,7 +854,7 @@ export default function ProductHuntPage() {
             </div>
 
             {/* Upvote to Comment Ratio */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader>
                 <CardTitle>Upvote to Comment Ratio</CardTitle>
                 <CardDescription>Higher ratio indicates more passive engagement</CardDescription>
@@ -856,9 +886,9 @@ export default function ProductHuntPage() {
                           if (active && payload && payload.length) {
                             const data = payload[0].payload
                             return (
-                              <div className="bg-background p-2 border rounded shadow-sm">
-                                <p className="font-medium">{data.name}</p>
-                                <p className="text-sm text-muted-foreground">{data.tagline}</p>
+                              <div className="bg-neondark-card p-2 border border-neondark-border rounded shadow-sm">
+                                <p className="font-medium text-cyan-400">{data.name}</p>
+                                <p className="text-sm text-neondark-muted">{data.tagline}</p>
                                 <div className="flex justify-between gap-4 mt-1">
                                   <p>Upvotes: {data.votesCount}</p>
                                   <p>Comments: {data.commentsCount}</p>
@@ -875,11 +905,11 @@ export default function ProductHuntPage() {
                       <Scatter
                         name="Products"
                         data={processedData.filter((p: any) => p.votesCount > 0)}
-                        fill="#da552f"
+                        fill="#00FFFF"
                         shape={(props: any) => {
                           const { cx, cy } = props
                           const size = Math.min(Math.max(props.payload.votesCount / 50, 4), 15)
-                          return <circle cx={cx} cy={cy} r={size} fill="#da552f" fillOpacity={0.7} />
+                          return <circle cx={cx} cy={cy} r={size} fill="#00FFFF" fillOpacity={0.7} />
                         }}
                       />
                       <ReferenceLine y={0} stroke="#666" />
@@ -891,7 +921,7 @@ export default function ProductHuntPage() {
             </Card>
 
             {/* Launch Day Performance */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader>
                 <CardTitle>Launch Day Performance</CardTitle>
                 <CardDescription>Comparing upvotes by day of week</CardDescription>
@@ -905,16 +935,22 @@ export default function ProductHuntPage() {
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
                       <XAxis dataKey="day" />
-                      <YAxis yAxisId="left" orientation="left" stroke="#da552f" />
-                      <YAxis yAxisId="right" orientation="right" stroke="#3b82f6" />
+                      <YAxis yAxisId="left" orientation="left" stroke="#00FFFF" />
+                      <YAxis yAxisId="right" orientation="right" stroke="#8884d8" />
                       <RechartsTooltip />
                       <Legend />
-                      <Bar yAxisId="left" dataKey="avgUpvotes" name="Avg Upvotes" fill="#da552f" radius={[4, 4, 0, 0]} />
+                      <Bar
+                        yAxisId="left"
+                        dataKey="avgUpvotes"
+                        name="Avg Upvotes"
+                        fill="#00FFFF"
+                        radius={[4, 4, 0, 0]}
+                      />
                       <Bar
                         yAxisId="right"
                         dataKey="productCount"
                         name="Product Count"
-                        fill="#3b82f6"
+                        fill="#8884d8"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -927,7 +963,7 @@ export default function ProductHuntPage() {
 
         {/* Inspirational Quote */}
         <motion.div
-          className="text-center mt-10 text-lg italic text-muted-foreground"
+          className="text-center mt-10 text-lg italic text-neondark-muted"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -961,7 +997,7 @@ function StatsCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
-      <Card>
+      <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
