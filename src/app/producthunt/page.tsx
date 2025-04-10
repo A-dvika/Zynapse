@@ -73,7 +73,7 @@ export default function ProductHuntPage() {
   async function analyzeProduct(product: any) {
     setInsightModal({ open: true, loading: true, content: "", product })
     try {
-      const res = await fetch("/api/producthunt/analyze", {
+      const res = await fetch("/api/producthunt/analyse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: product.name, tagline: product.tagline }),
@@ -229,107 +229,7 @@ export default function ProductHuntPage() {
   }
 
   // 2. AUTOMATE chart capture when data is loaded
-  useEffect(() => {
-    if (!data) return
-    // Wait a bit so Recharts finishes rendering
-    const timer = setTimeout(() => {
-      captureAndUploadChart()
-    }, 2000)
-    return () => clearTimeout(timer)
-  }, [data])
-
-  // 3. Function to capture chart & upload to Cloudinary
-  async function captureAndUploadChart() {
-    try {
-      if (!upvoteChartRef.current) {
-        console.error("No chart element found!")
-        return
-      }
-      console.log("Capturing chart element...")
-
-      const canvas = await html2canvas(upvoteChartRef.current)
-      const imageData = canvas.toDataURL("image/png")
-      console.log("Image data generated (first 100 chars):", imageData.slice(0, 100))
-
-      // Upload to Cloudinary
-      const res = await fetch("/api/uploadToCloudinary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageData,
-          publicId: "producthunt-upvote-chart", // any unique ID
-        }),
-      })
-      if (!res.ok) {
-        console.error("Upload failed", res.statusText)
-        return
-      }
-      const { url } = await res.json()
-      console.log("Uploaded chart to Cloudinary:", url)
-    } catch (error) {
-      console.error("Error capturing/uploading chart:", error)
-    }
-  }
-
-  if (!data) {
-    // Loading skeleton
-    return (
-      <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
-        <BackgroundBeams />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
-
-        <div className="p-6 space-y-6 max-w-7xl mx-auto relative z-10">
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-60" />
-            <Skeleton className="h-4 w-40" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-md" />
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-8 w-24 rounded-md" />
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="h-6 w-40" />
-                  {[...Array(5)].map((_, j) => (
-                    <Skeleton key={j} className="h-20 w-full rounded-md" />
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-3">
-              <Skeleton className="h-6 w-60" />
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex gap-3 items-start">
-                  <Skeleton className="h-16 w-16 rounded-md" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Filter logic
+    // Filter logic
   const processedData = data || []
 
   // Filter products based on search term and category filter
