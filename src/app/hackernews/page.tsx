@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -36,10 +35,23 @@ import {
   TrendingUp,
   User,
   Calendar,
+  BrainCircuit,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+
 export default function HackerNewsPage() {
+  // ---------------------------
+  // 1) STATE FOR MAIN DASHBOARD
+  // ---------------------------
   const [data, setData] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [chartType, setChartType] = useState<"bar" | "line">("bar")
@@ -49,6 +61,58 @@ export default function HackerNewsPage() {
     techNews: false,
   })
 
+  // ---------------------------
+  // 2) STATE & FUNCTION FOR AI INSIGHT MODAL
+  // ---------------------------
+  const [insightModal, setInsightModal] = useState<{
+    open: boolean
+    loading: boolean
+    content: string
+    story: any | null
+  }>({
+    open: false,
+    loading: false,
+    content: "",
+    story: null,
+  })
+
+  async function analyzeStory(story: any) {
+    // Use the correct field name from your data
+    if (!story.title || !story.author) {
+      console.error("Missing title or author", story)
+      return
+    }
+    
+    // Open the modal immediately and show a loading state
+    setInsightModal({ open: true, loading: true, content: "", story })
+  
+    try {
+      const res = await fetch("/api/hackernews/analyse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: story.title,
+          author: story.author, // Correct field
+          url: story.url || "",
+          points: story.score || 0,
+          comments: story.comments || 0,
+        }),
+      })
+  
+      const data = await res.json()
+      console.log("Insight:", data.insight || data.error)
+      // Update modal state with the returned insight and turn off loading
+      setInsightModal({ open: true, loading: false, content: data.insight || data.error, story })
+    } catch (err) {
+      console.error("Analysis request failed", err)
+      // Close the loading state and display an error message
+      setInsightModal({ open: true, loading: false, content: "Error calling AI analysis endpoint.", story })
+    }
+  }
+  
+  // ---------------------------
+  // 3) FETCH MAIN DATA
+  // ---------------------------
   useEffect(() => {
     const fetchHackerNewsData = async () => {
       const res = await fetch("/api/hackernews")
@@ -65,6 +129,9 @@ export default function HackerNewsPage() {
     }))
   }
 
+  // ---------------------------
+  // 4) FILTER & HELPER LOGIC
+  // ---------------------------
   // Filter stories based on search term
   const filteredStories = data
     ? data.hackerNewsStories.filter(
@@ -82,7 +149,7 @@ export default function HackerNewsPage() {
       )
     : []
 
-  // Generate engagement data for visualization
+  // Generate engagement data for the bar chart
   const generateEngagementData = () => {
     return data
       ? data.hackerNewsStories.map((story: any) => ({
@@ -93,7 +160,7 @@ export default function HackerNewsPage() {
       : []
   }
 
-  // Generate time-based data for visualization
+  // Generate time-based data for the line chart
   const generateTimeData = () => {
     const days = timeRange === "day" ? 1 : timeRange === "week" ? 7 : 30
     const timeData = []
@@ -107,7 +174,7 @@ export default function HackerNewsPage() {
         day: "numeric",
       })
 
-      // Simulate activity metrics based on time range
+      // Simulate activity metrics
       const storyCount = Math.floor(Math.random() * 15) + 5
       const commentCount = Math.floor(Math.random() * 50) + 20
 
@@ -143,7 +210,7 @@ export default function HackerNewsPage() {
     "#ec4899", // Pink
   ]
 
-  // Generate source distribution data
+  // Generate source distribution data (for the Pie chart)
   const getSourceDistribution = () => {
     if (!data) return []
     const sources: { [key: string]: number } = {}
@@ -177,16 +244,16 @@ export default function HackerNewsPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               Hacker News Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">Track top stories, tech news, and engagement</p>
+            <p className="text-neondark-muted mt-1">Track top stories, tech news, and engagement</p>
           </motion.div>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neondark-muted" />
               <Input
                 placeholder="Search stories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
+                className="pl-8 h-9 w-[200px] md:w-[260px] bg-neondark-card/50 border-neondark-border"
               />
             </div>
             <div className="border-l h-6 mx-2 opacity-20"></div>
@@ -194,7 +261,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "day" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "day" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "day"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("day")}
               >
                 Day
@@ -202,7 +273,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "week" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "week" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "week"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("week")}
               >
                 Week
@@ -210,7 +285,11 @@ export default function HackerNewsPage() {
               <Button
                 size="sm"
                 variant={timeRange === "month" ? "default" : "outline"}
-                className={`h-9 ${timeRange === "month" ? "bg-cyan-400 text-black hover:bg-cyan-500" : "border-cyan-800 hover:border-cyan-400"}`}
+                className={`h-9 ${
+                  timeRange === "month"
+                    ? "bg-cyan-400 text-black hover:bg-cyan-500"
+                    : "border-cyan-800 hover:border-cyan-400"
+                }`}
                 onClick={() => setTimeRange("month")}
               >
                 Month
@@ -253,12 +332,12 @@ export default function HackerNewsPage() {
               />
             </>
           ) : (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full bg-gray-800/50" />)
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full bg-neondark-card/50" />)
           )}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3 bg-gray-800/50">
+          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3 bg-neondark-card/50">
             <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
               Overview
             </TabsTrigger>
@@ -270,11 +349,14 @@ export default function HackerNewsPage() {
             </TabsTrigger>
           </TabsList>
 
+          {/* --------------------------------------
+              OVERVIEW TAB
+          -------------------------------------- */}
           <TabsContent value="overview" className="space-y-6">
             {data ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Stories Card */}
-                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+                <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-orange-500" /> Top Stories
@@ -299,7 +381,7 @@ export default function HackerNewsPage() {
                         .map((story: any, index: number) => (
                           <motion.li
                             key={story.id}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                            className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -319,7 +401,7 @@ export default function HackerNewsPage() {
                                 {story.score} points
                               </Badge>
                             </div>
-                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                            <div className="flex items-center mt-2 text-sm text-neondark-muted">
                               <div className="flex items-center mr-4">
                                 <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
@@ -328,10 +410,19 @@ export default function HackerNewsPage() {
                                 <Clock className="h-3.5 w-3.5 mr-1 text-green-500" />
                                 {formatTime(story.time)}
                               </div>
-                              <div className="flex items-center">
+                              <div className="flex items-center mr-2">
                                 <MessageSquare className="h-3.5 w-3.5 mr-1 text-purple-500" />
                                 {story.descendants || 0} comments
                               </div>
+                              {/* ANALYZE BUTTON */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1"
+                                onClick={() => analyzeStory(story)}
+                              >
+                                <BrainCircuit className="h-4 w-4" />
+                              </Button>
                             </div>
                           </motion.li>
                         ))}
@@ -350,7 +441,7 @@ export default function HackerNewsPage() {
                 </Card>
 
                 {/* Engagement Stats */}
-                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+                <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-cyan-400" /> Engagement Metrics
@@ -359,7 +450,9 @@ export default function HackerNewsPage() {
                       <Button
                         variant={chartType === "bar" ? "default" : "outline"}
                         size="icon"
-                        className={`h-8 w-8 ${chartType === "bar" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
+                        className={`h-8 w-8 ${
+                          chartType === "bar" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"
+                        }`}
                         onClick={() => setChartType("bar")}
                       >
                         <BarChart3 className="h-4 w-4" />
@@ -367,7 +460,9 @@ export default function HackerNewsPage() {
                       <Button
                         variant={chartType === "line" ? "default" : "outline"}
                         size="icon"
-                        className={`h-8 w-8 ${chartType === "line" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"}`}
+                        className={`h-8 w-8 ${
+                          chartType === "line" ? "bg-cyan-400 text-black" : "border-cyan-800 hover:border-cyan-400"
+                        }`}
                         onClick={() => setChartType("line")}
                       >
                         <LineChartIcon className="h-4 w-4" />
@@ -437,11 +532,11 @@ export default function HackerNewsPage() {
                 </Card>
               </div>
             ) : (
-              <Skeleton className="h-96 w-full bg-gray-800/50" />
+              <Skeleton className="h-96 w-full bg-neondark-card/50" />
             )}
 
             {/* Tech News Sources Chart */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Filter className="h-5 w-5 text-purple-500" /> News Sources Distribution
@@ -473,14 +568,14 @@ export default function HackerNewsPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full bg-gray-800/50" />
+                    <Skeleton className="h-full w-full bg-neondark-card/50" />
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Activity Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" /> Activity Timeline
@@ -507,15 +602,18 @@ export default function HackerNewsPage() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full bg-gray-800/50" />
+                    <Skeleton className="h-full w-full bg-neondark-card/50" />
                   )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* --------------------------------------
+              TOP STORIES TAB
+          -------------------------------------- */}
           <TabsContent value="stories" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
                 <CardTitle>All Hacker News Stories</CardTitle>
               </CardHeader>
@@ -525,7 +623,7 @@ export default function HackerNewsPage() {
                     {filteredStories.map((story: any, index: number) => (
                       <motion.div
                         key={story.id}
-                        className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                        className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -542,7 +640,7 @@ export default function HackerNewsPage() {
                               {story.title}
                               <ExternalLink className="ml-1 h-3 w-3" />
                             </a>
-                            <div className="flex flex-wrap items-center mt-2 text-sm text-muted-foreground gap-x-4 gap-y-2">
+                            <div className="flex flex-wrap items-center mt-2 text-sm text-neondark-muted gap-x-4 gap-y-2">
                               <div className="flex items-center">
                                 <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
@@ -557,22 +655,37 @@ export default function HackerNewsPage() {
                               </div>
                             </div>
                           </div>
-                          <Badge className="bg-orange-950 text-orange-300 border-orange-800">
-                            {story.score} points
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className="bg-orange-950 text-orange-300 border-orange-800">
+                              {story.score} points
+                            </Badge>
+                            {/* ANALYZE BUTTON */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center gap-1"
+                              onClick={() => analyzeStory(story)}
+                            >
+                              <BrainCircuit className="h-4 w-4" />
+                              Analyze
+                            </Button>
+                          </div>
                         </div>
                       </motion.div>
                     ))}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full bg-gray-800/50" />
+                  <Skeleton className="h-96 w-full bg-neondark-card/50" />
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* --------------------------------------
+              TECH NEWS TAB
+          -------------------------------------- */}
           <TabsContent value="technews" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">Latest Tech News</CardTitle>
                 <Button
@@ -591,7 +704,7 @@ export default function HackerNewsPage() {
                       (item: any, index: number) => (
                         <motion.div
                           key={item.id}
-                          className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                          className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -609,9 +722,9 @@ export default function HackerNewsPage() {
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
                               {item.description && (
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                                <p className="text-sm text-neondark-muted mt-1 line-clamp-2">{item.description}</p>
                               )}
-                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                              <div className="flex items-center mt-2 text-sm text-neondark-muted">
                                 <div className="flex items-center">
                                   <Calendar className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                   {formatDate(item.createdAt)}
@@ -637,7 +750,7 @@ export default function HackerNewsPage() {
                     )}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full bg-gray-800/50" />
+                  <Skeleton className="h-96 w-full bg-neondark-card/50" />
                 )}
               </CardContent>
             </Card>
@@ -646,7 +759,7 @@ export default function HackerNewsPage() {
 
         {/* Tech Quote */}
         <motion.div
-          className="text-center mt-10 textt-lg italic text-muted-foreground"
+          className="text-center mt-10 text-lg italic text-neondark-muted"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -654,11 +767,48 @@ export default function HackerNewsPage() {
           "Talk is cheap. Show me the code." — Linus Torvalds
         </motion.div>
       </motion.section>
+
+      {/* ----------------------------------------
+               AI Insight Modal
+           ---------------------------------------- */}
+         
+     
+         <Dialog
+           open={insightModal.open}
+           onOpenChange={(open) => setInsightModal((prev) => ({ ...prev, open }))}
+         >
+           <DialogContent className="bg-black p-4 rounded-lg border border-cyan-400 max-w-xl shadow-lg shadow-cyan-400/20">
+             <DialogHeader>
+               <DialogTitle className="text-cyan-400 font-bold">AI Insight</DialogTitle>
+               <DialogDescription className="text-xs text-cyan-600">
+                 A concise analysis generated by our AI
+               </DialogDescription>
+             </DialogHeader>
+             <div className="mt-2 min-h-[80px] text-sm text-cyan-50">
+               {insightModal.loading ? (
+                 <div className="text-cyan-300">Loading AI analysis...</div>
+               ) : (
+                 insightModal.content
+               )}
+             </div>
+             <DialogFooter>
+               <Button 
+                 variant="outline" 
+                 className="text-cyan-400 border-cyan-700 hover:bg-cyan-950 hover:border-cyan-400 transition-all duration-300"
+                 onClick={() => setInsightModal({ ...insightModal, open: false })}
+               >
+                 Close
+               </Button>
+             </DialogFooter>
+           </DialogContent>
+         </Dialog>
     </div>
   )
 }
 
-// Stats Card Component
+/* ----------------------------------------
+   Stats Card Component
+---------------------------------------- */
 function StatsCard({
   title,
   value,
@@ -678,7 +828,7 @@ function StatsCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
-      <Card className="border border-gray-800 bg-gray-800/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+      <Card className="border border-neondark-border bg-neondark-card/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
@@ -691,10 +841,11 @@ function StatsCard({
   )
 }
 
-// Helper function to format Unix timestamp
+/* ----------------------------------------
+   Helper: formatTime (Unix timestamp)
+---------------------------------------- */
 function formatTime(unixTimestamp: number) {
   if (!unixTimestamp) return "Unknown"
-
   const date = new Date(unixTimestamp * 1000)
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
@@ -705,10 +856,11 @@ function formatTime(unixTimestamp: number) {
   return `${Math.floor(diffInSeconds / 86400)}d ago`
 }
 
-// Helper function to format ISO date
+/* ----------------------------------------
+   Helper: formatDate (ISO date)
+---------------------------------------- */
 function formatDate(dateString: string) {
   if (!dateString) return "Unknown"
-
   const date = new Date(dateString)
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
