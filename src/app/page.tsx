@@ -18,18 +18,7 @@ import {
   Code,
   Sparkles,
 } from "lucide-react"
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer
-} from "recharts"
+import { LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 import { BackgroundBeams } from "@/components/ui/beams"
 import { motion, useAnimation } from "framer-motion"
 import { useEffect, useRef } from "react"
@@ -42,7 +31,7 @@ const lineData = [
   { name: "Apr", value: 450 },
   { name: "May", value: 650 },
   { name: "Jun", value: 700 },
-  { name: "Jul", value: 600 }
+  { name: "Jul", value: 600 },
 ]
 
 const barData = [
@@ -50,34 +39,50 @@ const barData = [
   { name: "Platform B", value: 300 },
   { name: "Platform C", value: 200 },
   { name: "Platform D", value: 300 },
-  { name: "Platform E", value: 500 }
+  { name: "Platform E", value: 500 },
 ]
 
 const pieData = [
   { name: "Group A", value: 400 },
   { name: "Group B", value: 300 },
   { name: "Group C", value: 300 },
-  { name: "Group D", value: 200 }
+  { name: "Group D", value: 200 },
 ]
 
-const COLORS = ['#00FFFF', '#00D5FF', '#00B6FF', '#0090FF']
+const COLORS = ["#00FFFF", "#00D5FF", "#00B6FF", "#0090FF"]
 
 export default function LandingPage() {
   const platformsRef = useRef<HTMLDivElement>(null)
   const controls = useAnimation()
 
   useEffect(() => {
+    let isMounted = true
+
     const animatePlatforms = async () => {
-      while (true) {
-        await controls.start({
-          x: "-100%",
-          transition: { duration: 30, ease: "linear" },
-        })
-        await controls.set({ x: "100%" })
+      if (!isMounted) return
+
+      await controls.start({
+        x: "-100%",
+        transition: { duration: 30, ease: "linear" },
+      })
+
+      if (isMounted) {
+        controls.set({ x: "100%" })
+        animatePlatforms()
       }
     }
 
-    animatePlatforms()
+    // Start the animation after component is mounted
+    const timeoutId = setTimeout(() => {
+      if (isMounted) {
+        animatePlatforms()
+      }
+    }, 100)
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeoutId)
+    }
   }, [controls])
 
   return (
@@ -282,7 +287,6 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </div>
-
 
         {/* Grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
