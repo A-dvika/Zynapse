@@ -3,22 +3,25 @@ import prisma from '../../../../lib/db'
 
 export async function GET() {
   try {
+    // Get the top 10 repositories sorted by stars
     const repos = await prisma.gitHubRepo.findMany({
       orderBy: { stars: 'desc' },
       take: 10,
     })
 
+    // Get the top 5 language statistics sorted by repo count
     const languageStats = await prisma.gitHubLanguageStat.findMany({
       orderBy: { repoCount: 'desc' },
       take: 5,
     })
 
+    // Get the top 10 issues sorted by comments
     const issues = await prisma.gitHubIssue.findMany({
       orderBy: { comments: 'desc' },
       take: 10,
     })
 
-    // For analyticsData
+    // Compose analytics data
     const analyticsData = {
       languageStats: languageStats.map(lang => ({
         language: lang.language,
@@ -57,7 +60,7 @@ export async function GET() {
       })),
     }
 
-    // For contentMetrics (example: summarize repo data)
+    // Compose content metrics (for example, summarizing repo data)
     const contentMetrics = {
       totalItems: repos.length,
       averageEngagement: Math.floor(
@@ -73,7 +76,13 @@ export async function GET() {
       sharedItems: 15,
     }
 
-    return NextResponse.json({ analyticsData, contentMetrics })
+    // Return all data so the frontend can pick what it needs
+    return NextResponse.json({
+      repos,
+      analyticsData,
+      contentMetrics,
+      issues,
+    })
   } catch (error) {
     console.error('Error in GET /api/github:', error)
     return NextResponse.json({ error: 'Failed to fetch GitHub analytics' }, { status: 500 })
