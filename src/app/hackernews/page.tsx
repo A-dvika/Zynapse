@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -28,17 +29,16 @@ import {
   Clock,
   ExternalLink,
   Filter,
-  LineChart as LineChartIcon,
+  LineChartIcon,
   MessageSquare,
   Search,
   TrendingUp,
   User,
   Calendar,
-  BrainCircuit, // <-- AI "Analyze" icon from lucide-react
+  BrainCircuit,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
-// Import Shadcn UI Dialog components for the AI insight modal
 import {
   Dialog,
   DialogContent,
@@ -110,8 +110,6 @@ export default function HackerNewsPage() {
     }
   }
   
- 
-
   // ---------------------------
   // 3) FETCH MAIN DATA
   // ---------------------------
@@ -196,9 +194,7 @@ export default function HackerNewsPage() {
     ? data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.descendants || 0), 0)
     : 0
   const avgScore = data
-    ? Math.round(
-        data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.score || 0), 0) / totalStories,
-      )
+    ? Math.round(data.hackerNewsStories.reduce((acc: number, story: any) => acc + (story.score || 0), 0) / totalStories)
     : 0
   const totalTechNews = data ? data.techNewsItems.length : 0
 
@@ -248,16 +244,16 @@ export default function HackerNewsPage() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               Hacker News Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">Track top stories, tech news, and engagement</p>
+            <p className="text-neondark-muted mt-1">Track top stories, tech news, and engagement</p>
           </motion.div>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-neondark-muted" />
               <Input
                 placeholder="Search stories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
+                className="pl-8 h-9 w-[200px] md:w-[260px] bg-neondark-card/50 border-neondark-border"
               />
             </div>
             <div className="border-l h-6 mx-2 opacity-20"></div>
@@ -336,12 +332,12 @@ export default function HackerNewsPage() {
               />
             </>
           ) : (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full bg-gray-800/50" />)
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 w-full bg-neondark-card/50" />)
           )}
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3 bg-gray-800/50">
+          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3 bg-neondark-card/50">
             <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
               Overview
             </TabsTrigger>
@@ -360,7 +356,7 @@ export default function HackerNewsPage() {
             {data ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Top Stories Card */}
-                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+                <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-orange-500" /> Top Stories
@@ -371,7 +367,11 @@ export default function HackerNewsPage() {
                       onClick={() => toggleExpand("topStories")}
                       className="h-8 w-8 p-0 hover:bg-cyan-950"
                     >
-                      {expandedCards.topStories ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {expandedCards.topStories ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </Button>
                   </CardHeader>
                   <CardContent>
@@ -381,7 +381,7 @@ export default function HackerNewsPage() {
                         .map((story: any, index: number) => (
                           <motion.li
                             key={story.id}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                            className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -401,7 +401,7 @@ export default function HackerNewsPage() {
                                 {story.score} points
                               </Badge>
                             </div>
-                            <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                            <div className="flex items-center mt-2 text-sm text-neondark-muted">
                               <div className="flex items-center mr-4">
                                 <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
@@ -441,7 +441,7 @@ export default function HackerNewsPage() {
                 </Card>
 
                 {/* Engagement Stats */}
-                <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+                <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-cyan-400" /> Engagement Metrics
@@ -532,11 +532,11 @@ export default function HackerNewsPage() {
                 </Card>
               </div>
             ) : (
-              <Skeleton className="h-96 w-full bg-gray-800/50" />
+              <Skeleton className="h-96 w-full bg-neondark-card/50" />
             )}
 
             {/* Tech News Sources Chart */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Filter className="h-5 w-5 text-purple-500" /> News Sources Distribution
@@ -568,14 +568,14 @@ export default function HackerNewsPage() {
                       </PieChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full bg-gray-800/50" />
+                    <Skeleton className="h-full w-full bg-neondark-card/50" />
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Activity Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Clock className="h-5 w-5 text-green-500" /> Activity Timeline
@@ -602,7 +602,7 @@ export default function HackerNewsPage() {
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
-                    <Skeleton className="h-full w-full bg-gray-800/50" />
+                    <Skeleton className="h-full w-full bg-neondark-card/50" />
                   )}
                 </div>
               </CardContent>
@@ -613,7 +613,7 @@ export default function HackerNewsPage() {
               TOP STORIES TAB
           -------------------------------------- */}
           <TabsContent value="stories" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
                 <CardTitle>All Hacker News Stories</CardTitle>
               </CardHeader>
@@ -623,7 +623,7 @@ export default function HackerNewsPage() {
                     {filteredStories.map((story: any, index: number) => (
                       <motion.div
                         key={story.id}
-                        className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                        className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -640,7 +640,7 @@ export default function HackerNewsPage() {
                               {story.title}
                               <ExternalLink className="ml-1 h-3 w-3" />
                             </a>
-                            <div className="flex flex-wrap items-center mt-2 text-sm text-muted-foreground gap-x-4 gap-y-2">
+                            <div className="flex flex-wrap items-center mt-2 text-sm text-neondark-muted gap-x-4 gap-y-2">
                               <div className="flex items-center">
                                 <User className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                 {story.by}
@@ -656,7 +656,9 @@ export default function HackerNewsPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-orange-950 text-orange-300 border-orange-800">{story.score} points</Badge>
+                            <Badge className="bg-orange-950 text-orange-300 border-orange-800">
+                              {story.score} points
+                            </Badge>
                             {/* ANALYZE BUTTON */}
                             <Button
                               variant="ghost"
@@ -673,7 +675,7 @@ export default function HackerNewsPage() {
                     ))}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full bg-gray-800/50" />
+                  <Skeleton className="h-96 w-full bg-neondark-card/50" />
                 )}
               </CardContent>
             </Card>
@@ -683,7 +685,7 @@ export default function HackerNewsPage() {
               TECH NEWS TAB
           -------------------------------------- */}
           <TabsContent value="technews" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">Latest Tech News</CardTitle>
                 <Button
@@ -702,7 +704,7 @@ export default function HackerNewsPage() {
                       (item: any, index: number) => (
                         <motion.div
                           key={item.id}
-                          className="p-4 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
+                          className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
@@ -720,9 +722,9 @@ export default function HackerNewsPage() {
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
                               {item.description && (
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+                                <p className="text-sm text-neondark-muted mt-1 line-clamp-2">{item.description}</p>
                               )}
-                              <div className="flex items-center mt-2 text-sm text-muted-foreground">
+                              <div className="flex items-center mt-2 text-sm text-neondark-muted">
                                 <div className="flex items-center">
                                   <Calendar className="h-3.5 w-3.5 mr-1 text-cyan-400" />
                                   {formatDate(item.createdAt)}
@@ -748,7 +750,7 @@ export default function HackerNewsPage() {
                     )}
                   </div>
                 ) : (
-                  <Skeleton className="h-96 w-full bg-gray-800/50" />
+                  <Skeleton className="h-96 w-full bg-neondark-card/50" />
                 )}
               </CardContent>
             </Card>
@@ -757,7 +759,7 @@ export default function HackerNewsPage() {
 
         {/* Tech Quote */}
         <motion.div
-          className="text-center mt-10 textt-lg italic text-muted-foreground"
+          className="text-center mt-10 text-lg italic text-neondark-muted"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
@@ -767,29 +769,39 @@ export default function HackerNewsPage() {
       </motion.section>
 
       {/* ----------------------------------------
-          AI Insight Modal
-      ---------------------------------------- */}
-      <Dialog
-        open={insightModal.open}
-        onOpenChange={(open) => setInsightModal((prev) => ({ ...prev, open }))}
-      >
-        <DialogContent className="bg-gray-800/90 p-4 rounded-lg border border-gray-700 max-w-xl">
-          <DialogHeader>
-            <DialogTitle>AI Insight</DialogTitle>
-            <DialogDescription className="text-xs text-gray-400">
-              Generated by Gemini (based on Google fallback + story metadata)
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-2 min-h-[80px] text-sm">
-            {insightModal.loading ? "Analyzing story..." : insightModal.content}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setInsightModal((prev) => ({ ...prev, open: false }))}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+               AI Insight Modal
+           ---------------------------------------- */}
+         
+     
+         <Dialog
+           open={insightModal.open}
+           onOpenChange={(open) => setInsightModal((prev) => ({ ...prev, open }))}
+         >
+           <DialogContent className="bg-black p-4 rounded-lg border border-cyan-400 max-w-xl shadow-lg shadow-cyan-400/20">
+             <DialogHeader>
+               <DialogTitle className="text-cyan-400 font-bold">AI Insight</DialogTitle>
+               <DialogDescription className="text-xs text-cyan-600">
+                 A concise analysis generated by our AI
+               </DialogDescription>
+             </DialogHeader>
+             <div className="mt-2 min-h-[80px] text-sm text-cyan-50">
+               {insightModal.loading ? (
+                 <div className="text-cyan-300">Loading AI analysis...</div>
+               ) : (
+                 insightModal.content
+               )}
+             </div>
+             <DialogFooter>
+               <Button 
+                 variant="outline" 
+                 className="text-cyan-400 border-cyan-700 hover:bg-cyan-950 hover:border-cyan-400 transition-all duration-300"
+                 onClick={() => setInsightModal({ ...insightModal, open: false })}
+               >
+                 Close
+               </Button>
+             </DialogFooter>
+           </DialogContent>
+         </Dialog>
     </div>
   )
 }
@@ -816,7 +828,7 @@ function StatsCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
-      <Card className="border border-gray-800 bg-gray-800/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+      <Card className="border border-neondark-border bg-neondark-card/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
