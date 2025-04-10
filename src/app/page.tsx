@@ -22,6 +22,7 @@ import { LineChart, Line, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, R
 import { BackgroundBeams } from "@/components/ui/beams"
 import { motion, useAnimation } from "framer-motion"
 import { useEffect, useRef } from "react"
+import Link from "next/link";
 
 // Define the missing data variables
 const lineData = [
@@ -510,10 +511,12 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <Button className="mt-6 bg-transparent border border-cyan-500/50 text-neondark-text hover:bg-cyan-500/10 h-12 px-6 rounded-xl text-base font-medium transition-all duration-300 group">
-                <span>Join Our Community</span>
+              <Link href="/for-her" passHref>
+                <div className="mt-6 bg-transparent border border-cyan-500/50 text-neondark-text hover:bg-cyan-500/10 h-12 px-6 rounded-xl text-base font-medium transition-all duration-300 group cursor-pointer inline-flex items-center">
+                <span>Explore More</span>
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
+                </div>
+              </Link>
             </motion.div>
           </div>
         </div>
