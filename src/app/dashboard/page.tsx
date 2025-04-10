@@ -128,7 +128,7 @@ export default function DashboardPage() {
   const [contentMetrics, setContentMetrics] = useState<ContentMetrics | null>(null)
 
   // 3) Data from Pinecone / for-you
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]) // "all"
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [githubContent, setGithubContent] = useState<Recommendation[]>([])
   const [newsContent, setNewsContent] = useState<Recommendation[]>([])
   const [stackoverflowContent, setStackOverflowContent] = useState<Recommendation[]>([])
@@ -155,66 +155,81 @@ export default function DashboardPage() {
     }
   }, [status, router])
 
-  // ----- DATA FETCHING -----
+  // ----- DATA FETCHING (Now with parallel requests) -----
   useEffect(() => {
-    async function fetchData() {
-      if (status !== "authenticated") return
+    if (status !== "authenticated") return
 
+    setLoading(true)
+    ;(async () => {
       try {
-        setLoading(true)
+        // Do all fetches in parallel using Promise.all
+        const [
+          prefRes,
+          recRes,
+          ghRes,
+          newsRes,
+          soRes,
+          hnRes,
+          socialsRes,
+          phRes,
+          analyticsRes,
+          trendingRes,
+          discoverRes,
+        ] = await Promise.all([
+          fetch("/api/preferences"),
+          fetch("/api/for-you?source=all"),
+          fetch("/api/for-you?source=github&type=repo"),
+          fetch("/api/for-you?source=news&type=article"),
+          fetch("/api/for-you?source=stackoverflow&type=question"),
+          fetch("/api/for-you?source=hackernews"),
+          fetch("/api/for-you?source=socials"),
+          fetch("/api/for-you?source=producthunt&type=product"),
+          fetch("/api/github"),
+          fetch("/api/trending"),
+          fetch("/api/for-you?source=all&discover=1"),
+        ])
 
         // 1) Preferences
-        const prefRes = await fetch("/api/preferences")
         if (prefRes.ok) {
           setPreferences(await prefRes.json())
         }
 
         // 2) Main Recommendations (source=all)
-        const recRes = await fetch("/api/for-you?source=all")
         if (recRes.ok) {
-          const recData = await recRes.json()
-          setRecommendations(recData)
+          setRecommendations(await recRes.json())
         }
 
-        // 3) GitHub content (source=github & type=repo)
-        const ghRes = await fetch("/api/for-you?source=github&type=repo")
+        // 3) GitHub content
         if (ghRes.ok) {
           setGithubContent(await ghRes.json())
         }
 
-        // 4) News content (source=news & type=article)
-        const newsRes = await fetch("/api/for-you?source=news&type=article")
+        // 4) News content
         if (newsRes.ok) {
           setNewsContent(await newsRes.json())
         }
 
-        // 5) Stack Overflow (source=stackoverflow & type=question)
-        const soRes = await fetch("/api/for-you?source=stackoverflow&type=question")
+        // 5) Stack Overflow
         if (soRes.ok) {
           setStackOverflowContent(await soRes.json())
         }
 
-        // 6) Hacker News (source=hackernews)
-        //    If you store them with "type=news" in Pinecone, you can add &type=news.
-        const hnRes = await fetch("/api/for-you?source=hackernews")
+        // 6) Hacker News
         if (hnRes.ok) {
           setHackerNewsContent(await hnRes.json())
         }
 
-        // 7) Socials (source=socials) - e.g. Twitter, Reddit, etc. if you store them under "socials"
-        const socialsRes = await fetch("/api/for-you?source=socials")
+        // 7) Socials
         if (socialsRes.ok) {
           setSocialsContent(await socialsRes.json())
         }
 
-        // 8) Product Hunt (source=producthunt & type=product) or adjust as needed
-        const phRes = await fetch("/api/for-you?source=producthunt&type=product")
+        // 8) Product Hunt
         if (phRes.ok) {
           setProductHuntContent(await phRes.json())
         }
 
-        // 9) Analytics data for Overview
-        const analyticsRes = await fetch("/api/github")
+        // 9) Analytics data
         if (analyticsRes.ok) {
           const analytics = await analyticsRes.json()
           setAnalyticsData(analytics.analyticsData)
@@ -222,13 +237,11 @@ export default function DashboardPage() {
         }
 
         // 10) Trending
-        const trendingRes = await fetch("/api/trending")
         if (trendingRes.ok) {
           setTrendingTopics(await trendingRes.json())
         }
 
-        // 11) "Discover More" -> /api/for-you?source=all&discover=1
-        const discoverRes = await fetch("/api/for-you?source=all&discover=1")
+        // 11) Discover More
         if (discoverRes.ok) {
           setDiscoverMoreItems(await discoverRes.json())
         }
@@ -237,9 +250,7 @@ export default function DashboardPage() {
       } finally {
         setLoading(false)
       }
-    }
-
-    fetchData()
+    })()
   }, [status])
 
   // ----- UTILS -----
@@ -332,21 +343,22 @@ export default function DashboardPage() {
   }
 
   // Show 3 recs by default
-  const recommendationsToShow = useMemo(() => {
-    return showAllRecommendations ? recommendations : recommendations.slice(0, 3)
-  }, [recommendations, showAllRecommendations])
-
+  const recommendationsToShow = useMemo(
+    () => (showAllRecommendations ? recommendations : recommendations.slice(0, 3)),
+    [recommendations, showAllRecommendations],
+  )
   // Show 5 trending
-  const trendingTopicsToShow = useMemo(() => {
-    return showAllTrending ? trendingTopics : trendingTopics.slice(0, 5)
-  }, [trendingTopics, showAllTrending])
-
+  const trendingTopicsToShow = useMemo(
+    () => (showAllTrending ? trendingTopics : trendingTopics.slice(0, 5)),
+    [trendingTopics, showAllTrending],
+  )
   // Show 3 discover items by default
-  const discoverItemsToShow = useMemo(() => {
-    return showAllDiscover ? discoverMoreItems : discoverMoreItems.slice(0, 3)
-  }, [discoverMoreItems, showAllDiscover])
+  const discoverItemsToShow = useMemo(
+    () => (showAllDiscover ? discoverMoreItems : discoverMoreItems.slice(0, 3)),
+    [discoverMoreItems, showAllDiscover],
+  )
 
-  // ----- LOADING -----
+  // ----- LOADING SCREEN -----
   if (loading) {
     return (
       <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
@@ -385,7 +397,7 @@ export default function DashboardPage() {
               Welcome to Your Dashboard
             </h1>
             <p className="text-neondark-muted text-xl mb-8">
-              We couldn't find your preferences. Let's set them up to personalize your experience.
+              We couldn&apos;t find your preferences. Let&apos;s set them up to personalize your experience.
             </p>
             <button
               className="bg-cyan-500 text-black hover:bg-cyan-400 px-8 py-6 text-lg rounded-md"
@@ -412,12 +424,9 @@ export default function DashboardPage() {
     try {
       const response = await fetch("/api/track-action", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, itemId }),
       })
-
       if (!response.ok) {
         console.error("Failed to track user action:", response.status)
       }
@@ -445,7 +454,7 @@ export default function DashboardPage() {
           >
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 text-transparent bg-clip-text">
-                Personalised Zynapse 
+                Personalised Zynapse
               </h1>
               <p className="text-neondark-muted mt-2">Content tailored to your interests and preferences</p>
             </div>
@@ -479,7 +488,7 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Personalized Recommendations */}
-              <Card className="col-span-1 lg:col-span-2 bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden">
+              <Card className="col-span-1 lg:col-span-2 bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl flex items-center">
                     <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
@@ -500,14 +509,15 @@ export default function DashboardPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
-                          className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-colors"
+                          whileHover={{ scale: 1.01 }}
+                          className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-all"
                         >
                           {recommendation.imageUrl && (
                             <div className="w-full md:w-1/4 h-32 md:h-auto rounded-md overflow-hidden">
                               <img
                                 src={recommendation.imageUrl || "/placeholder.svg"}
                                 alt={recommendation.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                               />
                             </div>
                           )}
@@ -521,7 +531,9 @@ export default function DashboardPage() {
                                 <span className="ml-1 capitalize">{recommendation.type}</span>
                               </Badge>
                             </div>
-                            <h3 className="text-lg font-medium mb-1">{recommendation.title}</h3>
+                            <h3 className="text-lg font-medium mb-1 hover:text-cyan-300 transition-colors">
+                              {recommendation.title}
+                            </h3>
                             <p className="text-neondark-muted text-sm mb-3">{recommendation.description}</p>
                             <div className="flex justify-between items-center">
                               <div className="flex items-center text-sm text-neondark-muted">
@@ -534,14 +546,32 @@ export default function DashboardPage() {
                                   <span>{formatDate(recommendation.publishedAt)}</span>
                                 </div>
                               </div>
-                              <a
-                                href={recommendation.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                              >
-                                Read more <ExternalLink className="ml-1 h-3 w-3" />
-                              </a>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleUserAction("like", recommendation.id)}
+                                    className="text-neondark-muted hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-500/10"
+                                    aria-label="Like"
+                                  >
+                                    <Heart className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleUserAction("save", recommendation.id)}
+                                    className="text-neondark-muted hover:text-cyan-400 transition-colors p-1 rounded-full hover:bg-cyan-500/10"
+                                    aria-label="Save"
+                                  >
+                                    <Bookmark className="h-4 w-4" />
+                                  </button>
+                                </div>
+                                <a
+                                  href={recommendation.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center px-3 py-1 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors"
+                                >
+                                  Read more <ExternalLink className="ml-1 h-3 w-3" />
+                                </a>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -551,7 +581,7 @@ export default function DashboardPage() {
                     {recommendations.length > 3 && (
                       <Button
                         variant="ghost"
-                        className="w-full mt-2"
+                        className="w-full mt-2 hover:bg-cyan-500/10 hover:text-cyan-400"
                         onClick={() => setShowAllRecommendations(!showAllRecommendations)}
                       >
                         {showAllRecommendations
@@ -564,7 +594,7 @@ export default function DashboardPage() {
               </Card>
 
               {/* Trending Topics */}
-              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden hover:shadow-lg hover:shadow-purple-900/10 transition-all">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl flex items-center">
                     <Badge className="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30">
@@ -583,10 +613,11 @@ export default function DashboardPage() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
-                          className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-colors"
+                          whileHover={{ scale: 1.02, boxShadow: "0 4px 12px -2px rgba(0, 0, 0, 0.2)" }}
+                          className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-all"
                         >
                           <div className="flex justify-between items-start mb-1">
-                            <h3 className="font-medium">{topic.name}</h3>
+                            <h3 className="font-medium hover:text-purple-300 transition-colors">{topic.name}</h3>
                             <Badge className={getGrowthBadgeColor(topic.growth)}>+{topic.growth}%</Badge>
                           </div>
                           <div className="flex justify-between items-center text-sm text-neondark-muted">
@@ -602,7 +633,7 @@ export default function DashboardPage() {
                     {trendingTopics.length > 5 && (
                       <Button
                         variant="ghost"
-                        className="w-full mt-3"
+                        className="w-full mt-3 hover:bg-purple-500/10 hover:text-purple-400"
                         onClick={() => setShowAllTrending(!showAllTrending)}
                       >
                         {showAllTrending ? "Show Less" : `Show ${trendingTopics.length - 5} More Topics`}
@@ -616,37 +647,31 @@ export default function DashboardPage() {
 
           {/* TABS */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6 mx-auto">
-          <TabsTrigger value="overview" className="flex items-center">
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6 mx-auto">
+              <TabsTrigger value="overview" className="flex items-center">
                 <Newspaper className="h-4 w-4 mr-2" />
                 Overview
               </TabsTrigger>
-
               <TabsTrigger value="github" className="flex items-center">
                 <Github className="h-4 w-4 mr-2" />
                 GitHub
               </TabsTrigger>
-
               <TabsTrigger value="news" className="flex items-center">
                 <Newspaper className="h-4 w-4 mr-2" />
                 News
               </TabsTrigger>
-
               <TabsTrigger value="stackoverflow" className="flex items-center">
                 <Code className="h-4 w-4 mr-2" />
                 StackOverflow
               </TabsTrigger>
-
               <TabsTrigger value="hackernews" className="flex items-center">
                 <Newspaper className="h-4 w-4 mr-2" />
                 HackerNews
               </TabsTrigger>
-
               <TabsTrigger value="socials" className="flex items-center">
                 <Globe className="h-4 w-4 mr-2" />
                 Socials
               </TabsTrigger>
-
               <TabsTrigger value="producthunt" className="flex items-center">
                 <Sparkles className="h-4 w-4 mr-2" />
                 ProductHunt
@@ -657,7 +682,7 @@ export default function DashboardPage() {
             <TabsContent value="overview" className="space-y-6">
               {/* Show analytics, content metrics, etc. */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
                       <Layers className="h-4 w-4 mr-2 text-cyan-400" />
@@ -672,7 +697,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-green-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
                       <Activity className="h-4 w-4 mr-2 text-green-400" />
@@ -687,7 +712,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-yellow-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
                       <Award className="h-4 w-4 mr-2 text-yellow-400" />
@@ -702,7 +727,7 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-purple-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
                       <TrendingUp className="h-4 w-4 mr-2 text-purple-400" />
@@ -720,7 +745,7 @@ export default function DashboardPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Example Pie Chart */}
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xl flex items-center">
                       <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">
@@ -755,7 +780,7 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Example Area Chart */}
-                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-blue-900/10 transition-all">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xl flex items-center">
                       <Badge className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30">
@@ -793,7 +818,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Example Bar Chart */}
-              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-green-900/10 transition-all">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl flex items-center">
                     <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30">
@@ -830,9 +855,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
@@ -912,9 +937,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         {item.imageUrl && (
                           <div className="w-full h-40 overflow-hidden">
                             <img
@@ -970,9 +995,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
@@ -1028,9 +1053,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
@@ -1086,9 +1111,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
@@ -1142,9 +1167,9 @@ export default function DashboardPage() {
                       key={item.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.02 }}
+                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
                     >
-                      <Card className="h-full bg-neondark-card/80 backdrop-blur-sm border-neondark-border">
+                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
@@ -1202,25 +1227,32 @@ export default function DashboardPage() {
                 <Compass className="h-6 w-6 mr-2 text-purple-400" />
                 Discover More
               </h2>
-              <Button variant="outline" className="text-sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="text-sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+                <Button variant="ghost" className="text-sm" onClick={() => setShowAllDiscover(!showAllDiscover)}>
+                  {showAllDiscover ? "Show Less" : "View All"}
+                </Button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="col-span-1 bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden">
+            <div className="grid grid-cols-1 gap-6">
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border overflow-hidden hover:shadow-lg hover:shadow-purple-900/10 transition-all">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xl flex items-center">
                     <Badge className="bg-pink-500/20 text-pink-400 hover:bg-pink-500/30">
                       <Zap className="h-3 w-3 mr-1" />
-                      Mid-tier Content
+                      Expand Your Horizons
                     </Badge>
                   </CardTitle>
-                  <CardDescription>Out-of-the-box items with lower relevance</CardDescription>
+                  <CardDescription>
+                    Discover content outside your usual interests but still relevant to you
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <AnimatePresence>
                       {discoverItemsToShow.map((item, index) => (
                         <motion.div
@@ -1228,18 +1260,19 @@ export default function DashboardPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
-                          className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-colors"
+                          whileHover={{ scale: 1.02, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                          className="flex flex-col h-full rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 transition-all overflow-hidden group"
                         >
                           {item.imageUrl && (
-                            <div className="w-full md:w-1/4 h-32 md:h-auto rounded-md overflow-hidden">
+                            <div className="w-full h-40 overflow-hidden">
                               <img
                                 src={item.imageUrl || "/placeholder.svg"}
                                 alt={item.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                               />
                             </div>
                           )}
-                          <div className="flex-1" onClick={() => handleUserAction("view", item.id)}>
+                          <div className="flex-1 p-4" onClick={() => handleUserAction("view", item.id)}>
                             <div className="flex justify-between items-start mb-2">
                               <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
                                 {item.relevanceScore}% Match
@@ -1249,9 +1282,11 @@ export default function DashboardPage() {
                                 <span className="ml-1 capitalize">{item.type}</span>
                               </Badge>
                             </div>
-                            <h3 className="text-lg font-medium mb-1">{item.title}</h3>
-                            <p className="text-neondark-muted text-sm mb-3">{item.description}</p>
-                            <div className="flex justify-between items-center">
+                            <h3 className="text-lg font-medium mb-1 line-clamp-2 group-hover:text-pink-300 transition-colors">
+                              {item.title}
+                            </h3>
+                            <p className="text-neondark-muted text-sm mb-3 line-clamp-2">{item.description}</p>
+                            <div className="flex justify-between items-center mt-auto">
                               <div className="flex items-center text-sm text-neondark-muted">
                                 <div className="flex items-center mr-3">
                                   {getSourceIcon(item.source)}
@@ -1262,72 +1297,64 @@ export default function DashboardPage() {
                                   <span>{formatDate(item.publishedAt)}</span>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleUserAction("like", item.id)
-                                  }}
-                                  className="text-neondark-muted hover:text-red-400 transition-colors"
-                                  aria-label="Like"
-                                >
-                                  <Heart className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleUserAction("save", item.id)
-                                  }}
-                                  className="text-neondark-muted hover:text-cyan-400 transition-colors"
-                                  aria-label="Save"
-                                >
-                                  <Bookmark className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleUserAction("share", item.id)
-                                  }}
-                                  className="text-neondark-muted hover:text-blue-400 transition-colors"
-                                  aria-label="Share"
-                                >
-                                  <Share className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleUserAction("dismiss", item.id)
-                                  }}
-                                  className="text-neondark-muted hover:text-gray-400 transition-colors"
-                                  aria-label="Dismiss"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
-                                <a
-                                  href={item.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-pink-400 hover:text-pink-300 text-sm flex items-center ml-2"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Explore <ExternalLink className="ml-1 h-3 w-3" />
-                                </a>
-                              </div>
                             </div>
+                          </div>
+                          <div className="flex items-center justify-between p-3 bg-neondark-card/80 border-t border-neondark-border">
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleUserAction("like", item.id)
+                                }}
+                                className="text-neondark-muted hover:text-red-400 transition-colors p-1.5 rounded-full hover:bg-red-500/10"
+                                aria-label="Like"
+                              >
+                                <Heart className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleUserAction("save", item.id)
+                                }}
+                                className="text-neondark-muted hover:text-cyan-400 transition-colors p-1.5 rounded-full hover:bg-cyan-500/10"
+                                aria-label="Save"
+                              >
+                                <Bookmark className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleUserAction("share", item.id)
+                                }}
+                                className="text-neondark-muted hover:text-blue-400 transition-colors p-1.5 rounded-full hover:bg-blue-500/10"
+                                aria-label="Share"
+                              >
+                                <Share className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleUserAction("dismiss", item.id)
+                                }}
+                                className="text-neondark-muted hover:text-gray-400 transition-colors p-1.5 rounded-full hover:bg-gray-500/10"
+                                aria-label="Dismiss"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-pink-400 hover:text-pink-300 text-sm flex items-center ml-2 px-3 py-1.5 rounded-full bg-pink-500/10 hover:bg-pink-500/20 transition-colors"
+                              onClick={(evt) => evt.stopPropagation()}
+                            >
+                              Explore <ExternalLink className="ml-1 h-3 w-3" />
+                            </a>
                           </div>
                         </motion.div>
                       ))}
                     </AnimatePresence>
-
-                    {discoverMoreItems.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        className="w-full mt-2"
-                        onClick={() => setShowAllDiscover(!showAllDiscover)}
-                      >
-                        {showAllDiscover ? "Show Less" : `Show ${discoverMoreItems.length - 3} More Discover Items`}
-                      </Button>
-                    )}
                   </div>
                 </CardContent>
               </Card>

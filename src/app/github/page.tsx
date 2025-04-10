@@ -1,12 +1,19 @@
 "use client"
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import React, { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import { useTheme } from "next-themes"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   BarChart,
   Bar,
@@ -21,7 +28,6 @@ import {
   LineChart,
   Line,
 } from "recharts"
-import { motion } from "framer-motion"
 import {
   BarChart3,
   ChevronDown,
@@ -37,10 +43,6 @@ import {
   Sun,
   Github,
 } from "lucide-react"
-import { useTheme } from "next-themes"
-import { Skeleton } from "@/components/ui/skeleton"
-
-
 
 export default function GithubPage() {
   const [data, setData] = useState<any>(null)
@@ -54,34 +56,19 @@ export default function GithubPage() {
   })
   const [isDarkMode, setIsDarkMode] = useState(theme === "dark")
 
+  // Fetch data from your API route instead of using mock data
   useEffect(() => {
     const fetchGithubData = async () => {
-      // Mock data for demonstration
-      setData({
-        repos: [
-          { id: 1, fullName: "user/repo-1", language: "JavaScript", stars: 120, forks: 45, url: "#" },
-          { id: 2, fullName: "user/repo-2", language: "TypeScript", stars: 89, forks: 23, url: "#" },
-          { id: 3, fullName: "user/repo-3", language: "Python", stars: 230, forks: 78, url: "#" },
-          { id: 4, fullName: "user/repo-4", language: "JavaScript", stars: 56, forks: 12, url: "#" },
-          { id: 5, fullName: "user/repo-5", language: "Go", stars: 320, forks: 110, url: "#" },
-          { id: 6, fullName: "user/repo-6", language: "Rust", stars: 78, forks: 15, url: "#" },
-        ],
-        languageStats: [
-          { language: "JavaScript", repoCount: 25 },
-          { language: "TypeScript", repoCount: 18 },
-          { language: "Python", repoCount: 12 },
-          { language: "Go", repoCount: 8 },
-          { language: "Rust", repoCount: 5 },
-          { language: "Java", repoCount: 4 },
-        ],
-        issues: [
-          { id: 1, title: "Bug in auth flow", comments: 12, repository: "user/repo-1" },
-          { id: 2, title: "Feature request: dark mode", comments: 8, repository: "user/repo-2" },
-          { id: 3, title: "Performance issue", comments: 15, repository: "user/repo-3" },
-          { id: 4, title: "Documentation update", comments: 5, repository: "user/repo-4" },
-          { id: 5, title: "Mobile responsiveness", comments: 10, repository: "user/repo-5" },
-        ],
-      })
+      try {
+        const res = await fetch("/api/github")
+        if (!res.ok) {
+          throw new Error("Failed to fetch GitHub analytics")
+        }
+        const json = await res.json()
+        setData(json)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+      }
     }
     fetchGithubData()
   }, [])
@@ -101,14 +88,17 @@ export default function GithubPage() {
     setTheme(theme === "dark" ? "light" : "dark")
   }
 
+  // Destructure data from the API response
+  const repos = data?.repos || []
+  const languageStats = data?.analyticsData?.languageStats || []
+  const issues = data?.issues || []
+
   // Filter repos based on search term
-  const filteredRepos = data
-    ? data.repos.filter(
-        (repo: any) =>
-          repo.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          repo.language?.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    : []
+  const filteredRepos = repos.filter(
+    (repo: any) =>
+      repo.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      repo.language?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   // Colors for charts
   const colors = [
@@ -124,8 +114,16 @@ export default function GithubPage() {
     "#14b8a6",
   ]
 
+  // If available, use activity data from the API; if not, use mock-generated data
+  const activityData =
+    data?.analyticsData?.activityData?.map((item: any) => ({
+      date: item.date,
+      contributions: item.count,
+    })) || generateActivityData()
+
   return (
-    <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">      {/* Background gradients */}
+    <div className="min-h-screen bg-neondark-bg text-foreground relative overflow-hidden">
+      {/* Background gradients */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,255,0.15),transparent_70%)] dark:opacity-100 opacity-30"></div>
       <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--neondark-bg),transparent_20%,transparent_80%,var(--neondark-bg))]"></div>
       <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] dark:opacity-100 opacity-30"></div>
@@ -172,7 +170,7 @@ export default function GithubPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               title="Total Repositories"
-              value={data.repos.length}
+              value={repos.length}
               icon={<Code className="h-4 w-4" />}
               color="bg-cyan-500"
               index={0}
@@ -180,7 +178,7 @@ export default function GithubPage() {
             />
             <StatsCard
               title="Total Stars"
-              value={data.repos.reduce((acc: number, repo: any) => acc + repo.stars, 0)}
+              value={repos.reduce((acc: number, repo: any) => acc + repo.stars, 0)}
               icon={<Star className="h-4 w-4" />}
               color="bg-yellow-500"
               index={1}
@@ -188,7 +186,7 @@ export default function GithubPage() {
             />
             <StatsCard
               title="Total Forks"
-              value={data.repos.reduce((acc: number, repo: any) => acc + repo.forks, 0)}
+              value={repos.reduce((acc: number, repo: any) => acc + repo.forks, 0)}
               icon={<GitFork className="h-4 w-4" />}
               color="bg-green-500"
               index={2}
@@ -196,7 +194,7 @@ export default function GithubPage() {
             />
             <StatsCard
               title="Open Issues"
-              value={data.issues.length}
+              value={issues.length}
               icon={<GitPullRequest className="h-4 w-4" />}
               color="bg-purple-500"
               index={3}
@@ -290,7 +288,7 @@ export default function GithubPage() {
                               </div>
                             </div>
                           </motion.li>
-                        ),
+                        )
                       )}
                     </ul>
                     {!expandedCards.repos && filteredRepos.length > 5 && (
@@ -336,61 +334,66 @@ export default function GithubPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    
-                      <motion.div
-                        key={chartType}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="w-full h-[400px]"
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          {chartType === "pie" ? (
-                            <PieChart>
-                              <Pie
-                                data={data.languageStats}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={true}
-                                outerRadius={150}
-                                fill="#8884d8"
-                                dataKey="repoCount"
-                                nameKey="language"
-                                label={({ language, repoCount }) => `${language}: ${repoCount}`}
-                              >
-                                {data.languageStats.map((entry: any, index: number) => (
-                                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                                ))}
-                              </Pie>
-                              <RechartsTooltip formatter={(value, name) => [`${value} repositories`, name]} />
-                            </PieChart>
-                          ) : (
-                            <BarChart
-                              data={data.languageStats}
-                              layout="vertical"
-                              margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                    <motion.div
+                      key={chartType}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="w-full h-[400px]"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        {chartType === "pie" ? (
+                          <PieChart>
+                            <Pie
+                              data={languageStats}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={true}
+                              outerRadius={150}
+                              fill="#8884d8"
+                              dataKey="repoCount"
+                              nameKey="language"
+                              label={({ language, repoCount }) =>
+                                `${language}: ${repoCount}`
+                              }
                             >
-                              <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.2} />
-                              <XAxis type="number" stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
-                              <YAxis
-                                type="category"
-                                dataKey="language"
-                                width={100}
-                                stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
-                              />
-                              <RechartsTooltip formatter={(value) => [`${value} repositories`, "Count"]} />
-                              <Bar dataKey="repoCount" radius={[0, 4, 4, 0]}>
-                                {data.languageStats.map((entry: any, index: number) => (
-                                  <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          )}
-                        </ResponsiveContainer>
-                      </motion.div>
-                   
+                              {languageStats.map((entry: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                              ))}
+                            </Pie>
+                            <RechartsTooltip
+                              formatter={(value, name) => [`${value} repositories`, name]}
+                            />
+                          </PieChart>
+                        ) : (
+                          <BarChart
+                            data={languageStats}
+                            layout="vertical"
+                            margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.2} />
+                            <XAxis
+                              type="number"
+                              stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
+                            />
+                            <YAxis
+                              type="category"
+                              dataKey="language"
+                              width={100}
+                              stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
+                            />
+                            <RechartsTooltip formatter={(value) => [`${value} repositories`, "Count"]} />
+                            <Bar dataKey="repoCount" radius={[0, 4, 4, 0]}>
+                              {languageStats.map((entry: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        )}
+                      </ResponsiveContainer>
+                    </motion.div>
                     <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                      {data.languageStats.map((lang: any, index: number) => (
+                      {languageStats.map((lang: any, index: number) => (
                         <motion.div
                           key={lang.language}
                           className="flex items-center gap-2 p-1 rounded-md hover:bg-neondark-card/50 transition-colors"
@@ -424,45 +427,61 @@ export default function GithubPage() {
                       Most Discussed Issues
                     </Badge>
                   </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => toggleExpand("issues")} className="h-8 w-8 p-0">
-                    {expandedCards.issues ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleExpand("issues")}
+                    className="h-8 w-8 p-0"
+                  >
+                    {expandedCards.issues ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  
-                    <div className="w-full h-[350px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.issues} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                          <XAxis
-                            dataKey="title"
-                            angle={-45}
-                            textAnchor="end"
-                            height={70}
-                            interval={0}
-                            tick={{ fontSize: 12 }}
-                            stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
-                          />
-                          <YAxis stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
-                          <RechartsTooltip
-                            formatter={(value, name, props) => [
-                              `${value} comments`,
-                              props.payload.repository || "Comments",
-                            ]}
-                            labelFormatter={(label) => `Issue: ${label}`}
-                          />
-                          <Bar dataKey="comments" radius={[8, 8, 0, 0]} animationDuration={1500}>
-                            {data.issues.map((entry: any, index: number) => (
-                              <Cell
-                                key={`cell-${index}`}
-                                fill={entry.comments > 15 ? "#ef4444" : entry.comments > 10 ? "#f59e0b" : "#3b82f6"}
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                 
+                  <div className="w-full h-[350px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={issues}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                        <XAxis
+                          dataKey="title"
+                          angle={-45}
+                          textAnchor="end"
+                          height={70}
+                          interval={0}
+                          tick={{ fontSize: 12 }}
+                          stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
+                        />
+                        <YAxis stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                        <RechartsTooltip
+                          formatter={(value, name, props) => [
+                            `${value} comments`,
+                            props.payload.repository || "Comments",
+                          ]}
+                          labelFormatter={(label) => `Issue: ${label}`}
+                        />
+                        <Bar dataKey="comments" radius={[8, 8, 0, 0]} animationDuration={1500}>
+                          {issues.map((entry: any, index: number) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={
+                                entry.comments > 15
+                                  ? "#ef4444"
+                                  : entry.comments > 10
+                                  ? "#f59e0b"
+                                  : "#3b82f6"
+                              }
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
             ) : (
@@ -482,32 +501,33 @@ export default function GithubPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                
-                    <div className="w-full h-[200px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={generateActivityData()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
-                          <XAxis dataKey="date" stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
-                          <YAxis stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
-                          <RechartsTooltip formatter={(value) => [`${value} contributions`]} />
-                          <Line
-                            type="monotone"
-                            dataKey="contributions"
-                            stroke="url(#lineGradient)"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            activeDot={{ r: 5, strokeWidth: 0 }}
-                          />
-                          <defs>
-                            <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.5} />
-                            </linearGradient>
-                          </defs>
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                 
+                  <div className="w-full h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={activityData}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                        <XAxis dataKey="date" stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                        <YAxis stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                        <RechartsTooltip formatter={(value) => [`${value} contributions`]} />
+                        <Line
+                          type="monotone"
+                          dataKey="contributions"
+                          stroke="url(#lineGradient)"
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          activeDot={{ r: 5, strokeWidth: 0 }}
+                        />
+                        <defs>
+                          <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.5} />
+                          </linearGradient>
+                        </defs>
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
             ) : (
@@ -603,61 +623,63 @@ export default function GithubPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-              
-                    <motion.div
-                      key={chartType}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5 }}
-                      className="w-full h-[400px]"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        {chartType === "pie" ? (
-                          <PieChart>
-                            <Pie
-                              data={data.languageStats}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={true}
-                              outerRadius={150}
-                              fill="#8884d8"
-                              dataKey="repoCount"
-                              nameKey="language"
-                              label={({ language, repoCount }) => `${language}: ${repoCount}`}
-                            >
-                              {data.languageStats.map((entry: any, index: number) => (
-                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                              ))}
-                            </Pie>
-                            <RechartsTooltip formatter={(value, name) => [`${value} repositories`, name]} />
-                          </PieChart>
-                        ) : (
-                          <BarChart
-                            data={data.languageStats}
-                            layout="vertical"
-                            margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                  <motion.div
+                    key={chartType}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-full h-[400px]"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      {chartType === "pie" ? (
+                        <PieChart>
+                          <Pie
+                            data={languageStats}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={true}
+                            outerRadius={150}
+                            fill="#8884d8"
+                            dataKey="repoCount"
+                            nameKey="language"
+                            label={({ language, repoCount }) =>
+                              `${language}: ${repoCount}`
+                            }
                           >
-                            <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.2} />
-                            <XAxis type="number" stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
-                            <YAxis
-                              type="category"
-                              dataKey="language"
-                              width={100}
-                              stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
-                            />
-                            <RechartsTooltip formatter={(value) => [`${value} repositories`, "Count"]} />
-                            <Bar dataKey="repoCount" radius={[0, 4, 4, 0]}>
-                              {data.languageStats.map((entry: any, index: number) => (
-                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        )}
-                      </ResponsiveContainer>
-                    </motion.div>
-                 
+                            {languageStats.map((entry: any, index: number) => (
+                              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip
+                            formatter={(value, name) => [`${value} repositories`, name]}
+                          />
+                        </PieChart>
+                      ) : (
+                        <BarChart
+                          data={languageStats}
+                          layout="vertical"
+                          margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.2} />
+                          <XAxis type="number" stroke={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                          <YAxis
+                            type="category"
+                            dataKey="language"
+                            width={100}
+                            stroke={isDarkMode ? "#9ca3af" : "#6b7280"}
+                          />
+                          <RechartsTooltip formatter={(value) => [`${value} repositories`, "Count"]} />
+                          <Bar dataKey="repoCount" radius={[0, 4, 4, 0]}>
+                            {languageStats.map((entry: any, index: number) => (
+                              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      )}
+                    </ResponsiveContainer>
+                  </motion.div>
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {data.languageStats.map((lang: any, index: number) => (
+                    {languageStats.map((lang: any, index: number) => (
                       <motion.div
                         key={lang.language}
                         className="flex items-center gap-2 p-1 rounded-md hover:bg-neondark-card/50 transition-colors"
@@ -693,41 +715,41 @@ export default function GithubPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                 
-                    <div className="space-y-4">
-                      {data.issues.map((issue: any, index: number) => (
-                        <motion.div
-                          key={issue.id}
-                          className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-purple-500/30"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: index * 0.05 }}
-                          whileHover={{ scale: 1.01, y: -2 }}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium">{issue.title}</h3>
-                              {issue.repository && (
-                                <p className="text-sm text-neondark-muted">Repository: {issue.repository}</p>
-                              )}
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={
-                                issue.comments > 5
-                                  ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
-                                  : issue.comments > 10
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
-                                    : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                              }
-                            >
-                              {issue.comments} comments
-                            </Badge>
+                  <div className="space-y-4">
+                    {issues.map((issue: any, index: number) => (
+                      <motion.div
+                        key={issue.id}
+                        className="p-4 rounded-lg border border-neondark-border bg-neondark-card/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-purple-500/30"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium">{issue.title}</h3>
+                            {issue.repository && (
+                              <p className="text-sm text-neondark-muted">
+                                Repository: {issue.repository}
+                              </p>
+                            )}
                           </div>
-                        </motion.div>
-                      ))}
-                    </div>
-               
+                          <Badge
+                            variant="outline"
+                            className={
+                              issue.comments > 5
+                                ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                                : issue.comments > 10
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                            }
+                          >
+                            {issue.comments} comments
+                          </Badge>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             ) : (
@@ -787,11 +809,10 @@ function StatsCard({
   )
 }
 
-// Helper function to generate mock activity data
+// Helper function to generate mock activity data as a fallback
 function generateActivityData() {
   const data = []
   const now = new Date()
-
   for (let i = 30; i >= 0; i--) {
     const date = new Date()
     date.setDate(now.getDate() - i)
@@ -800,6 +821,5 @@ function generateActivityData() {
       contributions: Math.floor(Math.random() * 15) + 1,
     })
   }
-
   return data
 }
