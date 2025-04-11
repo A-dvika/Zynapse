@@ -266,41 +266,63 @@ export default function StackOverflowPage() {
             title="Total Answers"
             value={totalAnswers}
             icon={<ThumbsUp className="h-4 w-4" />}
-            color="bg-green-500"
+            color="bg-cyan-600"
             index={1}
           />
           <StatsCard
             title="Total Score"
             value={totalScore}
             icon={<Star className="h-4 w-4" />}
-            color="bg-blue-500"
+            color="bg-cyan-700"
             index={2}
           />
           <StatsCard
             title="Unique Tags"
             value={totalTags}
             icon={<Tag className="h-4 w-4" />}
-            color="bg-purple-500"
+            color="bg-cyan-800"
             index={3}
           />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="questions">Questions</TabsTrigger>
-            <TabsTrigger value="answers">Answers</TabsTrigger>
-            <TabsTrigger value="tags">Tags</TabsTrigger>
-          </TabsList>
+        <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-4 bg-neondark-card/50 border border-neondark-border divide-x divide-neondark-border rounded-md overflow-hidden">
+  <TabsTrigger
+    value="overview"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Overview
+  </TabsTrigger>
+  <TabsTrigger
+    value="questions"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Questions
+  </TabsTrigger>
+  <TabsTrigger
+    value="answers"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Answers
+  </TabsTrigger>
+  <TabsTrigger
+    value="tags"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Tags
+  </TabsTrigger>
+</TabsList>
+
+
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Top Questions Card */}
-              <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5 text-cyan-500" /> Top Questions
+                      <MessageSquare className="h-5 w-5 text-cyan-400" /> Top Questions
                     </CardTitle>
                     {tagFilter && (
                       <CardDescription className="flex items-center mt-1">
@@ -382,10 +404,10 @@ export default function StackOverflowPage() {
 
               {/* Top Answers Card */}
               {/* Top Answers Card */}
-              <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <ThumbsUp className="h-5 w-5 text-green-500" /> Top Answers
+                    <ThumbsUp className="h-5 w-5 text-cyan-400" /> Top Answers
                   </CardTitle>
                   <Button variant="ghost" size="sm" onClick={() => toggleExpand("answers")} className="h-8 w-8 p-0">
                     {expandedCards.answers ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -457,11 +479,11 @@ export default function StackOverflowPage() {
             </div>
 
             {/* Tag Distribution Chart */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <Tag className="h-5 w-5 text-purple-500" /> Popular Tags
+                    <Tag className="h-5 w-5 text-cyan-400" /> Popular Tags
                   </CardTitle>
                   {tagFilter && (
                     <CardDescription className="flex items-center mt-1">
@@ -543,10 +565,10 @@ export default function StackOverflowPage() {
             </Card>
 
             {/* Reputation Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-500" /> Reputation Timeline
+                  <Clock className="h-5 w-5 text-cyan-400" /> Reputation Timeline
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -573,7 +595,7 @@ export default function StackOverflowPage() {
           </TabsContent>
 
           <TabsContent value="questions" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
                 <CardTitle>All Questions</CardTitle>
                 {tagFilter && (
@@ -665,7 +687,7 @@ export default function StackOverflowPage() {
           </TabsContent>
 
           <TabsContent value="answers" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader>
                 <CardTitle>All Answers</CardTitle>
               </CardHeader>
@@ -731,7 +753,7 @@ export default function StackOverflowPage() {
           </TabsContent>
 
           <TabsContent value="tags" className="space-y-6">
-            <Card className="bg-gray-800/30 border-gray-800">
+            <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle>Tag Distribution</CardTitle>
                 <div className="flex space-x-1">
@@ -855,20 +877,20 @@ function StatsCard({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-    >
-      <Card className="border border-gray-800 bg-gray-800/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+          <Card className="border border-neondark-border bg-neondark-card/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">{title}</CardTitle>
+              <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{value.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+        </motion.div>
   )
 }
 
