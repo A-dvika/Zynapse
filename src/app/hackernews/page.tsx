@@ -200,7 +200,7 @@ export default function HackerNewsPage() {
 
   // Colors for charts
   const colors = [
-    "#ff6600", // HN orange
+    "#06b6d4", // cyan (replacing HN orange)
     "#00FFFF", // Neon Cyan
     "#10b981", // Green
     "#8b5cf6", // Purple
@@ -241,7 +241,7 @@ export default function HackerNewsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
               Hacker News Dashboard
             </h1>
             <p className="text-neondark-muted mt-1">Track top stories, tech news, and engagement</p>
@@ -306,7 +306,7 @@ export default function HackerNewsPage() {
                 title="Top Stories"
                 value={totalStories}
                 icon={<TrendingUp className="h-4 w-4" />}
-                color="bg-orange-500"
+                color="bg-cyan-500"
                 index={0}
               />
               <StatsCard
@@ -359,7 +359,7 @@ export default function HackerNewsPage() {
                 <Card className="bg-neondark-card/30 border-neondark-border hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-orange-500" /> Top Stories
+                      <TrendingUp className="h-5 w-5 text-cyan-500" /> Top Stories
                     </CardTitle>
                     <Button
                       variant="ghost"
@@ -397,7 +397,7 @@ export default function HackerNewsPage() {
                                 {story.title}
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
-                              <Badge className="bg-orange-950 text-orange-300 border-orange-800">
+                              <Badge className="bg-gray-800/50 text-cyan-300 border border-cyan-800/50">
                                 {story.score} points
                               </Badge>
                             </div>
@@ -497,7 +497,7 @@ export default function HackerNewsPage() {
                               formatter={(value, name) => [value, name === "score" ? "Points" : "Comments"]}
                               labelFormatter={(label) => `Story: ${label}`}
                             />
-                            <Bar name="score" dataKey="score" fill="#ff6600" radius={[8, 8, 0, 0]} />
+                            <Bar name="score" dataKey="score" fill="#06b6d4" radius={[8, 8, 0, 0]} />
                             <Bar name="comments" dataKey="comments" fill="#00FFFF" radius={[8, 8, 0, 0]} />
                           </BarChart>
                         ) : (
@@ -511,7 +511,7 @@ export default function HackerNewsPage() {
                             <Line
                               type="monotone"
                               dataKey="stories"
-                              stroke="#ff6600"
+                              stroke="#06b6d4"
                               strokeWidth={2}
                               dot={{ r: 3 }}
                               activeDot={{ r: 5, strokeWidth: 0 }}
@@ -594,7 +594,7 @@ export default function HackerNewsPage() {
                           type="monotone"
                           name="stories"
                           dataKey="stories"
-                          stroke="#ff6600"
+                          stroke="#06b6d4"
                           strokeWidth={2}
                           dot={{ r: 3 }}
                           activeDot={{ r: 5, strokeWidth: 0 }}
@@ -656,7 +656,7 @@ export default function HackerNewsPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-orange-950 text-orange-300 border-orange-800">
+                            <Badge className="bg-gray-800/50 text-cyan-300 border border-cyan-800/50">
                               {story.score} points
                             </Badge>
                             {/* ANALYZE BUTTON */}
