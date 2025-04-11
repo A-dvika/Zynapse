@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { X, Edit2, PlusCircle } from "lucide-react"
+import { X, Edit2, PlusCircle, LogOut } from "lucide-react"
+import { signOut } from "next-auth/react"
 
 // Example shape. Adjust to your actual DB model.
 interface PreferenceData {
@@ -43,6 +44,8 @@ interface UserData {
 export default function ProfilePageUI({ user }: { user: UserData }) {
   // For the edit preferences modal
   const [isOpen, setIsOpen] = useState(false)
+  // For sign out confirmation
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
 
   if (!user) {
     return <div>No user data found.</div>
@@ -54,6 +57,11 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
   const savedItems = (history || []).filter((item) => item.action === "save")
   const otherActivity = (history || []).filter((item) => item.action !== "save")
 
+  // Handle sign out
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  }
+
   return (
     <div className="max-w-screen-lg mx-auto py-8 px-4">
       {/* Profile Header */}
@@ -64,6 +72,26 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
         </Avatar>
         <CardTitle className="mt-4 text-2xl font-bold text-neondark-text">{name}</CardTitle>
         <CardDescription className="text-neondark-muted">{email}</CardDescription>
+        
+        {/* Sign Out Button
+        <Button 
+          variant="outline" 
+          onClick={() => setShowSignOutConfirm(true)}
+          className="mt-4 border-red-500 text-red-500 hover:bg-red-950 hover:text-red-400"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
+        </Button> */}
+        {/* Sign Out Button */}
+<Button 
+  variant="outline" 
+  onClick={() => setShowSignOutConfirm(true)}
+  className="mt-4 border-cyan-400 text-cyan-400 hover:bg-cyan-950/50 hover:text-cyan-300 transition-colors duration-200"
+>
+  <LogOut className="mr-2 h-4 w-4" />
+  Log Out
+</Button>
+
       </div>
 
       {/* Main Content */}
@@ -72,7 +100,7 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
         <Card className="border-neondark-border bg-neondark-card shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-neondark-text">Preferences</CardTitle>
-            <CardDescription>Edit what you’re interested in</CardDescription>
+            <CardDescription>Edit what you're interested in</CardDescription>
           </CardHeader>
           <CardContent>
             <Separator className="bg-neondark-border mb-4" />
@@ -228,6 +256,46 @@ export default function ProfilePageUI({ user }: { user: UserData }) {
 
       {/* Edit Preferences Modal */}
       <PreferencesModal open={isOpen} onClose={() => setIsOpen(false)} user={user} />
+
+      {/* Sign Out Confirmation Modal */}
+     
+<Dialog open={showSignOutConfirm} onOpenChange={(val) => !val && setShowSignOutConfirm(false)}>
+  <DialogContent className="bg-white dark:bg-black/90 border-gray-200 dark:border-neondark-border border-2 shadow-lg shadow-cyan-400/10 dark:shadow-cyan-400/20 max-w-md">
+    <DialogHeader>
+      <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white flex items-center">
+        <LogOut className="mr-2 h-5 w-5 text-cyan-500 dark:text-cyan-400" />
+        Log Out
+      </DialogTitle>
+    </DialogHeader>
+
+    <Separator className="bg-gray-200 dark:bg-neondark-border" />
+
+    <div className="py-6 text-gray-700 dark:text-white">
+      Are you sure you want to log out of your account?
+    </div>
+
+    <div className="flex justify-end gap-3">
+    <Button
+  type="button"
+  variant="outline"
+  onClick={() => setShowSignOutConfirm(false)}
+  className="border-gray-300 dark:border-neondark-border text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neondark-bg hover:text-gray-800 dark:hover:text-white transition-colors"
+>
+
+        Cancel
+      </Button>
+      <Button 
+        type="button" 
+        onClick={handleSignOut}
+        className="bg-cyan-500 dark:bg-cyan-400 text-white dark:text-black hover:bg-cyan-600 dark:hover:bg-cyan-500 transition-colors"
+      >
+        Log Out
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
+
+
     </div>
   )
 }
