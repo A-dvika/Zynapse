@@ -313,8 +313,8 @@ export default function UnifiedDashboard() {
                 placeholder="Search content..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
-              />
+                className="pl-8 h-9 w-[200px] md:w-[260px]"
+                />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -403,209 +403,244 @@ export default function UnifiedDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6" onValueChange={setActiveTab} value={activeTab}>
-          <TabsList className="grid w-full md:w-auto grid-cols-3 bg-gray-800/50">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="social" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
-              Social Media
-            </TabsTrigger>
-            <TabsTrigger value="reddit" className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black">
-              Reddit
-            </TabsTrigger>
-          </TabsList>
+        <TabsList className="grid w-full md:w-auto grid-cols-3 bg-neondark-card/50 border border-neondark-border divide-x divide-neondark-border rounded-md overflow-hidden">
+  <TabsTrigger
+    value="overview"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Overview
+  </TabsTrigger>
+  <TabsTrigger
+    value="social"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Social Media
+  </TabsTrigger>
+  <TabsTrigger
+    value="reddit"
+    className="data-[state=active]:bg-cyan-400 data-[state=active]:text-black"
+  >
+    Reddit
+  </TabsTrigger>
+</TabsList>
+
 
           {/* OVERVIEW TAB */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Social Media Overview */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-cyan-500" /> Social Media Highlights
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("socialTrending")}
-                    className="h-8 w-8 p-0 hover:bg-cyan-950"
-                  >
-                    {expandedCards.socialTrending ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {filteredSocialPosts.length > 0 ? (
-                    <div className="space-y-3">
-                      {(expandedCards.socialTrending ? filteredSocialPosts : filteredSocialPosts.slice(0, 3))
-                        .sort((a: any, b: any) => b.likes + b.shares + b.comments - (a.likes + a.shares + a.comments))
-                        .map((post: any, index: number) => (
-                          <motion.div
-                            key={post.id || index}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                            whileHover={{ scale: 1.01 }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="font-medium text-primary flex items-start gap-2">
-                                  <div>
-                                    <div className="flex items-center">
-                                      <a
-                                        href={post.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-semibold text-cyan-400 hover:underline"
-                                      >
-                                        {post.author || "Anonymous"}
-                                      </a>
-                                      <Badge
-                                        variant="outline"
-                                        className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}
-                                      >
-                                        {getPlatformIcon(post.platform)}
-                                        <span className="ml-1">{post.platform}</span>
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.content}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex justify-between items-center mt-3">
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground"></div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      {!expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpand("socialTrending")}
-                          className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
+  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+    <div>
+      <CardTitle className="text-xl flex items-center gap-2">
+        <Heart className="h-5 w-5 text-cyan-500" /> Social Media Highlights
+      </CardTitle>
+    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => toggleExpand("socialTrending")}
+      className="h-8 w-8 p-0"
+    >
+      {expandedCards.socialTrending ? (
+        <ChevronUp className="h-4 w-4" />
+      ) : (
+        <ChevronDown className="h-4 w-4" />
+      )}
+    </Button>
+  </CardHeader>
+
+  <CardContent>
+    {filteredSocialPosts.length === 0 ? (
+      <div className="text-center py-8 text-neondark-muted">
+        No social media data available
+      </div>
+    ) : (
+      <ul className="space-y-3">
+        {(expandedCards.socialTrending ? filteredSocialPosts : filteredSocialPosts.slice(0, 3))
+          .sort(
+            (a: any, b: any) =>
+              b.likes + b.shares + b.comments - (a.likes + a.shares + a.comments)
+          )
+          .map((post: any, index: number) => (
+            <motion.li
+              key={post.id || index}
+              className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-start gap-2">
+                    <div>
+                      <div className="flex items-center">
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center"
                         >
-                          View All Social Media Posts
-                        </Button>
-                      )}
-                      {expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpand("socialTrending")}
-                          className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+                          {post.author || "Anonymous"}
+                        </a>
+                        <Badge
+                          variant="outline"
+                          className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}
                         >
-                          View Less
-                        </Button>
-                      )}
+                          {getPlatformIcon(post.platform)}
+                          <span className="ml-1">{post.platform}</span>
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-neondark-muted mt-1 line-clamp-2">
+                        {post.content}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">No social media data available</div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                </div>
+              </div>
+            </motion.li>
+          ))}
+        {!expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleExpand("socialTrending")}
+            className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+          >
+            View All Social Media Posts
+          </Button>
+        )}
+        {expandedCards.socialTrending && filteredSocialPosts.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleExpand("socialTrending")}
+            className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+          >
+            View Less
+          </Button>
+        )}
+      </ul>
+    )}
+  </CardContent>
+</Card>
+
 
               {/* Reddit Overview */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <CardTitle className="text-xl flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-cyan-500" /> Reddit Highlights
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("redditTrending")}
-                    className="h-8 w-8 p-0 hover:bg-cyan-950"
-                  >
-                    {expandedCards.redditTrending ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {filteredRedditPosts.length > 0 ? (
-                    <div className="space-y-3">
-                      {(expandedCards.redditTrending ? filteredRedditPosts : filteredRedditPosts.slice(0, 3))
-                        .sort((a: any, b: any) => b.score - a.score)
-                        .map((post: any, index: number) => (
-                          <motion.div
-                            key={post.id || index}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                            whileHover={{ scale: 1.01 }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="font-medium text-primary">
-                                <div className="flex items-center">
-                                  <a
-                                    href={post.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="font-semibold truncate max-w-[250px] hover:underline hover:text-cyan-400"
-                                  >
-                                    {post.title}
-                                  </a>
-                                  <Badge
-                                    variant="outline"
-                                    className="ml-2 bg-cyan-950 text-cyan-300 border-cyan-800"
-                                  >
-                                    r/{post.subreddit}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-cyan-800">
-                                <ArrowUpRight className="h-3 w-3 mr-1 text-cyan-500" />
-                                {post.score}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between items-center mt-3">
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <MessageCircle className="h-4 w-4 text-cyan-400" />
-                                  <span>{post.num_comments} comments</span>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      {!expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpand("redditTrending")}
-                          className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
+  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+    <div>
+      <CardTitle className="text-xl flex items-center gap-2">
+        <TrendingUp className="h-5 w-5 text-cyan-500" /> Reddit Highlights
+      </CardTitle>
+    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => toggleExpand("redditTrending")}
+      className="h-8 w-8 p-0"
+    >
+      {expandedCards.redditTrending ? (
+        <ChevronUp className="h-4 w-4" />
+      ) : (
+        <ChevronDown className="h-4 w-4" />
+      )}
+    </Button>
+  </CardHeader>
+
+  <CardContent>
+    {filteredRedditPosts.length === 0 ? (
+      <div className="text-center py-8 text-neondark-muted">
+        No Reddit data available
+      </div>
+    ) : (
+      <ul className="space-y-3">
+        {(expandedCards.redditTrending
+          ? filteredRedditPosts
+          : filteredRedditPosts.slice(0, 3)
+        )
+          .sort((a: any, b: any) => b.score - a.score)
+          .map((post: any, index: number) => (
+            <motion.li
+              key={post.id || index}
+              className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-start gap-2">
+                    <div>
+                      <div className="flex items-center">
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold truncate max-w-[250px] text-cyan-400 hover:text-cyan-300 hover:underline"
                         >
-                          View All Reddit Posts
-                        </Button>
-                      )}
-                      {expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpand("redditTrending")}
-                          className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+                          {post.title}
+                        </a>
+                        <Badge
+                          variant="outline"
+                          className="ml-2 bg-cyan-950 text-cyan-300 border-cyan-800"
                         >
-                          View Less
-                        </Button>
-                      )}
+                          r/{post.subreddit}
+                        </Badge>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">No Reddit data available</div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className="ml-2 flex items-center gap-1 bg-cyan-900/30 text-cyan-300"
+                >
+                  <ArrowUpRight className="h-3 w-3 text-cyan-400" />
+                  {post.score}
+                </Badge>
+              </div>
+
+              <div className="flex justify-between items-center mt-3">
+                <div className="flex items-center gap-4 text-sm text-neondark-muted">
+                  <div className="flex items-center gap-1">
+                    <MessageCircle className="h-4 w-4 text-cyan-400" />
+                    <span>{post.num_comments} comments</span>
+                  </div>
+                </div>
+              </div>
+            </motion.li>
+          ))}
+        {!expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleExpand("redditTrending")}
+            className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+          >
+            View All Reddit Posts
+          </Button>
+        )}
+        {expandedCards.redditTrending && filteredRedditPosts.length > 3 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleExpand("redditTrending")}
+            className="w-full mt-2 hover:bg-cyan-950 hover:text-cyan-400"
+          >
+            View Less
+          </Button>
+        )}
+      </ul>
+    )}
+  </CardContent>
+</Card>
+
             </div>
 
             {/* Platform Comparison */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader>
                 <CardTitle>Platform Comparison</CardTitle>
               </CardHeader>
@@ -686,8 +721,8 @@ export default function UnifiedDashboard() {
                           type="monotone"
                           dataKey="social"
                           stackId="1"
-                          stroke="#9333ea"
-                          fill="#9333ea"
+                          stroke="#8884d8"
+                          fill="#8884d8"
                           name="Social Media"
                           fillOpacity={0.6}
                         />
@@ -722,8 +757,8 @@ export default function UnifiedDashboard() {
                     placeholder="Search posts..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
-                  />
+                    className="pl-8 h-9 w-[200px] md:w-[260px]"
+                    />
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -751,125 +786,139 @@ export default function UnifiedDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Top Posts Card */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      <ArrowUpRight className="h-5 w-5 text-cyan-500" /> Top Performing Posts
-                    </CardTitle>
-                    {platformFilter && (
-                      <CardDescription className="flex items-center mt-1">
-                        Filtered by:
-                        <Badge variant="outline" className="ml-2 border-cyan-800">
-                          {platformFilter}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setPlatformFilter(null)}
-                            className="h-4 w-4 ml-1 p-0"
-                          >
-                            <ChevronDown className="h-3 w-3" />
-                          </Button>
+              <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
+  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+    <div>
+      <CardTitle className="text-xl flex items-center gap-2">
+        <ArrowUpRight className="h-5 w-5 text-cyan-500" /> Top Performing Posts
+      </CardTitle>
+      {platformFilter && (
+        <CardDescription className="flex items-center mt-1 text-neondark-muted">
+          Filtered by:
+          <Badge variant="outline" className="ml-2 border-cyan-800 text-cyan-300 bg-cyan-950">
+            {platformFilter}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPlatformFilter(null)}
+              className="h-4 w-4 ml-1 p-0 text-cyan-300 hover:text-cyan-100"
+            >
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </Badge>
+        </CardDescription>
+      )}
+    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => toggleExpand("socialTrending")}
+      className="h-8 w-8 p-0"
+    >
+      {expandedCards.socialTrending ? (
+        <ChevronUp className="h-4 w-4" />
+      ) : (
+        <ChevronDown className="h-4 w-4" />
+      )}
+    </Button>
+  </CardHeader>
+
+  <CardContent>
+    {filteredSocialPosts.length === 0 ? (
+      <div className="text-center py-8 text-neondark-muted">
+        No posts match your search criteria
+      </div>
+    ) : (
+      <ul className="space-y-3">
+        {(expandedCards.socialTrending
+          ? filteredSocialPosts
+          : filteredSocialPosts.slice(0, 5)
+        )
+          .sort(
+            (a: any, b: any) =>
+              b.likes + b.shares + b.comments - (a.likes + a.shares + a.comments)
+          )
+          .map((post: any, index: number) => (
+            <motion.li
+              key={post.id || index}
+              className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="font-medium text-primary flex items-start gap-2">
+                    <div>
+                      <div className="flex items-center">
+                        <a
+                          href={post.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-cyan-400 hover:underline hover:text-cyan-300"
+                        >
+                          {post.author || "Anonymous"}
+                        </a>
+                        <Badge
+                          variant="outline"
+                          className={`ml-2 ${getPlatformBadgeClass(post.platform)} bg-cyan-950 text-cyan-300 border-cyan-800`}
+                        >
+                          {getPlatformIcon(post.platform)}
+                          <span className="ml-1">{post.platform}</span>
                         </Badge>
-                      </CardDescription>
-                    )}
+                      </div>
+                      <p className="text-sm text-neondark-muted mt-1 line-clamp-2">
+                        {post.content}
+                      </p>
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("socialTrending")}
-                    className="h-8 w-8 p-0 hover:bg-cyan-950"
-                  >
-                    {expandedCards.socialTrending ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {filteredSocialPosts.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">No posts match your search criteria</div>
-                  ) : (
-                    <ul className="space-y-3">
-                      {(expandedCards.socialTrending ? filteredSocialPosts : filteredSocialPosts.slice(0, 5))
-                        .sort((a: any, b: any) => b.likes + b.shares + b.comments - (a.likes + a.shares + a.comments))
-                        .map((post: any, index: number) => (
-                          <motion.li
-                            key={post.id || index}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                            whileHover={{ scale: 1.01 }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="font-medium text-primary flex items-start gap-2">
-                                  <div>
-                                    <div className="flex items-center">
-                                      <a
-                                        href={post.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-semibold text-cyan-400 hover:underline"
-                                      >
-                                        {post.author || "Anonymous"}
-                                      </a>
-                                      <Badge
-                                        variant="outline"
-                                        className={`ml-2 ${getPlatformBadgeClass(post.platform)}`}
-                                      >
-                                        {getPlatformIcon(post.platform)}
-                                        <span className="ml-1">{post.platform}</span>
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.content}</p>
-                                  </div>
-                                </div>
-                              </div>
-                              {post.image && (
-                                <div className="ml-4 h-16 w-16 rounded overflow-hidden flex-shrink-0">
-                                  <img
-                                    src={post.image || "/placeholder.svg?height=64&width=64"}
-                                    alt="Post image"
-                                    className="h-full w-full object-cover"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex justify-between items-center mt-3">
-                              <span className="text-xs text-muted-foreground">{formatDate(post.createdAt)}</span>
-                            </div>
-                          </motion.li>
-                        ))}
-                    </ul>
-                  )}
-                  {!expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpand("socialTrending")}
-                      className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
-                    >
-                      View all {filteredSocialPosts.length} posts
-                    </Button>
-                  )}
-                  {expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpand("socialTrending")}
-                      className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
-                    >
-                      View less
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+                {post.image && (
+                  <div className="ml-4 h-16 w-16 rounded overflow-hidden flex-shrink-0">
+                    <img
+                      src={post.image || "/placeholder.svg?height=64&width=64"}
+                      alt="Post image"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-between items-center mt-3">
+                <span className="text-xs text-neondark-muted">
+                  {formatDate(post.createdAt)}
+                </span>
+              </div>
+            </motion.li>
+          ))}
+      </ul>
+    )}
+    {!expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => toggleExpand("socialTrending")}
+        className="w-full mt-3 hover:bg-cyan-900/20 hover:text-cyan-400"
+      >
+        View all {filteredSocialPosts.length} posts
+      </Button>
+    )}
+    {expandedCards.socialTrending && filteredSocialPosts.length > 5 && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => toggleExpand("socialTrending")}
+        className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
+      >
+        View less
+      </Button>
+    )}
+  </CardContent>
+</Card>
+
 
               {/* Platform Distribution Chart */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
                     <PieChartIcon className="h-5 w-5 text-cyan-500" /> Platform Distribution
@@ -968,7 +1017,7 @@ export default function UnifiedDashboard() {
             </div>
 
             {/* Engagement Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <LineChartIcon className="h-5 w-5 text-cyan-500" /> Engagement Timeline
@@ -1031,8 +1080,8 @@ export default function UnifiedDashboard() {
                     placeholder="Search posts..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 h-9 w-[200px] md:w-[260px] bg-gray-800/50 border-gray-700"
-                  />
+                    className="pl-8 h-9 w-[200px] md:w-[260px]"
+                    />
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -1060,117 +1109,140 @@ export default function UnifiedDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Trending Posts Card */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-                <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-cyan-500" /> Trending Posts
-                    </CardTitle>
-                    {subredditFilter && (
-                      <CardDescription className="flex items-center mt-1">
-                        Filtered by:
-                        <Badge variant="outline" className="ml-2 border-cyan-800">
-                          r/{subredditFilter}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setSubredditFilter(null)}
-                            className="h-4 w-4 ml-1 p-0"
-                          >
-                            <ChevronDown className="h-3 w-3" />
-                          </Button>
-                        </Badge>
-                      </CardDescription>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand("redditTrending")}
-                    className="h-8 w-8 p-0 hover:bg-cyan-950"
+<Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
+  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+    <div>
+      <CardTitle className="text-xl flex items-center gap-2">
+        <TrendingUp className="h-5 w-5 text-cyan-500" /> Reddit Highlights
+      </CardTitle>
+      {subredditFilter && (
+        <CardDescription className="flex items-center mt-1 text-neondark-muted">
+          Filtered by:
+          <Badge
+            variant="outline"
+            className="ml-2 border-cyan-800 text-cyan-300 bg-cyan-950"
+          >
+            r/{subredditFilter}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSubredditFilter(null)}
+              className="h-4 w-4 ml-1 p-0 text-cyan-300 hover:text-cyan-100"
+            >
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </Badge>
+        </CardDescription>
+      )}
+    </div>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => toggleExpand("redditTrending")}
+      className="h-8 w-8 p-0"
+    >
+      {expandedCards.redditTrending ? (
+        <ChevronUp className="h-4 w-4" />
+      ) : (
+        <ChevronDown className="h-4 w-4" />
+      )}
+    </Button>
+  </CardHeader>
+
+  <CardContent>
+    {filteredRedditPosts.length === 0 ? (
+      <div className="text-center py-8 text-neondark-muted">
+        No posts match your search criteria
+      </div>
+    ) : (
+      <ul className="space-y-3">
+        {(expandedCards.redditTrending
+          ? filteredRedditPosts
+          : filteredRedditPosts.slice(0, 5)
+        )
+          .sort((a: any, b: any) => b.score - a.score)
+          .map((post: any, index: number) => (
+            <motion.li
+              key={post.id || index}
+              className="p-3 rounded-lg border border-neondark-border bg-neondark-card/50 hover:bg-neondark-card/70 shadow-sm hover:shadow-md transition-all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="flex justify-between items-start">
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline hover:text-cyan-400 flex items-center"
+                >
+                  {post.title}
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </a>
+                <Badge
+                  variant="secondary"
+                  className="ml-2 bg-gray-800 border-cyan-800 text-cyan-400"
+                >
+                  <ArrowUpRight className="h-3 w-3 mr-1" />
+                  {post.score}
+                </Badge>
+              </div>
+
+              <div className="flex items-center mt-2 gap-2 flex-wrap">
+                <Badge
+                  variant="outline"
+                  onClick={() => setSubredditFilter(post.subreddit)}
+                  className="text-xs cursor-pointer bg-cyan-950 text-cyan-300 border-cyan-800 hover:bg-cyan-900/40 transition-colors"
+                >
+                  r/{post.subreddit}
+                </Badge>
+                {post.isRising && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs bg-cyan-950 text-cyan-300 border-cyan-800"
                   >
-                    {expandedCards.redditTrending ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {filteredRedditPosts.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">No posts match your search criteria</div>
-                  ) : (
-                    <ul className="space-y-3">
-                      {(expandedCards.redditTrending ? filteredRedditPosts : filteredRedditPosts.slice(0, 5)).map(
-                        (post: any, index: number) => (
-                          <motion.li
-                            key={post.id || index}
-                            className="p-3 rounded-lg border border-gray-700 bg-gray-800/50 shadow-sm hover:shadow-md hover:border-cyan-800 transition-all"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                            whileHover={{ scale: 1.01 }}
-                          >
-                            <div className="flex justify-between items-start">
-                              <a
-                                href={post.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-medium text-primary hover:underline hover:text-cyan-400 flex items-center"
-                              >
-                                {post.title}
-                                <ExternalLink className="ml-1 h-3 w-3" />
-                              </a>
-                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-cyan-800">
-                                <ArrowUpRight className="h-3 w-3 mr-1 text-cyan-500" />
-                                {post.score}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center mt-2">
-                              <Badge
-                                variant="outline"
-                                className="text-xs bg-gray-800/50 text-cyan-300 border border-cyan-800/50 hover:bg-cyan-950 cursor-pointer"
-                                onClick={() => setSubredditFilter(post.subreddit)}
-                              >
-                                r/{post.subreddit}
-                              </Badge>
-                              {post.isRising && (
-                                <Badge variant="outline" className="ml-2 bg-cyan-950 text-cyan-300 border-cyan-800">
-                                  <TrendingUp className="h-3 w-3 mr-1" />
-                                  Rising
-                                </Badge>
-                              )}
-                            </div>
-                          </motion.li>
-                        ),
-                      )}
-                    </ul>
-                  )}
-                  {!expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpand("redditTrending")}
-                      className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
-                    >
-                      View all {filteredRedditPosts.length} posts
-                    </Button>
-                  )}
-                  {expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpand("redditTrending")}
-                      className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
-                    >
-                      View less
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    Rising
+                  </Badge>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-neondark-muted mt-2">
+                <MessageCircle className="h-4 w-4 text-cyan-400" />
+                <span>{post.num_comments} comments</span>
+              </div>
+            </motion.li>
+          ))}
+      </ul>
+    )}
+    {!expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => toggleExpand("redditTrending")}
+        className="w-full mt-3 hover:bg-cyan-900/20 hover:text-cyan-400"
+      >
+        View all {filteredRedditPosts.length} posts
+      </Button>
+    )}
+    {expandedCards.redditTrending && filteredRedditPosts.length > 5 && (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => toggleExpand("redditTrending")}
+        className="w-full mt-3 hover:bg-cyan-950 hover:text-cyan-400"
+      >
+        View less
+      </Button>
+    )}
+  </CardContent>
+</Card>
+
+
 
               {/* Subreddit Distribution Chart */}
-              <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
                     <PieChartIcon className="h-5 w-5 text-cyan-500" /> Subreddit Distribution
@@ -1266,7 +1338,7 @@ export default function UnifiedDashboard() {
             </div>
 
             {/* Engagement Timeline */}
-            <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <Card className="bg-neondark-card/80 backdrop-blur-sm border-neondark-border hover:shadow-lg hover:shadow-cyan-900/10 transition-all">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Clock className="h-5 w-5 text-cyan-500" /> Engagement Timeline
@@ -1319,20 +1391,20 @@ function StatsCard({
 }: { title: string; value: number; icon: React.ReactNode; color: string; index: number }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-    >
-      <Card className="border border-gray-800 bg-gray-800/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
-        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+        >
+          <Card className="border border-neondark-border bg-neondark-card/30 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">{title}</CardTitle>
+              <div className={`${color} p-2 rounded-full text-white`}>{icon}</div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{value.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+        </motion.div>
   )
 }
 
