@@ -185,11 +185,11 @@ export default function UnifiedDashboard() {
   }
 
   const redditColors = [
-    "#ff4500", // Reddit orange
+    "#06b6d4", // cyan (replacing Reddit orange)
     "#00FFFF", // Neon Cyan
     "#1a1a1b", // Reddit black
     "#7193ff", // Periwinkle
-    "#ff8717", // Orangered
+    "#06b6d4", // Cyan (replacing Orangered)
     "#46d160", // Green
     "#ff66ac", // Pink
     "#ffb000", // Gold
@@ -207,7 +207,7 @@ export default function UnifiedDashboard() {
       case "instagram":
         return <Instagram className="h-4 w-4 text-pink-500" />
       case "reddit":
-        return <FaReddit className="h-4 w-4 text-orange-500" />
+        return <FaReddit className="h-4 w-4 text-cyan-500" />
       case "mastodon":
         return <Globe className="h-4 w-4 text-purple-500" />
       case "linkedin":
@@ -300,7 +300,7 @@ export default function UnifiedDashboard() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-orange-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
               Unified Social Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">Track engagement and trends across platforms</p>
@@ -344,7 +344,7 @@ export default function UnifiedDashboard() {
                     {platform.name} ({platform.count})
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem className="font-semibold text-orange-400" disabled>
+                <DropdownMenuItem className="font-semibold text-cyan-400" disabled>
                   Reddit
                 </DropdownMenuItem>
                 {redditData?.subredditStats?.map((subreddit: any) => (
@@ -389,7 +389,7 @@ export default function UnifiedDashboard() {
             title="Reddit Posts"
             value={totalRedditPosts}
             icon={<TrendingUp className="h-4 w-4" />}
-            color="bg-orange-500"
+            color="bg-cyan-500"
             index={2}
           />
           <StatsCard
@@ -422,7 +422,7 @@ export default function UnifiedDashboard() {
               <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-purple-500" /> Social Media Highlights
+                    <Heart className="h-5 w-5 text-cyan-500" /> Social Media Highlights
                   </CardTitle>
                   <Button
                     variant="ghost"
@@ -513,7 +513,7 @@ export default function UnifiedDashboard() {
               <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-orange-500" /> Reddit Highlights
+                    <TrendingUp className="h-5 w-5 text-cyan-500" /> Reddit Highlights
                   </CardTitle>
                   <Button
                     variant="ghost"
@@ -555,14 +555,14 @@ export default function UnifiedDashboard() {
                                   </a>
                                   <Badge
                                     variant="outline"
-                                    className="ml-2 bg-orange-950 text-orange-300 border-orange-800"
+                                    className="ml-2 bg-cyan-950 text-cyan-300 border-cyan-800"
                                   >
                                     r/{post.subreddit}
                                   </Badge>
                                 </div>
                               </div>
-                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-orange-800">
-                                <ArrowUpRight className="h-3 w-3 mr-1 text-orange-500" />
+                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-cyan-800">
+                                <ArrowUpRight className="h-3 w-3 mr-1 text-cyan-500" />
                                 {post.score}
                               </Badge>
                             </div>
@@ -612,7 +612,7 @@ export default function UnifiedDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-purple-400">Social Media</h3>
+                    <h3 className="font-semibold text-lg text-cyan-400">Social Media</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span>Posts</span>
@@ -620,7 +620,7 @@ export default function UnifiedDashboard() {
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className="bg-purple-500 h-2 rounded-full"
+                          className="bg-cyan-500 h-2 rounded-full"
                           style={{ width: `${(totalSocialPosts / totalPosts) * 100}%` }}
                         ></div>
                       </div>
@@ -632,7 +632,7 @@ export default function UnifiedDashboard() {
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className="bg-purple-500 h-2 rounded-full"
+                          className="bg-cyan-500 h-2 rounded-full"
                           style={{ width: `${(totalSocialEngagement / totalEngagement) * 100}%` }}
                         ></div>
                       </div>
@@ -640,7 +640,7 @@ export default function UnifiedDashboard() {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="font-semibold text-lg text-orange-400">Reddit</h3>
+                    <h3 className="font-semibold text-lg text-cyan-400">Reddit</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span>Posts</span>
@@ -648,7 +648,7 @@ export default function UnifiedDashboard() {
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className="bg-orange-500 h-2 rounded-full"
+                          className="bg-cyan-500 h-2 rounded-full"
                           style={{ width: `${(totalRedditPosts / totalPosts) * 100}%` }}
                         ></div>
                       </div>
@@ -660,7 +660,7 @@ export default function UnifiedDashboard() {
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div
-                          className="bg-orange-500 h-2 rounded-full"
+                          className="bg-cyan-500 h-2 rounded-full"
                           style={{ width: `${(totalRedditEngagement / totalEngagement) * 100}%` }}
                         ></div>
                       </div>
@@ -695,8 +695,8 @@ export default function UnifiedDashboard() {
                           type="monotone"
                           dataKey="reddit"
                           stackId="1"
-                          stroke="#f97316"
-                          fill="#f97316"
+                          stroke="#06b6d4"
+                          fill="#06b6d4"
                           name="Reddit"
                           fillOpacity={0.6}
                         />
@@ -711,7 +711,7 @@ export default function UnifiedDashboard() {
           {/* SOCIAL MEDIA TAB */}
           <TabsContent value="social" className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
                 Social Media Dashboard
               </h2>
 
@@ -755,7 +755,7 @@ export default function UnifiedDashboard() {
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <ArrowUpRight className="h-5 w-5 text-blue-500" /> Top Performing Posts
+                      <ArrowUpRight className="h-5 w-5 text-cyan-500" /> Top Performing Posts
                     </CardTitle>
                     {platformFilter && (
                       <CardDescription className="flex items-center mt-1">
@@ -872,7 +872,7 @@ export default function UnifiedDashboard() {
               <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <PieChartIcon className="h-5 w-5 text-blue-500" /> Platform Distribution
+                    <PieChartIcon className="h-5 w-5 text-cyan-500" /> Platform Distribution
                   </CardTitle>
                   <div className="flex space-x-1">
                     <Button
@@ -971,7 +971,7 @@ export default function UnifiedDashboard() {
             <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <LineChartIcon className="h-5 w-5 text-green-500" /> Engagement Timeline
+                  <LineChartIcon className="h-5 w-5 text-cyan-500" /> Engagement Timeline
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1020,7 +1020,7 @@ export default function UnifiedDashboard() {
           {/* REDDIT TAB */}
           <TabsContent value="reddit" className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
                 Reddit Trends Dashboard
               </h2>
 
@@ -1064,12 +1064,12 @@ export default function UnifiedDashboard() {
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-orange-500" /> Trending Posts
+                      <TrendingUp className="h-5 w-5 text-cyan-500" /> Trending Posts
                     </CardTitle>
                     {subredditFilter && (
                       <CardDescription className="flex items-center mt-1">
                         Filtered by:
-                        <Badge variant="outline" className="ml-2 border-orange-800">
+                        <Badge variant="outline" className="ml-2 border-cyan-800">
                           r/{subredditFilter}
                           <Button
                             variant="ghost"
@@ -1121,15 +1121,15 @@ export default function UnifiedDashboard() {
                                 {post.title}
                                 <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
-                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-orange-800">
-                                <ArrowUpRight className="h-3 w-3 mr-1 text-orange-500" />
+                              <Badge variant="secondary" className="ml-2 bg-gray-800 border-cyan-800">
+                                <ArrowUpRight className="h-3 w-3 mr-1 text-cyan-500" />
                                 {post.score}
                               </Badge>
                             </div>
                             <div className="flex items-center mt-2">
                               <Badge
                                 variant="outline"
-                                className="text-xs bg-orange-950 text-orange-300 border-orange-800 hover:bg-orange-900 cursor-pointer"
+                                className="text-xs bg-gray-800/50 text-cyan-300 border border-cyan-800/50 hover:bg-cyan-950 cursor-pointer"
                                 onClick={() => setSubredditFilter(post.subreddit)}
                               >
                                 r/{post.subreddit}
@@ -1173,7 +1173,7 @@ export default function UnifiedDashboard() {
               <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <CardTitle className="text-xl flex items-center gap-2">
-                    <PieChartIcon className="h-5 w-5 text-purple-500" /> Subreddit Distribution
+                    <PieChartIcon className="h-5 w-5 text-cyan-500" /> Subreddit Distribution
                   </CardTitle>
                   <div className="flex space-x-1">
                     <Button
@@ -1269,7 +1269,7 @@ export default function UnifiedDashboard() {
             <Card className="bg-gray-800/30 border-gray-800 hover:shadow-[0_0_15px_rgba(0,255,255,0.15)] transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-green-500" /> Engagement Timeline
+                  <Clock className="h-5 w-5 text-cyan-500" /> Engagement Timeline
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1284,7 +1284,7 @@ export default function UnifiedDashboard() {
                       <Line
                         type="monotone"
                         dataKey="upvotes"
-                        stroke="#ff4500"
+                        stroke="#06b6d4"
                         strokeWidth={2}
                         dot={{ r: 3 }}
                         activeDot={{ r: 5, strokeWidth: 0 }}
