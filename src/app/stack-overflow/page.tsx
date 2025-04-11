@@ -149,16 +149,16 @@ export default function StackOverflowPage() {
 
   // Colors for charts
   const colors = [
-    "#f97316", // orange
-    "#10b981", // green
+    "#06b6d4", // cyan
     "#3b82f6", // blue
     "#8b5cf6", // purple
+    "#10b981", // green
+    "#6366f1", // indigo
+    "#ec4899", // pink
     "#facc15", // yellow
     "#ef4444", // red
-    "#06b6d4", // cyan
-    "#ec4899", // pink
-    "#6366f1", // indigo
     "#84cc16", // lime
+    "#06b6d4", // cyan (repeated for consistency)
   ]
 
   // Calculate stats
@@ -216,7 +216,7 @@ export default function StackOverflowPage() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
               Stack Overflow Dashboard
             </h1>
             <p className="text-muted-foreground mt-1">Track your questions, answers, and reputation</p>
@@ -259,7 +259,7 @@ export default function StackOverflowPage() {
             title="Total Questions"
             value={totalQuestions}
             icon={<MessageSquare className="h-4 w-4" />}
-            color="bg-orange-500"
+            color="bg-cyan-500"
             index={0}
           />
           <StatsCard
@@ -300,7 +300,7 @@ export default function StackOverflowPage() {
                 <CardHeader className="pb-2 flex flex-row items-center justify-between">
                   <div>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5 text-orange-500" /> Top Questions
+                      <MessageSquare className="h-5 w-5 text-cyan-500" /> Top Questions
                     </CardTitle>
                     {tagFilter && (
                       <CardDescription className="flex items-center mt-1">
@@ -360,7 +360,7 @@ export default function StackOverflowPage() {
                                 <Badge
                                   key={tag}
                                   variant="outline"
-                                  className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                  className="text-xs bg-gray-800/50 text-cyan-300 hover:bg-gray-700/70 cursor-pointer border border-cyan-800/50"
                                   onClick={() => setTagFilter(tag)}
                                 >
                                   {tag}
@@ -520,7 +520,7 @@ export default function StackOverflowPage() {
                               <div className="flex flex-wrap gap-1 mt-2">
                                 <Badge
                                   variant="outline"
-                                  className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                  className="text-xs bg-gray-800/50 text-cyan-300 hover:bg-gray-700/70 cursor-pointer border border-cyan-800/50"
                                   onClick={() => setTagFilter(tag)}
                                 >
                                   {tag}
@@ -560,7 +560,7 @@ export default function StackOverflowPage() {
                       <Line
                         type="monotone"
                         dataKey="reputation"
-                        stroke="#f97316"
+                        stroke="#06b6d4"
                         strokeWidth={2}
                         dot={{ r: 3 }}
                         activeDot={{ r: 5, strokeWidth: 0 }}
@@ -623,7 +623,7 @@ export default function StackOverflowPage() {
                                 <Badge
                                   key={tag}
                                   variant="outline"
-                                  className="text-xs bg-orange-50 text-orange-800 hover:bg-orange-100 cursor-pointer dark:bg-orange-950 dark:text-orange-300"
+                                  className="text-xs bg-gray-800/50 text-cyan-300 hover:bg-gray-700/70 cursor-pointer border border-cyan-800/50"
                                   onClick={() => setTagFilter(tag)}
                                 >
                                   {tag}
