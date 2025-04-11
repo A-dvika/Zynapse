@@ -647,35 +647,49 @@ export default function DashboardPage() {
 
           {/* TABS */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mb-6 mx-auto">
-              <TabsTrigger value="overview" className="flex items-center">
+            <TabsList className="grid w-full mb-6" style={{ 
+              gridTemplateColumns: `repeat(${1 + (preferences?.sources?.length || 0)}, minmax(0, 1fr))` 
+            }}>
+              <TabsTrigger value="overview" className="flex items-center justify-center">
                 <Newspaper className="h-4 w-4 mr-2" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="github" className="flex items-center">
-                <Github className="h-4 w-4 mr-2" />
-                GitHub
-              </TabsTrigger>
-              <TabsTrigger value="news" className="flex items-center">
-                <Newspaper className="h-4 w-4 mr-2" />
-                News
-              </TabsTrigger>
-              <TabsTrigger value="stackoverflow" className="flex items-center">
-                <Code className="h-4 w-4 mr-2" />
-                StackOverflow
-              </TabsTrigger>
-              <TabsTrigger value="hackernews" className="flex items-center">
-                <Newspaper className="h-4 w-4 mr-2" />
-                HackerNews
-              </TabsTrigger>
-              <TabsTrigger value="socials" className="flex items-center">
-                <Globe className="h-4 w-4 mr-2" />
-                Socials
-              </TabsTrigger>
-              <TabsTrigger value="producthunt" className="flex items-center">
-                <Sparkles className="h-4 w-4 mr-2" />
-                ProductHunt
-              </TabsTrigger>
+              {preferences?.sources?.includes("github") && (
+                <TabsTrigger value="github" className="flex items-center justify-center">
+                  <Github className="h-4 w-4 mr-2" />
+                  GitHub
+                </TabsTrigger>
+              )}
+              {preferences?.sources?.includes("news") && (
+                <TabsTrigger value="news" className="flex items-center justify-center">
+                  <Newspaper className="h-4 w-4 mr-2" />
+                  News
+                </TabsTrigger>
+              )}
+              {preferences?.sources?.includes("stackoverflow") && (
+                <TabsTrigger value="stackoverflow" className="flex items-center justify-center">
+                  <Code className="h-4 w-4 mr-2" />
+                  StackOverflow
+                </TabsTrigger>
+              )}
+              {preferences?.sources?.includes("hackernews") && (
+                <TabsTrigger value="hackernews" className="flex items-center justify-center">
+                  <Newspaper className="h-4 w-4 mr-2" />
+                  HackerNews
+                </TabsTrigger>
+              )}
+              {preferences?.sources?.includes("socials") && (
+                <TabsTrigger value="socials" className="flex items-center justify-center">
+                  <Globe className="h-4 w-4 mr-2" />
+                  Socials
+                </TabsTrigger>
+              )}
+              {preferences?.sources?.includes("producthunt") && (
+                <TabsTrigger value="producthunt" className="flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  ProductHunt
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* OVERVIEW TAB */}
@@ -847,372 +861,384 @@ export default function DashboardPage() {
             </TabsContent>
 
             {/* GITHUB TAB */}
-            <TabsContent value="github" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {githubContent.length > 0 ? (
-                  githubContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Github className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+            {preferences?.sources?.includes("github") && (
+              <TabsContent value="github" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {githubContent.length > 0 ? (
+                    githubContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Github className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            {item.description && (
+                              <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+                            )}
+                            <div className="flex justify-between items-center mb-4">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center">
+                                {getContentTypeIcon(item.type)}
+                                <span className="ml-1 capitalize">{item.type}</span>
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleUserAction("like", item.id)}
+                                  className="text-neondark-muted hover:text-red-400 transition-colors"
+                                  aria-label="Like"
+                                >
+                                  <Heart className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleUserAction("save", item.id)}
+                                  className="text-neondark-muted hover:text-cyan-400 transition-colors"
+                                  aria-label="Save"
+                                >
+                                  <Bookmark className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleUserAction("share", item.id)}
+                                  className="text-neondark-muted hover:text-blue-400 transition-colors"
+                                  aria-label="Share"
+                                >
+                                  <Share className="h-4 w-4" />
+                                </button>
+                                <a
+                                  href={item.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center ml-2"
+                                  onClick={() => handleUserAction("view", item.id)}
+                                >
+                                  View <ExternalLink className="ml-1 h-3 w-3" />
+                                </a>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No GitHub content found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
+
+            {/* NEWS TAB */}
+            {preferences?.sources?.includes("news") && (
+              <TabsContent value="news" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {newsContent.length > 0 ? (
+                    newsContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          {item.imageUrl && (
+                            <div className="w-full h-40 overflow-hidden">
+                              <img
+                                src={item.imageUrl || "/placeholder.svg"}
+                                alt={item.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                           )}
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center">
-                              {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">{item.type}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleUserAction("like", item.id)}
-                                className="text-neondark-muted hover:text-red-400 transition-colors"
-                                aria-label="Like"
-                              >
-                                <Heart className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleUserAction("save", item.id)}
-                                className="text-neondark-muted hover:text-cyan-400 transition-colors"
-                                aria-label="Save"
-                              >
-                                <Bookmark className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleUserAction("share", item.id)}
-                                className="text-neondark-muted hover:text-blue-400 transition-colors"
-                                aria-label="Share"
-                              >
-                                <Share className="h-4 w-4" />
-                              </button>
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Newspaper className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-neondark-muted mb-4 line-clamp-3">{item.description}</p>
+                            <div className="flex justify-between items-center">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
                               <a
                                 href={item.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center ml-2"
-                                onClick={() => handleUserAction("view", item.id)}
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
+                              >
+                                Read more <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No news items found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
+
+            {/* STACK OVERFLOW TAB */}
+            {preferences?.sources?.includes("stackoverflow") && (
+              <TabsContent value="stackoverflow" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {stackoverflowContent.length > 0 ? (
+                    stackoverflowContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Code className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            {item.description && (
+                              <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+                            )}
+                            <div className="flex justify-between items-center mb-4">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center">
+                                {getContentTypeIcon(item.type)}
+                                <span className="ml-1 capitalize">{item.type}</span>
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
                               >
                                 View <ExternalLink className="ml-1 h-3 w-3" />
                               </a>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No GitHub content found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            {/* NEWS TAB */}
-            <TabsContent value="news" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {newsContent.length > 0 ? (
-                  newsContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        {item.imageUrl && (
-                          <div className="w-full h-40 overflow-hidden">
-                            <img
-                              src={item.imageUrl || "/placeholder.svg"}
-                              alt={item.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Newspaper className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-neondark-muted mb-4 line-clamp-3">{item.description}</p>
-                          <div className="flex justify-between items-center">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              Read more <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No news items found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            {/* STACK OVERFLOW TAB */}
-            <TabsContent value="stackoverflow" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {stackoverflowContent.length > 0 ? (
-                  stackoverflowContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Code className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
-                          )}
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center">
-                              {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">{item.type}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              View <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No StackOverflow questions found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No StackOverflow questions found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
 
             {/* HACKER NEWS TAB */}
-            <TabsContent value="hackernews" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {hackerNewsContent.length > 0 ? (
-                  hackerNewsContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Newspaper className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          {item.description && (
-                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
-                          )}
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center">
-                              {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">{item.type}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              View <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No HackerNews items found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+            {preferences?.sources?.includes("hackernews") && (
+              <TabsContent value="hackernews" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {hackerNewsContent.length > 0 ? (
+                    hackerNewsContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Newspaper className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            {item.description && (
+                              <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+                            )}
+                            <div className="flex justify-between items-center mb-4">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center">
+                                {getContentTypeIcon(item.type)}
+                                <span className="ml-1 capitalize">{item.type}</span>
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
+                              >
+                                View <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No HackerNews items found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
 
             {/* SOCIALS TAB */}
-            <TabsContent value="socials" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {socialsContent.length > 0 ? (
-                  socialsContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Globe className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center">
-                              {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">{item.type}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              View <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No Social posts found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+            {preferences?.sources?.includes("socials") && (
+              <TabsContent value="socials" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {socialsContent.length > 0 ? (
+                    socialsContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Globe className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+                            <div className="flex justify-between items-center mb-4">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center">
+                                {getContentTypeIcon(item.type)}
+                                <span className="ml-1 capitalize">{item.type}</span>
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
+                              >
+                                View <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No Social posts found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
 
             {/* PRODUCT HUNT TAB */}
-            <TabsContent value="producthunt" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {productHuntContent.length > 0 ? (
-                  productHuntContent.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
-                    >
-                      <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              {item.source}
-                            </Badge>
-                            <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
-                          </div>
-                          <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
-                          <div className="flex justify-between items-center mb-4">
-                            <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
-                              {item.relevanceScore}% Match
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center">
-                              {getContentTypeIcon(item.type)}
-                              <span className="ml-1 capitalize">{item.type}</span>
-                            </Badge>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
-                            >
-                              View <ExternalLink className="ml-1 h-3 w-3" />
-                            </a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center py-12">
-                    <p className="text-neondark-muted">No Product Hunt items found based on your preferences.</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+            {preferences?.sources?.includes("producthunt") && (
+              <TabsContent value="producthunt" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {productHuntContent.length > 0 ? (
+                    productHuntContent.map((item) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.03, boxShadow: "0 10px 30px -15px rgba(0, 0, 0, 0.3)" }}
+                      >
+                        <Card className="h-full bg-gradient-to-br from-neondark-card/80 to-neondark-card/60 backdrop-blur-sm border-neondark-border transition-all">
+                          <CardHeader>
+                            <div className="flex justify-between items-start">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 flex items-center">
+                                <Sparkles className="h-3 w-3 mr-1" />
+                                {item.source}
+                              </Badge>
+                              <span className="text-xs text-neondark-muted">{formatDate(item.publishedAt)}</span>
+                            </div>
+                            <CardTitle className="text-xl mt-2">{item.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-neondark-muted text-sm mb-4 line-clamp-2">{item.description}</p>
+                            <div className="flex justify-between items-center mb-4">
+                              <Badge className={getRelevanceBadgeColor(item.relevanceScore)}>
+                                {item.relevanceScore}% Match
+                              </Badge>
+                              <Badge variant="outline" className="flex items-center">
+                                {getContentTypeIcon(item.type)}
+                                <span className="ml-1 capitalize">{item.type}</span>
+                              </Badge>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <Badge className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30">{item.source}</Badge>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center"
+                              >
+                                View <ExternalLink className="ml-1 h-3 w-3" />
+                              </a>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-neondark-muted">No Product Hunt items found based on your preferences.</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            )}
           </Tabs>
 
           {/* DISCOVER MORE SECTION */}
