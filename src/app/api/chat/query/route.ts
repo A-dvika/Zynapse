@@ -6,12 +6,32 @@ import { redisClient } from "../../../../../lib/cache";
 import { fetchGoogleSearchResults } from "../../../../../lib/googleSearch";
 import { fetchYoutubeResults } from "../../../../../lib/youtubeSearch";
 
-// Define an interface for Pinecone matches.
+// ----------------------------------------------------------------------
+// Interfaces & Helper Types
+// ----------------------------------------------------------------------
+
 interface PineconeMatch {
   metadata?: {
     text?: string;
-  }
+    title?: string;
+    summary?: string;
+    tags?: string;
+    url?: string;
+    link?: string;
+    [key: string]: any;
+  };
+  score?: number;
 }
+
+interface ContextResult {
+  context: string;
+  sourceUrls: string[];
+  usedExternal?: boolean;
+}
+
+// ----------------------------------------------------------------------
+// Utility functions
+// ----------------------------------------------------------------------
 
 /**
  * Check if the query is a simple greeting.
@@ -22,7 +42,7 @@ function isGreeting(query: string): boolean {
 }
 
 /**
- * Look for sensitive info like phone numbers, emails, passwords, or credit card numbers.
+ * Check for sensitive information.
  */
 function containsSensitiveInfo(text: string): boolean {
   const patterns = [
@@ -34,27 +54,57 @@ function containsSensitiveInfo(text: string): boolean {
   return patterns.some((pattern) => pattern.test(text));
 }
 
+// ----------------------------------------------------------------------
+// Context retrieval functions
+// ----------------------------------------------------------------------
+
 /**
- * Retrieve context from Pinecone based on the query embedding.
+ * Retrieve and extract context from Pinecone based on the query embedding.
+ * It checks for a direct "text" field first; if not present, it combines
+ * "title", "summary", and "tags". It also extracts a source URL if available.
  */
-async function getPineconeContext(queryEmbedding: number[]): Promise<string> {
+async function getPineconeContext(queryEmbedding: number[]): Promise<ContextResult> {
   const pineconeResponse = await index.query({
     vector: queryEmbedding,
     topK: 3,
     includeMetadata: true,
   });
   const matches = (pineconeResponse.matches as PineconeMatch[]) || [];
-  return matches
-    .map((m) => m.metadata?.text?.trim() || "")
-    .filter((text) => text.length > 0)
-    .join("\n\n");
+
+  const chunks: { text: string; url?: string }[] = [];
+  matches.forEach((match) => {
+    const meta = match.metadata || {};
+    let url = meta.url || meta.link; // extract potential URL
+    let chunkText = "";
+
+    if (meta.text && meta.text.trim().length > 0) {
+      chunkText = meta.text.trim();
+    } else {
+      const title = meta.title ? `**${meta.title.trim()}**` : "";
+      const summary = meta.summary ? meta.summary.trim() : "";
+      const tags = meta.tags ? `Tags: ${meta.tags.trim()}` : "";
+      chunkText = [title, summary, tags].filter(Boolean).join("\n");
+    }
+    if (chunkText) {
+      chunks.push({ text: chunkText, url });
+    }
+  });
+
+  const context = chunks.map((chunk) => chunk.text).join("\n\n");
+  const sourceUrls = chunks
+    .filter((chunk) => chunk.url && chunk.url.trim().length > 0)
+    .map((chunk) => chunk.url!.trim());
+
+  console.log("🔍 Pinecone context extracted:", chunks);
+  return { context, sourceUrls };
 }
 
 /**
  * Fetch external context concurrently from Google and YouTube.
+ * Each result is formatted with a Markdown link and snippet/description,
+ * and the URLs are collected.
  */
-async function getExternalContext(query: string): Promise<{ context: string; usedExternal: boolean }> {
-  // Execute both external searches concurrently.
+async function getExternalContext(query: string): Promise<ContextResult> {
   const [googleResults, youtubeResults] = await Promise.all([
     fetchGoogleSearchResults(query, 3).catch((err) => {
       console.error("Google search error:", err);
@@ -66,22 +116,24 @@ async function getExternalContext(query: string): Promise<{ context: string; use
     }),
   ]);
 
+  let sourceUrls: string[] = [];
   const googleContext =
     googleResults.length > 0
       ? googleResults
-          .map(
-            (res: { title: string; snippet: string; link: string }) =>
-              `**Google:** [${res.title}](${res.link}) - ${res.snippet}`
-          )
+          .map((res: { title: string; snippet: string; link: string }) => {
+            sourceUrls.push(res.link);
+            return `**Google:** [${res.title}](${res.link}) - ${res.snippet}`;
+          })
           .join("\n\n")
       : "";
+
   const youtubeContext =
     youtubeResults.length > 0
       ? youtubeResults
-          .map(
-            (res: { title: string; description: string; link: string }) =>
-              `**YouTube:** [${res.title}](${res.link}) - ${res.description}`
-          )
+          .map((res: { title: string; description: string; link: string }) => {
+            sourceUrls.push(res.link);
+            return `**YouTube:** [${res.title}](${res.link}) - ${res.description}`;
+          })
           .join("\n\n")
       : "";
 
@@ -89,20 +141,22 @@ async function getExternalContext(query: string): Promise<{ context: string; use
     .filter((ctx) => ctx.trim().length > 0)
     .join("\n\n");
 
-  return { context: finalContext, usedExternal: finalContext.trim().length > 0 };
+  console.log("🔍 External context extracted:", finalContext);
+  return { context: finalContext, sourceUrls, usedExternal: finalContext.trim().length > 0 };
 }
 
-/**
- * Main handler for the chat API.
- */
+// ----------------------------------------------------------------------
+// Main API Handler
+// ----------------------------------------------------------------------
+
 export async function POST(request: NextRequest) {
   try {
     const { query } = await request.json();
     if (!query) {
-      throw new Error("Query not provided.");
+      return NextResponse.json({ error: "Query not provided." }, { status: 400 });
     }
 
-    // Block any sensitive user data.
+    // Block sensitive user data.
     if (containsSensitiveInfo(query)) {
       return NextResponse.json({
         answer: "Please do not enter personal or sensitive information.",
@@ -110,7 +164,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // If it's a greeting, handle it separately.
+    // Handle greeting queries directly.
     if (isGreeting(query)) {
       return NextResponse.json({
         answer: "Hello! Ask me anything related to tech or programming.",
@@ -118,7 +172,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Domain classification using chain-of-prompting.
+    // Domain classification check.
     const classificationPrompt = `Is the following query related to technology, programming, AI, gadgets, software, or hardware? Answer "yes" or "no".\n\nQuery: ${query}`;
     const domainClassification = await generateClassification(classificationPrompt);
     if (!domainClassification.toLowerCase().includes("yes")) {
@@ -128,7 +182,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check Redis cache for an existing answer.
+    // Check Redis cache to reuse previously computed answer.
     const cacheKey = `chat:${query}`;
     const cached = await redisClient.get(cacheKey);
     if (cached) {
@@ -138,49 +192,68 @@ export async function POST(request: NextRequest) {
     // Generate the embedding for the query.
     const queryEmbedding = await generateEmbedding(query);
 
-    // Try to get context from Pinecone.
-    let finalContext = await getPineconeContext(queryEmbedding);
-    let usedExternal = false;
+    // Get context from both Pinecone and external sources concurrently.
+    const [pineconeResult, externalResult] = await Promise.all([
+      getPineconeContext(queryEmbedding),
+      getExternalContext(query),
+    ]);
 
-    // If no context is found, fallback to external searches.
-    if (!finalContext) {
-      console.log(`No Pinecone context found for "${query}". Fetching external data...`);
-      const externalResult = await getExternalContext(query);
-      finalContext = externalResult.context;
-      usedExternal = externalResult.usedExternal;
+    // Combine both context parts and source URLs.
+    const contextParts: string[] = [];
+    if (pineconeResult.context && pineconeResult.context.trim().length > 0) {
+      contextParts.push(pineconeResult.context);
     }
+    if (externalResult.context && externalResult.context.trim().length > 0) {
+      contextParts.push(externalResult.context);
+    }
+    const finalContext = contextParts.join("\n\n");
+    const allSourceUrls = [
+      ...(pineconeResult.sourceUrls || []),
+      ...(externalResult.sourceUrls || []),
+    ];
 
-    // If still no context is available, return a fallback answer.
-    if (!finalContext) {
+    // If no context was retrieved, return a fallback answer.
+    if (!finalContext || finalContext.trim().length === 0) {
       const fallback = "Sorry, I couldn’t find relevant tech-related info for that query.";
       await redisClient.set(cacheKey, fallback, { EX: 3600 });
       return NextResponse.json({ answer: fallback, source: "fallback" });
     }
 
-    // Build a detailed prompt for the AI model.
-    const dataSource = usedExternal ? "Google & YouTube search results" : "our aggregated dashboard data";
-    const prompt = `You are a helpful tech assistant with access to ${dataSource}.
+    // Determine the data source description.
+    let dataSource = "";
+    if (pineconeResult.context && externalResult.context) {
+      dataSource = "Pinecone, Google & YouTube search results";
+    } else if (pineconeResult.context) {
+      dataSource = "Pinecone data";
+    } else if (externalResult.context) {
+      dataSource = "Google & YouTube search results";
+    }
 
+    // Build the prompt for the AI model.
+    const prompt = `You are a helpful tech assistant with access to ${dataSource}.
+    
 Context:
 ${finalContext}
 
 User Question:
 ${query}
 
-Provide a detailed, clear, multi-paragraph answer that includes relevant Markdown formatted links if needed.`;
+Answer (please provide clear explanations and include references when possible, with source URLs):`;
 
     // Generate the final answer using the AI model.
     const answer = await generateSummary(prompt);
 
-    // Cache the generated answer.
+    // Cache the generated answer for 1 hour.
     await redisClient.set(cacheKey, answer, { EX: 3600 });
 
-    return NextResponse.json({ answer, source: usedExternal ? "external" : "dashboard" });
+    // Return the answer along with the data source and the list of source URLs.
+    return NextResponse.json({
+      answer,
+      source: dataSource,
+      sourceUrls: allSourceUrls,
+    });
   } catch (error: unknown) {
-    console.error("Error processing chat query API:", error);
-    return NextResponse.json(
-      { error: "Failed to process query" },
-      { status: 500 }
-    );
+    console.error("🔥 Error processing chat query API:", error);
+    return NextResponse.json({ error: "Failed to process query." }, { status: 500 });
   }
 }
