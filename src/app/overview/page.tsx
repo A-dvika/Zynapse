@@ -328,6 +328,33 @@ export default function TechDashboard() {
     urlToImage?: string
     publishedAt: string
   }
+  interface Insight {
+    title: string;
+    summary: string;
+    url: string;
+  }
+  const [insights, setInsights] = useState<Insight[]>([]);
+
+  useEffect(() => {
+    // Call your insight summary API route on component mount.
+    const fetchInsights = async () => {
+      try {
+        const res = await fetch("/api/insightSummary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // You can pass a dynamic or default query here.
+          body: JSON.stringify({ query: "top trending tech insights" }),
+        });
+        const data = await res.json();
+        if (data.insights) {
+          setInsights(data.insights);
+        }
+      } catch (err) {
+        console.error("Failed to fetch insights:", err);
+      }
+    };
+    fetchInsights();
+  }, []);
 
   const [techNewsItems, setTechNewsItems] = useState<TechNewsItem[]>([])
 
@@ -899,45 +926,66 @@ export default function TechDashboard() {
               </Card>
             </div>
             <Card className="bg-neondark-card border-neondark-border shadow-lg shadow-cyan-400/10">
-              {/* AI-Generated Summary */}
-              <CardHeader>
-                <CardTitle className="flex items-center text-neondark-text">
-                  <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
-                    <Zap className="h-3 w-3 mr-1" />
-                    AI
-                  </Badge>
-                  AI-Generated Tech Insights
-                </CardTitle>
-                <CardDescription className="text-neondark-muted">
-                  Continuously updated insights from across the tech ecosystem
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pb-0">
-                <div className="relative h-32 overflow-hidden">
-                  <div className="absolute inset-0 flex items-center">
-                    <motion.div
-                      className="flex gap-4"
-                      animate={{ x: [0, -2000] }}
-                      transition={{
-                        repeat: Number.POSITIVE_INFINITY,
-                        duration: 30,
-                        ease: "linear",
-                      }}
-                    >
-                      {[...aiSummaries, ...aiSummaries].map((summary, i) => (
-                        <motion.div
-                          key={i}
-                          className="flex-shrink-0 w-80 h-24 rounded-lg bg-gradient-to-r from-cyan-950/50 to-cyan-900/30 border border-cyan-400/30 p-4 text-neondark-text"
-                          whileHover={{ y: -5, scale: 1.02 }}
-                        >
-                          <p className="text-sm">{summary}</p>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  </div>
-                </div>
-              </CardContent>
+            <CardHeader>
+        <CardTitle className="flex items-center text-neondark-text">
+          <Badge className="mr-2 bg-cyan-950 text-cyan-400 hover:bg-cyan-900 hover:text-cyan-300">
+            <Zap className="h-3 w-3 mr-1" />
+            AI
+          </Badge>
+          AI-Generated Tech Insights
+        </CardTitle>
+        <CardDescription className="text-neondark-muted">
+          Continuously updated insights from across the tech ecosystem
+        </CardDescription>
+      </CardHeader>
 
+      <CardContent className="pb-0">
+        <div className="relative h-32 overflow-hidden">
+          <div className="absolute inset-0 flex items-center">
+            <motion.div
+              className="flex gap-2 px-2"
+              // Slow down the scrolling to 60s
+              animate={{ x: [0, -3000] }}
+              transition={{
+                repeat: Number.POSITIVE_INFINITY,
+                duration: 60,
+                ease: "linear",
+              }}
+            >
+              {insights && insights.length > 0 ? (
+                [...insights, ...insights].map((insight, i) => (
+                  <motion.div
+                    key={i}
+                    className="flex-shrink-0 w-64 max-w-xs h-24 rounded-lg bg-gradient-to-r 
+                               from-cyan-950/50 to-cyan-900/30 border border-cyan-400/30 p-4 
+                               text-neondark-text mx-2"
+                    whileHover={{ y: -5, scale: 1.02 }}
+                  >
+                    <h3 className="font-semibold text-sm line-clamp-1 overflow-hidden text-ellipsis">
+                      {insight.title}
+                    </h3>
+                    <p className="text-xs line-clamp-2 overflow-hidden text-ellipsis">
+                      {insight.summary}
+                    </p>
+                    {insight.url && (
+                      <a
+                        href={insight.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-cyan-400 hover:underline mt-1 block"
+                      >
+                        Read more
+                      </a>
+                    )}
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-neondark-text">Loading insights...</p>
+              )}
+            </motion.div>
+          </div>
+        </div>
+      </CardContent>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {redditTrends.length > 0 ? (
