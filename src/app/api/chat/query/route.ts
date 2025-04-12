@@ -74,7 +74,7 @@ async function getPineconeContext(queryEmbedding: number[]): Promise<ContextResu
   const chunks: { text: string; url?: string }[] = [];
   matches.forEach((match) => {
     const meta = match.metadata || {};
-    let url = meta.url || meta.link; // extract potential URL
+    const url = meta.url || meta.link; // Use const here since url is never reassigned
     let chunkText = "";
 
     if (meta.text && meta.text.trim().length > 0) {
@@ -94,7 +94,7 @@ async function getPineconeContext(queryEmbedding: number[]): Promise<ContextResu
   const sourceUrls = chunks
     .filter((chunk) => chunk.url && chunk.url.trim().length > 0)
     .map((chunk) => chunk.url!.trim());
-
+    
   console.log("🔍 Pinecone context extracted:", chunks);
   return { context, sourceUrls };
 }
@@ -116,7 +116,7 @@ async function getExternalContext(query: string): Promise<ContextResult> {
     }),
   ]);
 
-  let sourceUrls: string[] = [];
+  const sourceUrls: string[] = []; // Use const here since sourceUrls is never reassigned
   const googleContext =
     googleResults.length > 0
       ? googleResults
