@@ -1,95 +1,86 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
+import { differenceInHours, subHours } from "date-fns";
+import prisma from "../../../../lib/db";
 
-import { subDays } from "date-fns"
-import prisma from "../../../../lib/db"
-
-// Utility: handle zero division
-function computeGrowth(current: number, past: number): number {
-  if (past === 0 && current > 0) {
-    // If there's no past score but we have a current score, call it 100% or a big number
-    return 100
-  }
-  if (past === 0 && current === 0) {
-    return 0
-  }
-  return ((current - past) / past) * 100
-}
+// Weights — feel free to tune based on experimentation
+const ALPHA = 1;     // momentum
+const BETA = 1;      // cumulative engagement
+const GAMMA = 1.2;   // recency decay
 
 export async function GET(req: NextRequest) {
   try {
-    const now = new Date()
-    const sevenDaysAgo = subDays(now, 7)
-    const fourteenDaysAgo = subDays(now, 14)
+    const now = new Date();
+    const sixHoursAgo = subHours(now, 6);
+    const twelveHoursAgo = subHours(now, 12);
 
-    // 1. Current 7-day window
-    // Summation of 'score' across all content that was created in the last 7 days
-    // unnest(tags) => each tag in array becomes its own row
-    const currentData: Array<{ tag: string; total_score: number }> = await prisma.$queryRaw`
-      SELECT tag AS tag, COALESCE(SUM(score), 0) AS total_score
+    // Get Et: Engagement in current time window
+    const currentData: Array<{ tag: string; score: number }> = await prisma.$queryRaw`
+      SELECT tag, SUM(score) as score
       FROM (
         SELECT UNNEST("Content".tags) AS tag, "Content".score
         FROM "Content"
-        WHERE "Content"."createdAt" >= ${sevenDaysAgo}
+        WHERE "Content"."createdAt" >= ${sixHoursAgo}
       ) AS sub
       GROUP BY tag
-    `
+    `;
 
-    // 2. Previous 7-day window
-    const pastData: Array<{ tag: string; total_score: number }> = await prisma.$queryRaw`
-      SELECT tag AS tag, COALESCE(SUM(score), 0) AS total_score
+    // Get Et-1: Engagement in previous time window
+    const pastData: Array<{ tag: string; score: number }> = await prisma.$queryRaw`
+      SELECT tag, SUM(score) as score
       FROM (
         SELECT UNNEST("Content".tags) AS tag, "Content".score
         FROM "Content"
-        WHERE "Content"."createdAt" >= ${fourteenDaysAgo}
-          AND "Content"."createdAt" < ${sevenDaysAgo}
+        WHERE "Content"."createdAt" >= ${twelveHoursAgo} AND "Content"."createdAt" < ${sixHoursAgo}
       ) AS sub
       GROUP BY tag
-    `
+    `;
 
-    // 3. Merge + compute growth
-    const trendingMap: Record<string, { tag: string; current: number; past: number }> = {}
+    // Get E_total and average age T (in hours)
+    const totalData: Array<{ tag: string; total: number; avgAge: number }> = await prisma.$queryRaw`
+      SELECT tag, SUM(score) as total, AVG(EXTRACT(EPOCH FROM (${now} - "createdAt")) / 3600) AS avgAge
+      FROM (
+        SELECT UNNEST("Content".tags) AS tag, "Content".score, "Content"."createdAt"
+        FROM "Content"
+      ) AS sub
+      GROUP BY tag
+    `;
 
-    // fill current
-    for (const row of currentData) {
-      trendingMap[row.tag] = {
-        tag: row.tag,
-        current: Number(row.total_score) || 0,
-        past: 0,
-      }
+    // Merge into one map
+    const trendingMap: Record<string, any> = {};
+
+    for (const { tag, score } of currentData) {
+      trendingMap[tag] = { tag, Et: Number(score), Et_1: 0, E_total: 0, T: 12 };
     }
 
-    // fill past
-    for (const row of pastData) {
-      if (!trendingMap[row.tag]) {
-        trendingMap[row.tag] = {
-          tag: row.tag,
-          current: 0,
-          past: Number(row.total_score) || 0,
-        }
-      } else {
-        trendingMap[row.tag].past = Number(row.total_score) || 0
-      }
+    for (const { tag, score } of pastData) {
+      trendingMap[tag] = trendingMap[tag] || { tag, Et: 0, E_total: 0, T: 12 };
+      trendingMap[tag].Et_1 = Number(score);
     }
 
-    // 4. Build final array
-    const trendingArray = Object.values(trendingMap).map(({ tag, current, past }) => {
-      const growth = computeGrowth(current, past)
+    for (const { tag, total, avgAge } of totalData) {
+      trendingMap[tag] = trendingMap[tag] || { tag, Et: 0, Et_1: 0 };
+      trendingMap[tag].E_total = Number(total);
+      trendingMap[tag].T = Math.max(0.1, Number(avgAge)); // avoid divide by zero
+    }
+
+    const trendingArray = Object.values(trendingMap).map(({ tag, Et, Et_1, E_total, T }) => {
+      const trendingScore =
+        ALPHA * (Et - Et_1) + BETA * E_total * (1 / Math.pow(T + 2, GAMMA));
+
       return {
         id: tag,
         name: tag,
-        count: current,
-        growth: Math.round(growth),
-        category: "tag", // optional, or you can guess category from tag
-      }
-    })
+        count: E_total,           // this is used in frontend as "mentions"
+        growth: Math.round(Et - Et_1), // change over time
+        score: Number(trendingScore.toFixed(2)),
+        category: "tag",
+      };
+    });
 
-    // 5. Sort by growth desc + limit top 20
-    trendingArray.sort((a, b) => b.growth - a.growth)
-    const topTrending = trendingArray.slice(0, 20)
-
-    return NextResponse.json(topTrending)
-  } catch (error) {
-    console.error("Error computing trending tags:", error)
-    return new NextResponse("Error", { status: 500 })
+    trendingArray.sort((a, b) => b.score - a.score);
+    return NextResponse.json(trendingArray.slice(0, 20));
+  } catch (err) {
+    console.error("Error computing trending tags:", err);
+    return new NextResponse("Error", { status: 500 });
   }
 }
